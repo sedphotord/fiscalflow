@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,34 +10,15 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
 let app = null;
 let db = null;
 
 if (firebaseConfig.projectId && firebaseConfig.apiKey) {
     console.log(`Firebase config found for project: ${firebaseConfig.projectId}`);
     try {
-        if (getApps().length === 0) {
-            app = initializeApp(firebaseConfig);
-            console.log("Firebase has been initialized.");
-        } else {
-            app = getApp();
-            console.log("Re-using existing Firebase app instance.");
-        }
+        app = getApps().length ? getApp() : initializeApp(firebaseConfig);
         db = getFirestore(app);
-        
-        enableIndexedDbPersistence(db)
-            .then(() => console.log("Firebase offline persistence enabled."))
-            .catch((err) => {
-                if (err.code == 'failed-precondition') {
-                    console.warn("Firebase persistence failed: Can only be enabled in one tab at a time.");
-                } else if (err.code == 'unimplemented') {
-                    console.warn("Firebase persistence is not supported in this browser.");
-                } else {
-                    console.error("Firebase persistence failed with code:", err.code);
-                }
-            });
-
+        console.log("Firebase initialized successfully.");
     } catch (error) {
         console.error("Firebase initialization failed:", error);
         app = null;
@@ -46,6 +27,5 @@ if (firebaseConfig.projectId && firebaseConfig.apiKey) {
 } else {
     console.warn("Firebase configuration is missing or incomplete. The application will operate in a simulated offline mode. Please ensure your .env file is correctly set up with all NEXT_PUBLIC_FIREBASE_ variables.");
 }
-
 
 export { app, db };
