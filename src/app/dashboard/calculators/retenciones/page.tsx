@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -29,6 +30,14 @@ type IsrScale = {
 
 // ISR Scales - Using data for 2023 onwards as an example
 const isrScales: { [key: string]: IsrScale } = {
+  "2025": {
+    exempt: 416220.00,
+    rates: [
+      { limit: 624329.00, percentage: 0.15, fixed: 0 },
+      { limit: 867123.00, percentage: 0.20, fixed: 31216.00 },
+      { limit: Infinity, percentage: 0.25, fixed: 79776.00 },
+    ]
+  },
   "2024": {
     exempt: 416220.00,
     rates: [
@@ -73,9 +82,11 @@ const isrScales: { [key: string]: IsrScale } = {
 
 type CalculationResult = {
   ingresoAnual: number;
+  ingresoMensual: number;
   retencionAnual: number;
   retencionMensual: number;
   salarioNetoMensual: number;
+  tasaAplicada: string;
 } | null;
 
 export default function RetencionesCalculatorPage() {
@@ -104,12 +115,26 @@ export default function RetencionesCalculatorPage() {
     return 0; // Should not be reached with limit: Infinity
   };
 
+  const getTasaAplicada = (ingresoAnual: number, scale: IsrScale): string => {
+    if (ingresoAnual <= scale.exempt) {
+        return 'Exento';
+    }
+    let previousLimit = scale.exempt;
+    for (const rate of scale.rates) {
+        if (ingresoAnual <= rate.limit) {
+            return `${(rate.percentage * 100).toFixed(0)}%`;
+        }
+        previousLimit = rate.limit;
+    }
+    return 'N/A';
+  }
+
+
   const onSubmit = (data: FormValues) => {
     const ingresoAnual = data.tipoIngreso === 'mensual' ? data.ingreso * 12 : data.ingreso;
     const scale = isrScales[data.ano];
     
     if (!scale) {
-        // Handle case where scale for the year is not available
         console.error(`ISR scale for year ${data.ano} not found.`);
         return;
     }
@@ -117,12 +142,15 @@ export default function RetencionesCalculatorPage() {
     const retencionAnual = calculateISR(ingresoAnual, scale);
     const retencionMensual = retencionAnual / 12;
     const ingresoMensual = ingresoAnual / 12;
+    const tasaAplicada = getTasaAplicada(ingresoAnual, scale);
 
     setResult({
       ingresoAnual,
+      ingresoMensual,
       retencionAnual,
       retencionMensual,
       salarioNetoMensual: ingresoMensual - retencionMensual,
+      tasaAplicada,
     });
   };
 
@@ -237,34 +265,77 @@ export default function RetencionesCalculatorPage() {
             <CardContent>
                 {result ? (
                     <div className="space-y-4">
-                        <div className="flex justify-between items-center border-b pb-2">
-                           <div className="flex items-center gap-3 text-muted-foreground">
-                                <Scale className="h-5 w-5"/>
-                                <span className="font-medium text-foreground">Ingreso Anual Bruto</span>
-                           </div>
-                           <span className="font-bold text-lg">RD${result.ingresoAnual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                        </div>
-                         <div className="flex justify-between items-center border-b pb-2">
-                           <div className="flex items-center gap-3 text-muted-foreground">
-                                <FileText className="h-5 w-5"/>
-                                <span className="font-medium text-foreground">Retención Anual (ISR)</span>
-                           </div>
-                           <span className="font-semibold text-lg text-destructive">RD${result.retencionAnual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                        </div>
-                        <div className="flex justify-between items-center border-b pb-2">
-                           <div className="flex items-center gap-3 text-muted-foreground">
-                                <BadgePercent className="h-5 w-5"/>
-                                <span className="font-medium text-foreground">Retención Mensual (ISR)</span>
-                           </div>
-                           <span className="font-semibold text-md text-destructive">RD${result.retencionMensual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                        </div>
-                         <div className="flex justify-between items-center bg-muted/50 p-3 rounded-md">
-                           <div className="flex items-center gap-3 text-muted-foreground">
-                                <Coins className="h-5 w-5"/>
-                                <span className="font-medium text-foreground">Salario Neto Mensual</span>
-                           </div>
-                           <span className="font-bold text-xl text-primary">RD${result.salarioNetoMensual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                        </div>
+                        {result.retencionAnual > 0 ? (
+                            <>
+                                <div className="flex justify-between items-center border-b pb-2">
+                                  <div className="flex items-center gap-3 text-muted-foreground">
+                                        <Coins className="h-5 w-5"/>
+                                        <span className="font-medium text-foreground">Salario Mensual Bruto</span>
+                                  </div>
+                                  <span className="font-semibold text-lg">RD${result.ingresoMensual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b pb-2">
+                                  <div className="flex items-center gap-3 text-muted-foreground">
+                                        <BadgePercent className="h-5 w-5"/>
+                                        <span className="font-medium text-foreground">Tasa Aplicada</span>
+                                  </div>
+                                  <span className="font-semibold text-lg">{result.tasaAplicada}</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b pb-2">
+                                  <div className="flex items-center gap-3 text-muted-foreground">
+                                        <FileText className="h-5 w-5"/>
+                                        <span className="font-medium text-foreground">Valor Mensual a Retener</span>
+                                  </div>
+                                  <span className="font-semibold text-lg text-destructive">RD${result.retencionMensual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-muted/50 p-3 rounded-md">
+                                  <div className="flex items-center gap-3 text-muted-foreground">
+                                        <Coins className="h-5 w-5"/>
+                                        <span className="font-medium text-foreground">Salario Neto Mensual</span>
+                                  </div>
+                                  <span className="font-bold text-xl text-primary">RD${result.salarioNetoMensual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                </div>
+                                <Accordion type="single" collapsible className="w-full">
+                                    <AccordionItem value="details">
+                                        <AccordionTrigger className="text-sm">Ver detalle anual</AccordionTrigger>
+                                        <AccordionContent className="space-y-2 text-sm pt-2">
+                                            <div className="flex justify-between items-center">
+                                              <span className="text-muted-foreground">Ingreso Anual Bruto</span>
+                                              <span>RD${result.ingresoAnual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                              <span className="text-muted-foreground">Retención Anual (ISR)</span>
+                                              <span className="text-destructive">RD${result.retencionAnual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex justify-between items-center border-b pb-2">
+                                  <div className="flex items-center gap-3 text-muted-foreground">
+                                        <Coins className="h-5 w-5"/>
+                                        <span className="font-medium text-foreground">Salario Mensual</span>
+                                  </div>
+                                  <span className="font-semibold text-lg">RD${result.ingresoMensual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b pb-2">
+                                  <div className="flex items-center gap-3 text-muted-foreground">
+                                        <BadgePercent className="h-5 w-5"/>
+                                        <span className="font-medium text-foreground">Tasa</span>
+                                  </div>
+                                  <span className="font-semibold text-lg text-primary">Exento</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b pb-2">
+                                  <div className="flex items-center gap-3 text-muted-foreground">
+                                        <FileText className="h-5 w-5"/>
+                                        <span className="font-medium text-foreground">Valor Mensual a Retener</span>
+                                  </div>
+                                    <span className="font-semibold text-lg text-primary">Exento</span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 ) : (
                     <div className="flex items-center justify-center h-40 rounded-lg border-2 border-dashed bg-muted/50">
