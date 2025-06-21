@@ -18,13 +18,13 @@ if (firebaseConfig.projectId && firebaseConfig.apiKey) {
         app = getApps().length ? getApp() : initializeApp(firebaseConfig);
         const firestoreDb = getFirestore(app);
         
-        // Attempt to explicitly enable the network as requested.
-        enableNetwork(firestoreDb).catch((err) => {
-            console.error("Error al intentar habilitar la red de Firestore:", err);
-        });
+        // Explicitly enable network and log the outcome, as requested.
+        enableNetwork(firestoreDb)
+          .then(() => console.log("Conexión a Firestore reactivada"))
+          .catch((err) => console.error("Error al activar red:", err));
         
         db = firestoreDb;
-        console.log("Firebase initialized. Network explicitly enabled.");
+        console.log("Firebase initialized. Attempting to enable network.");
 
     } catch (error) {
         console.error("Firebase initialization failed:", error);
