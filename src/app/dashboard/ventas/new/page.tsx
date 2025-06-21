@@ -12,11 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Form607Schema, CompanySchema } from '@/lib/schemas';
-import { PlusCircle, Trash2, Save, FileDown } from 'lucide-react';
+import { PlusCircle, Trash2, Save, FileDown, Loader2, ShieldCheck } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { lookupRnc } from '@/ai/flows/lookup-rnc-flow';
 
 type FormValues = z.infer<typeof Form607Schema>;
 type CompanyFormValues = z.infer<typeof CompanySchema>;
@@ -37,6 +38,7 @@ export default function NewVentaPage() {
   const { addReport, getReport, updateReport, showToast, settings, companies, addCompany } = useAppContext();
   const reportId = searchParams.get('id');
   const [isAddCompanyDialogOpen, setIsAddCompanyDialogOpen] = useState(false);
+  const [isCompanyLookup, setIsCompanyLookup] = useState(false);
 
   const allCompanies = useMemo(() => [
     { ...settings, id: 'main', name: `${settings.name} (Principal)` }, 
@@ -99,6 +101,35 @@ export default function NewVentaPage() {
       form.setValue('rnc', newCompany.rnc, { shouldValidate: true });
       setIsAddCompanyDialogOpen(false);
       addCompanyForm.reset();
+    }
+  };
+
+  const handleCompanyValidateAndAutocomplete = async () => {
+    const rnc = addCompanyForm.getValues('rnc');
+    addCompanyForm.clearErrors('rnc');
+     const rncValidation = z.string().refine(val => (val.length === 9 || val.length === 11) && /^\d+$/.test(val), {
+        message: 'El RNC debe ser numérico y tener 9 u 11 dígitos.',
+    }).safeParse(rnc);
+
+    if (!rncValidation.success) {
+      addCompanyForm.setError('rnc', { type: 'manual', message: rncValidation.error.errors[0].message });
+      return;
+    }
+
+    setIsCompanyLookup(true);
+    try {
+      const result = await lookupRnc({ rnc });
+      if (result && result.razonSocial) {
+        addCompanyForm.setValue('name', result.razonSocial, { shouldValidate: true });
+        showToast({ title: 'RNC Válido', description: `Empresa encontrada: ${result.razonSocial}` });
+      } else {
+        showToast({ variant: 'destructive', title: 'RNC no encontrado', description: 'No se pudo encontrar la razón social para este RNC.' });
+      }
+    } catch (error) {
+      console.error('Error looking up RNC:', error);
+      showToast({ variant: 'destructive', title: 'Error de Búsqueda', description: 'Ocurrió un problema al validar el RNC.' });
+    } finally {
+      setIsCompanyLookup(false);
     }
   };
 
@@ -279,9 +310,15 @@ export default function NewVentaPage() {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>RNC / Cédula</FormLabel>
-                            <FormControl>
-                                <Input placeholder="RNC o Cédula" {...field} />
-                            </FormControl>
+                            <div className="flex items-center gap-2">
+                                <FormControl>
+                                    <Input placeholder="RNC o Cédula" {...field} />
+                                </FormControl>
+                                <Button type="button" variant="outline" onClick={handleCompanyValidateAndAutocomplete} disabled={isCompanyLookup}>
+                                    {isCompanyLookup ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                                    <span className="hidden sm:inline ml-2">Validar</span>
+                                </Button>
+                            </div>
                             <FormMessage />
                         </FormItem>
                     )}

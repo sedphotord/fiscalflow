@@ -92,8 +92,8 @@ export const Form607Schema = z.object({
 export const CompanySchema = z.object({
   id: z.string().optional(),
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
-  rnc: z.string().refine(rnc => rnc.length === 9 || rnc.length === 11, {
-    message: 'El RNC debe tener 9 u 11 dígitos.',
+  rnc: z.string().refine(rnc => (rnc.length === 9 || rnc.length === 11) && /^\d+$/.test(rnc), {
+    message: 'El RNC debe ser numérico y tener 9 u 11 dígitos.',
   }),
   email: z.string().email({ message: "Correo electrónico inválido." }).optional().or(z.literal('')),
   whatsapp: z.string().optional(),

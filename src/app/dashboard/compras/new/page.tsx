@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Form606Schema, CompanySchema } from '@/lib/schemas';
-import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2, CheckCircle2, XCircle, Copy, Camera } from 'lucide-react';
+import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2, CheckCircle2, XCircle, Copy, Camera, ShieldCheck } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from '@/lib/constants';
@@ -62,6 +62,7 @@ export default function NewCompraPage() {
   const [validatingRnc, setValidatingRnc] = useState<Record<number, boolean>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAddCompanyDialogOpen, setIsAddCompanyDialogOpen] = useState(false);
+  const [isCompanyLookup, setIsCompanyLookup] = useState(false);
   
   const [isCameraDialogOpen, setIsCameraDialogOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
@@ -194,7 +195,7 @@ export default function NewCompraPage() {
         title: '¡Datos Extraídos y Validados!',
         description: extractedData.validationMessage || 'La información de la factura se ha agregado al formulario.',
       });
-  }, [form, append, showToast, fields.length]);
+  }, [form, append, showToast, fields.length, handleRncBlur]);
 
   const handleCaptureAndProcess = async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -324,6 +325,36 @@ export default function NewCompraPage() {
       addCompanyForm.reset();
     }
   };
+
+  const handleCompanyValidateAndAutocomplete = async () => {
+    const rnc = addCompanyForm.getValues('rnc');
+    addCompanyForm.clearErrors('rnc');
+    const rncValidation = z.string().refine(val => (val.length === 9 || val.length === 11) && /^\d+$/.test(val), {
+        message: 'El RNC debe ser numérico y tener 9 u 11 dígitos.',
+    }).safeParse(rnc);
+
+    if (!rncValidation.success) {
+      addCompanyForm.setError('rnc', { type: 'manual', message: rncValidation.error.errors[0].message });
+      return;
+    }
+
+    setIsCompanyLookup(true);
+    try {
+      const result = await lookupRnc({ rnc });
+      if (result && result.razonSocial) {
+        addCompanyForm.setValue('name', result.razonSocial, { shouldValidate: true });
+        showToast({ title: 'RNC Válido', description: `Empresa encontrada: ${result.razonSocial}` });
+      } else {
+        showToast({ variant: 'destructive', title: 'RNC no encontrado', description: 'No se pudo encontrar la razón social para este RNC.' });
+      }
+    } catch (error) {
+      console.error('Error looking up RNC:', error);
+      showToast({ variant: 'destructive', title: 'Error de Búsqueda', description: 'Ocurrió un problema al validar el RNC.' });
+    } finally {
+      setIsCompanyLookup(false);
+    }
+  };
+
   
   return (
     <>
@@ -673,9 +704,15 @@ export default function NewCompraPage() {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>RNC / Cédula</FormLabel>
-                            <FormControl>
-                                <Input placeholder="RNC o Cédula" {...field} />
-                            </FormControl>
+                             <div className="flex items-center gap-2">
+                                <FormControl>
+                                    <Input placeholder="RNC o Cédula" {...field} />
+                                </FormControl>
+                                <Button type="button" variant="outline" onClick={handleCompanyValidateAndAutocomplete} disabled={isCompanyLookup}>
+                                    {isCompanyLookup ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                                    <span className="hidden sm:inline ml-2">Validar</span>
+                                </Button>
+                            </div>
                             <FormMessage />
                         </FormItem>
                     )}

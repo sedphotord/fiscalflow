@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Edit, Trash2, Loader2, ShieldCheck } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -18,13 +18,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { CompanySchema } from '@/lib/schemas';
 import type { Company } from '@/lib/types';
+import { lookupRnc } from '@/ai/flows/lookup-rnc-flow';
 
 type FormValues = z.infer<typeof CompanySchema>;
 
 export default function ManageCompaniesPage() {
-  const { settings, companies, addCompany, updateCompany, deleteCompany } = useAppContext();
+  const { settings, companies, addCompany, updateCompany, deleteCompany, showToast } = useAppContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [isLookingUp, setIsLookingUp] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(CompanySchema),
@@ -53,6 +55,35 @@ export default function ManageCompaniesPage() {
       await addCompany(data);
     }
     setIsDialogOpen(false);
+  };
+
+  const handleValidateAndAutocomplete = async () => {
+    const rnc = form.getValues('rnc');
+    form.clearErrors('rnc');
+    const rncValidation = z.string().refine(val => (val.length === 9 || val.length === 11) && /^\d+$/.test(val), {
+        message: 'El RNC debe ser numérico y tener 9 u 11 dígitos.',
+    }).safeParse(rnc);
+
+    if (!rncValidation.success) {
+      form.setError('rnc', { type: 'manual', message: rncValidation.error.errors[0].message });
+      return;
+    }
+    
+    setIsLookingUp(true);
+    try {
+      const result = await lookupRnc({ rnc });
+      if (result && result.razonSocial) {
+        form.setValue('name', result.razonSocial, { shouldValidate: true });
+        showToast({ title: 'RNC Válido', description: `Empresa encontrada: ${result.razonSocial}` });
+      } else {
+        showToast({ variant: 'destructive', title: 'RNC no encontrado', description: 'No se pudo encontrar la razón social para este RNC.' });
+      }
+    } catch (error) {
+      console.error('Error looking up RNC:', error);
+      showToast({ variant: 'destructive', title: 'Error de Búsqueda', description: 'Ocurrió un problema al validar el RNC.' });
+    } finally {
+      setIsLookingUp(false);
+    }
   };
   
   const allCompanies = [
@@ -177,11 +208,17 @@ export default function ManageCompaniesPage() {
                   name="rnc"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>RNC / Cédula</FormLabel>
-                      <FormControl>
-                        <Input placeholder="RNC o Cédula de la empresa" {...field} />
-                      </FormControl>
-                      <FormMessage />
+                        <FormLabel>RNC / Cédula</FormLabel>
+                        <div className="flex items-center gap-2">
+                        <FormControl>
+                            <Input placeholder="RNC o Cédula de la empresa" {...field} />
+                        </FormControl>
+                         <Button type="button" variant="outline" onClick={handleValidateAndAutocomplete} disabled={isLookingUp}>
+                            {isLookingUp ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                            <span className="hidden sm:inline ml-2">Validar</span>
+                        </Button>
+                        </div>
+                        <FormMessage />
                     </FormItem>
                   )}
                 />
