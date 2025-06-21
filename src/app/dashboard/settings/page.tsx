@@ -29,21 +29,28 @@ const SettingsSchema = z.object({
 
 type FormValues = z.infer<typeof SettingsSchema>;
 
-const mockActivityLog = [
-    { id: 1, member: 'Usuario Principal', action: 'Creó el reporte 606 para el período 202405', date: new Date() },
-    { id: 2, member: 'asistente@fiscalflow.app', action: 'Escaneó 5 facturas en lote', date: new Date(Date.now() - 2 * 60 * 60 * 1000) },
-    { id: 3, member: 'Usuario Principal', action: 'Actualizó los datos de la empresa "Cliente de Ejemplo"', date: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-    { id: 4, member: 'asistente@fiscalflow.app', action: 'Generó reporte 607 para el período 202404', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
-    { id: 5, member: 'Usuario Principal', action: 'Cambió el tema de la aplicación a Oscuro', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
-];
-
+type ActivityLog = {
+    id: number;
+    member: string;
+    action: string;
+    date: Date;
+};
 
 export default function SettingsPage() {
   const { currentUser, updateCurrentUser, theme, setTheme, showToast } = useAppContext();
   const [isClient, setIsClient] = useState(false);
+  const [activityLog, setActivityLog] = useState<ActivityLog[]>([]);
 
   useEffect(() => {
     setIsClient(true);
+    // Generate mock data client-side to prevent hydration errors
+    setActivityLog([
+        { id: 1, member: 'Usuario Principal', action: 'Creó el reporte 606 para el período 202405', date: new Date() },
+        { id: 2, member: 'asistente@fiscalflow.app', action: 'Escaneó 5 facturas en lote', date: new Date(Date.now() - 2 * 60 * 60 * 1000) },
+        { id: 3, member: 'Usuario Principal', action: 'Actualizó los datos de la empresa "Cliente de Ejemplo"', date: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+        { id: 4, member: 'asistente@fiscalflow.app', action: 'Generó reporte 607 para el período 202404', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+        { id: 5, member: 'Usuario Principal', action: 'Cambió el tema de la aplicación a Oscuro', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+    ]);
   }, []);
 
   const form = useForm<FormValues>({
@@ -174,7 +181,7 @@ export default function SettingsPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {mockActivityLog.map(log => (
+                            {activityLog.map(log => (
                                 <TableRow key={log.id}>
                                     <TableCell className="font-medium">{log.member}</TableCell>
                                     <TableCell>{log.action}</TableCell>
