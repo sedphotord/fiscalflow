@@ -13,6 +13,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Sun, Moon, Laptop, Building, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 
 
 const SettingsSchema = z.object({
@@ -134,6 +136,55 @@ export default function SettingsPage() {
             </RadioGroup>
           </CardContent>
         </Card>
+        
+        <Card className="lg:col-span-2">
+            <CardHeader>
+                <CardTitle>Seguridad</CardTitle>
+                <CardDescription>Configura tu contraseña y protege tu cuenta.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="email">Correo electrónico</Label>
+                    <Input id="email" type="email" value={settings.email || 'cargando...'} disabled />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="password">Contraseña</Label>
+                    <div className="flex items-center gap-2">
+                        <Input id="password" type="password" value="••••••••••" disabled />
+                        <Button variant="outline" onClick={() => showToast({ title: 'Función en desarrollo', description: 'La opción para cambiar contraseña estará disponible pronto.' })}>Cambiar</Button>
+                    </div>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold">Autenticación</h3>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div>
+                            <p className="font-medium">Autenticación en dos pasos</p>
+                            <p className="text-sm text-muted-foreground">Añade una capa de seguridad extra a tu cuenta.</p>
+                        </div>
+                        <Switch
+                          id="two-factor"
+                          onCheckedChange={(checked) => showToast({ title: `Autenticación de dos pasos ${checked ? 'activada' : 'desactivada'}`, description: "Esta función estará disponible próximamente." })}
+                        />
+                    </div>
+                    <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div>
+                            <p className="font-medium">Inicio de sesión con Google</p>
+                            <p className="text-sm text-muted-foreground">
+                              {settings.email ? `Conectado como ${settings.email}` : 'Conecta tu cuenta para un inicio de sesión más rápido.'}
+                            </p>
+                        </div>
+                        <Button variant="outline" onClick={() => showToast({ title: 'Función en desarrollo', description: 'La conexión con Google estará disponible pronto.' })}>
+                           <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 74.7C309 93.5 280.7 80 248 80c-73.2 0-133.1 61.2-133.1 176s59.9 176 133.1 176c78.8 0 110.9-61.2 114.9-92.4h-114.9v-94.7h216.5c1.9 11.6 3.5 24.1 3.5 38.2z"></path></svg>
+                           {settings.email ? 'Desconectar' : 'Conectar'}
+                        </Button>
+                    </div>
+                  </div>
+                </div>
+            </CardContent>
+        </Card>
+        
         <Card className="lg:col-span-2">
             <CardHeader>
                 <CardTitle>Gestión de Empresas</CardTitle>
