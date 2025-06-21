@@ -27,10 +27,10 @@ const planDistributionData = [
 const COLORS = ['hsl(var(--chart-3))', 'hsl(var(--chart-1))', 'hsl(var(--chart-2))'];
 
 const mockTransactions = [
-  { id: 'txn_1', user: 'Empresa ABC SRL', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date() },
-  { id: 'txn_2', user: 'Contadores Asociados', plan: 'Despacho', amount: 6500, status: 'Completado', date: new Date(Date.now() - 86400000 * 2) },
-  { id: 'txn_3', user: 'Innovaciones Tech', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date(Date.now() - 86400000 * 4) },
-  { id: 'txn_4', user: 'Juan Perez', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date(Date.now() - 86400000 * 5) },
+  { id: 'txn_1', user: 'Empresa ABC SRL', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date('2024-07-20') },
+  { id: 'txn_2', user: 'Contadores Asociados', plan: 'Despacho', amount: 6500, status: 'Completado', date: new Date('2024-07-18') },
+  { id: 'txn_3', user: 'Innovaciones Tech', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date('2024-07-16') },
+  { id: 'txn_4', user: 'Juan Perez', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date('2024-07-15') },
 ];
 
 

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +24,7 @@ import { AdminCreateUserSchema, AdminInviteTeamMemberSchema } from '@/lib/schema
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type CreateUserFormValues = z.infer<typeof AdminCreateUserSchema>;
 type InviteMemberFormValues = z.infer<typeof AdminInviteTeamMemberSchema>;
@@ -37,6 +38,12 @@ export default function AdminUsersPage() {
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [isBatchCreateOpen, setIsBatchCreateOpen] = useState(false);
   const [isInviteMemberOpen, setIsInviteMemberOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   
   const createUserForm = useForm<CreateUserFormValues>({ resolver: zodResolver(AdminCreateUserSchema), defaultValues: { name: '', email: '', password: '', plan: 'Gratis', invoiceLimit: 50 }});
   const inviteMemberForm = useForm<InviteMemberFormValues>({ resolver: zodResolver(AdminInviteTeamMemberSchema), defaultValues: { email: '', role: 'Editor' }});
@@ -134,7 +141,7 @@ export default function AdminUsersPage() {
                         </div>
                     </TableCell>
                     <TableCell><Badge variant={getStatusVariant(user.status)}>{user.status}</Badge></TableCell>
-                    <TableCell>{format(new Date(user.registeredAt), 'dd/MM/yyyy')}</TableCell>
+                    <TableCell>{isClient ? format(new Date(user.registeredAt), 'dd/MM/yyyy') : <Skeleton className="h-4 w-20" />}</TableCell>
                     <TableCell className="text-right">
                        <Dialog>
                         <AlertDialog>

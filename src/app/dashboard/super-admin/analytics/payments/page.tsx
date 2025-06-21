@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PageHeader } from '@/components/dashboard/page-header';
@@ -9,11 +10,11 @@ import { Download, Filter, TrendingUp, Users, Wallet } from 'lucide-react';
 import { format } from 'date-fns';
 
 const mockTransactions = [
-  { id: 'txn_1', user: 'Empresa ABC SRL', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date() },
-  { id: 'txn_2', user: 'Juan Perez', plan: 'Gratis', amount: 0, status: 'Completado', date: new Date(Date.now() - 86400000 * 1) },
-  { id: 'txn_3', user: 'Contadores Asociados', plan: 'Despacho', amount: 6500, status: 'Completado', date: new Date(Date.now() - 86400000 * 2) },
-  { id: 'txn_4', user: 'Nuevo Cliente Web', plan: 'Pro', amount: 2500, status: 'Fallido', date: new Date(Date.now() - 86400000 * 3) },
-  { id: 'txn_5', user: 'Innovaciones Tech', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date(Date.now() - 86400000 * 4) },
+  { id: 'txn_1', user: 'Empresa ABC SRL', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date('2024-07-20') },
+  { id: 'txn_2', user: 'Juan Perez', plan: 'Gratis', amount: 0, status: 'Completado', date: new Date('2024-07-19') },
+  { id: 'txn_3', user: 'Contadores Asociados', plan: 'Despacho', amount: 6500, status: 'Completado', date: new Date('2024-07-18') },
+  { id: 'txn_4', user: 'Nuevo Cliente Web', plan: 'Pro', amount: 2500, status: 'Fallido', date: new Date('2024-07-17') },
+  { id: 'txn_5', user: 'Innovaciones Tech', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date('2024-07-16') },
 ];
 
 
