@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -15,7 +16,11 @@ import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const SettingsSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -24,8 +29,22 @@ const SettingsSchema = z.object({
 
 type FormValues = z.infer<typeof SettingsSchema>;
 
+const mockActivityLog = [
+    { id: 1, member: 'Usuario Principal', action: 'Creó el reporte 606 para el período 202405', date: new Date() },
+    { id: 2, member: 'asistente@fiscalflow.app', action: 'Escaneó 5 facturas en lote', date: new Date(Date.now() - 2 * 60 * 60 * 1000) },
+    { id: 3, member: 'Usuario Principal', action: 'Actualizó los datos de la empresa "Cliente de Ejemplo"', date: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+    { id: 4, member: 'asistente@fiscalflow.app', action: 'Generó reporte 607 para el período 202404', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+    { id: 5, member: 'Usuario Principal', action: 'Cambió el tema de la aplicación a Oscuro', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+];
+
+
 export default function SettingsPage() {
   const { currentUser, updateCurrentUser, theme, setTheme, showToast } = useAppContext();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(SettingsSchema),
@@ -139,6 +158,36 @@ export default function SettingsPage() {
                     </div>
                 </CardContent>
             </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Historial de Operaciones</CardTitle>
+                    <CardDescription>Registro de las últimas actividades realizadas en su cuenta.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Miembro</TableHead>
+                                <TableHead>Acción</TableHead>
+                                <TableHead>Fecha y Hora</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {mockActivityLog.map(log => (
+                                <TableRow key={log.id}>
+                                    <TableCell className="font-medium">{log.member}</TableCell>
+                                    <TableCell>{log.action}</TableCell>
+                                    <TableCell>
+                                        {isClient ? format(log.date, 'dd MMM, yyyy - hh:mm a', { locale: es }) : <Skeleton className="h-4 w-32" />}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
         </div>
         <div className="lg:col-span-1 grid gap-6 content-start">
             <Card>
