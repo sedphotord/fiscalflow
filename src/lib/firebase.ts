@@ -1,15 +1,31 @@
-import { type FirebaseApp } from 'firebase/app';
-import { type Firestore } from 'firebase/firestore';
+import { initializeApp, getApp, getApps, type FirebaseApp } from 'firebase/app';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 
-// --- FIREBASE TEMPORARILY DISABLED FOR DEBUGGING ---
-// The app is currently using mock data from /src/context/app-provider.tsx
-// to isolate an internal server error.
+// --- Firebase Web Configuration ---
+// This configuration is for connecting the web application to your Firebase project.
+const firebaseConfig = {
+  apiKey: "AIzaSyANaxZb57mg9OxvutfRmodLiFAoQ6VWp6Y",
+  authDomain: "fiscalflow-j6b89.firebaseapp.com",
+  projectId: "fiscalflow-j6b89",
+  storageBucket: "fiscalflow-j6b89.appspot.com",
+  messagingSenderId: "931089868673",
+  appId: "1:931089868673:web:355d95d1059f804e12c1b2"
+};
 
-const app: FirebaseApp | null = null;
-const db: Firestore | null = null;
+// --- Firebase Initialization ---
+let app: FirebaseApp;
+let db: Firestore;
 
-console.warn(
-  "ATENCIÓN: La conexión con Firebase está deshabilitada temporalmente para depuración. La aplicación está usando datos de muestra."
-);
+try {
+    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    db = getFirestore(app);
+} catch (error) {
+    console.error("Firebase initialization failed:", error);
+    // In case of an error, app and db will be undefined, which can be handled as an offline state.
+    // @ts-ignore
+    app = null;
+    // @ts-ignore
+    db = null;
+}
 
 export { app, db };
