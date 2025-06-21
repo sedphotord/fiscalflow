@@ -46,17 +46,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const fetchData = async () => {
+        const offlineToast = {
+            variant: "destructive",
+            title: "Modo Sin Conexión Activado",
+            description: "No se pudo conectar a Firebase. La aplicación está usando datos de muestra para que puedas seguir trabajando.",
+            duration: 9000,
+        };
+
         if (!db) {
             console.warn("Firebase no está disponible. Entrando en modo sin conexión.");
             setAppState(mockInitialState);
             setIsOffline(true);
             setIsLoading(false);
-            toast({
-                variant: "destructive",
-                title: "Modo Sin Conexión Activado",
-                description: "No se pudo conectar a la base de datos. Se están usando datos de muestra.",
-                duration: 9000,
-            });
+            toast(offlineToast);
             return;
         }
 
@@ -83,11 +85,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             console.error("Error al cargar datos de Firebase:", error);
             setAppState(mockInitialState);
             setIsOffline(true);
-            toast({
-                variant: "destructive",
-                title: "Error de Conexión",
-                description: "No se pudieron cargar los datos. Revisa la consola para más detalles.",
-            });
+            toast(offlineToast);
         } finally {
             setIsLoading(false);
         }
