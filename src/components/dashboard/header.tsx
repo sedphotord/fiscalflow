@@ -13,6 +13,9 @@ import {
   Shield,
   LifeBuoy,
   LogOut,
+  CheckCircle,
+  FileWarning,
+  CalendarClock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,7 +38,7 @@ import { Progress } from '@/components/ui/progress';
 
 export function Header() {
   const router = useRouter();
-  const { currentUser, showToast } = useAppContext();
+  const { currentUser } = useAppContext();
   const usagePercentage = (currentUser.invoiceUsage.current / currentUser.invoiceUsage.limit) * 100;
 
   const handleLogout = () => {
@@ -122,20 +125,49 @@ export function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="rounded-full"
-        onClick={() =>
-          showToast({
-            title: 'Próximamente',
-            description: 'El panel de notificaciones estará disponible pronto.',
-          })
-        }
-      >
-        <Bell className="h-5 w-5" />
-        <span className="sr-only">Ver notificaciones</span>
-      </Button>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full relative"
+          >
+            <Bell className="h-5 w-5" />
+            <span className="absolute top-1 right-1 flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            <span className="sr-only">Ver notificaciones</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="flex items-start gap-3">
+              <CheckCircle className="mt-1 h-4 w-4 text-green-500" />
+              <div>
+                <p className="font-medium">Reporte 606 Generado</p>
+                <p className="text-xs text-muted-foreground">Período 202312 completado exitosamente.</p>
+              </div>
+            </DropdownMenuItem>
+             <DropdownMenuItem className="flex items-start gap-3">
+              <FileWarning className="mt-1 h-4 w-4 text-yellow-500" />
+              <div>
+                <p className="font-medium">Límite de Consumo Cerca</p>
+                <p className="text-xs text-muted-foreground">Has usado el 85% de tu cuota de facturas.</p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-start gap-3">
+              <CalendarClock className="mt-1 h-4 w-4 text-blue-500" />
+              <div>
+                <p className="font-medium">Recordatorio de Fecha Límite</p>
+                <p className="text-xs text-muted-foreground">La declaración del IT-1 vence en 3 días.</p>
+              </div>
+            </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full">
