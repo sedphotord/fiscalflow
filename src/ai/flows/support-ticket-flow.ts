@@ -2,24 +2,15 @@
 /**
  * @fileOverview An AI flow for creating support tickets.
  * - createSupportTicket - Creates a support ticket.
- * - SupportTicketInput - Input schema for creating a support ticket.
- * - SupportTicketOutput - Output schema for creating a support ticket.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const SupportTicketInputSchema = z.object({
-  subject: z.string().describe('The subject of the support ticket.'),
-  message: z.string().describe('The detailed message of the support ticket.'),
-});
-export type SupportTicketInput = z.infer<typeof SupportTicketInputSchema>;
-
-const SupportTicketOutputSchema = z.object({
-  ticketId: z.string().describe('A unique identifier for the created ticket, in the format TICKET-XXXXX.'),
-  response: z.string().describe('A friendly and helpful response to the user, confirming receipt and providing the ticket ID.'),
-});
-export type SupportTicketOutput = z.infer<typeof SupportTicketOutputSchema>;
+import { 
+  SupportTicketInput, 
+  SupportTicketOutput, 
+  SupportTicketInputSchema, 
+  SupportTicketOutputSchema 
+} from '@/lib/ai-schemas';
 
 export async function createSupportTicket(input: SupportTicketInput): Promise<SupportTicketOutput> {
     return createSupportTicketFlow(input);

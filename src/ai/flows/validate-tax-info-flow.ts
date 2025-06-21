@@ -2,24 +2,14 @@
 /**
  * @fileOverview A flow for validating Dominican Republic tax information.
  * - validateTaxInformation - A function that handles the validation process.
- * - ValidateTaxInfoInput - The input type for the validateTaxInformation function.
- * - ValidateTaxInfoOutput - The return type for the validateTaxInformation function.
  */
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
-
-const ValidateTaxInfoInputSchema = z.object({
-  rncCedula: z.string().describe('The RNC or Cédula to validate.'),
-  ncf: z.string().optional().describe('The NCF to validate.'),
-});
-export type ValidateTaxInfoInput = z.infer<typeof ValidateTaxInfoInputSchema>;
-
-const ValidateTaxInfoOutputSchema = z.object({
-  isRncValid: z.boolean().describe('Whether the RNC or Cédula is considered valid.'),
-  isNcfValid: z.boolean().describe('Whether the NCF is considered valid. Returns true if NCF is not provided.'),
-  validationMessage: z.string().describe('A summary message of the validation results.'),
-});
-export type ValidateTaxInfoOutput = z.infer<typeof ValidateTaxInfoOutputSchema>;
+import { 
+  ValidateTaxInfoInput, 
+  ValidateTaxInfoOutput, 
+  ValidateTaxInfoInputSchema, 
+  ValidateTaxInfoOutputSchema 
+} from '@/lib/ai-schemas';
 
 
 export async function validateTaxInformation(input: ValidateTaxInfoInput): Promise<ValidateTaxInfoOutput> {

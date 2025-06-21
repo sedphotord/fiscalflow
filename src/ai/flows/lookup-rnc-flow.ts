@@ -6,22 +6,15 @@
  * In a real-world application, this would be replaced with a robust scraping service.
  *
  * - lookupRnc - A function that handles the lookup process.
- * - RncLookupInput - The input type for the lookupRnc function.
- * - RncLookupOutput - The return type for the lookupRnc function.
  */
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
 import { MOCK_COMPANY_DB } from '@/lib/mock-data';
-
-export const RncLookupInputSchema = z.object({
-  rnc: z.string().describe('The RNC to look up.'),
-});
-export type RncLookupInput = z.infer<typeof RncLookupInputSchema>;
-
-export const RncLookupOutputSchema = z.object({
-  razonSocial: z.string().describe('The official company name (Razón Social).'),
-});
-export type RncLookupOutput = z.infer<typeof RncLookupOutputSchema>;
+import { 
+  RncLookupInput, 
+  RncLookupOutput, 
+  RncLookupInputSchema, 
+  RncLookupOutputSchema 
+} from '@/lib/ai-schemas';
 
 
 export async function lookupRnc(input: RncLookupInput): Promise<RncLookupOutput> {

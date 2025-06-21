@@ -3,34 +3,16 @@
  * @fileOverview An AI flow for extracting data from invoices.
  *
  * - extractInvoiceData - A function that handles the invoice data extraction.
- * - ExtractInvoiceInput - The input type for the extractInvoiceData function.
- * - ExtractInvoiceOutput - The return type for the extractInvoiceData function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
 import { validateTaxInfo } from '../tools/dgii-validator-tool';
-
-const ExtractInvoiceInputSchema = z.object({
-  photoDataUri: z
-    .string()
-    .describe(
-      "A photo of an invoice, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
-});
-export type ExtractInvoiceInput = z.infer<typeof ExtractInvoiceInputSchema>;
-
-const ExtractInvoiceOutputSchema = z.object({
-  rncCedula: z.string().describe("El RNC o Cédula del proveedor de la factura."),
-  ncf: z.string().describe("El Número de Comprobante Fiscal (NCF) de la factura. Debe ser un string de 11 caracteres."),
-  fechaComprobante: z.string().describe("La fecha de emisión del comprobante en formato AAAA-MM-DD."),
-  montoFacturado: z.number().describe("El monto total facturado, puede ser el subtotal antes de impuestos."),
-  itbisFacturado: z.number().describe("El monto total de ITBIS (impuesto) facturado. Si hay varios, deben sumarse."),
-  isRncValid: z.boolean().describe("Resultado de la validación del RNC/Cédula."),
-  isNcfValid: z.boolean().describe("Resultado de la validación del NCF."),
-  validationMessage: z.string().describe("Un mensaje resumen de la validación."),
-});
-export type ExtractInvoiceOutput = z.infer<typeof ExtractInvoiceOutputSchema>;
+import { 
+  ExtractInvoiceInput, 
+  ExtractInvoiceOutput, 
+  ExtractInvoiceInputSchema, 
+  ExtractInvoiceOutputSchema 
+} from '@/lib/ai-schemas';
 
 export async function extractInvoiceData(input: ExtractInvoiceInput): Promise<ExtractInvoiceOutput> {
   return extractInvoiceFlow(input);
