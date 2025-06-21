@@ -40,7 +40,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { format } from 'date-fns';
 
 interface ReportTableProps {
   data: Report[];
@@ -134,7 +135,7 @@ export function ReportTable({ data }: ReportTableProps) {
                   <Badge variant={getBadgeVariant(report.estado)}>{report.estado}</Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  {new Date(report.fechaCreacion).toLocaleDateString()}
+                  {format(new Date(report.fechaCreacion), 'dd/MM/yyyy')}
                 </TableCell>
                 <TableCell>
                 <AlertDialog>
