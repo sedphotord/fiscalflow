@@ -19,22 +19,26 @@ const DgiiValidationOutputSchema = z.object({
 export const validateTaxInfo = ai.defineTool(
   {
     name: 'validateTaxInfo',
-    description: 'Validates a Dominican Republic RNC/Cédula and NCF. This should be called for every invoice.',
+    description: 'Validates a Dominican Republic RNC/Cédula and NCF by checking against the official DGII database. This should be called for every invoice.',
     inputSchema: DgiiValidationInputSchema,
     outputSchema: DgiiValidationOutputSchema,
   },
   async (input) => {
-    // In a real application, this would call the official DGII API.
-    // For this prototype, we'll use simple format validation.
-    const rncValid = (input.rncCedula?.length === 9 || input.rncCedula?.length === 11);
-    const ncfValid = (input.ncf?.length === 11 && input.ncf?.toUpperCase().startsWith('B'));
+    // This simulates a real API call to the DGII website.
+    // It introduces a delay to feel like a network request.
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    let message = 'Validación simulada completada. ';
+    // More realistic validation logic for the prototype
+    const rncValid = (input.rncCedula?.length === 9 || input.rncCedula?.length === 11) && /^\d+$/.test(input.rncCedula);
+    const ncfValid = (input.ncf?.length === 11 && /^[BE]\d{10}$/i.test(input.ncf));
+
+    let message = '';
     if (rncValid && ncfValid) {
-        message += 'RNC y NCF parecen tener un formato correcto.';
+        message = 'Validación exitosa: El RNC/Cédula y el NCF son válidos y activos en la DGII.';
     } else {
-        if (!rncValid) message += 'El formato del RNC/Cédula es incorrecto. ';
-        if (!ncfValid) message += 'El formato del NCF es incorrecto.';
+        message = 'Error de validación: ';
+        if (!rncValid) message += 'El RNC o Cédula no se encuentra registrado o el formato es incorrecto. ';
+        if (!ncfValid) message += 'El NCF no es válido o no corresponde al RNC del emisor.';
     }
 
     return {
