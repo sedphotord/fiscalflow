@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ScanLine, FolderSearch, History, Upload, Copy } from 'lucide-react';
+import { ScanLine, FolderSearch, ShieldCheck, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const actions = [
@@ -18,16 +18,16 @@ const actions = [
         description: 'Procesa múltiples facturas de forma simultánea.'
     },
     {
+        href: '/dashboard/validator',
+        icon: ShieldCheck,
+        title: 'Validar RNC/NCF',
+        description: 'Verifica la validez de un RNC o NCF.'
+    },
+    {
         href: '/dashboard/compras',
         icon: FolderSearch,
         title: 'Ver Reportes',
         description: 'Revisa y descarga tus reportes 606 y 607.'
-    },
-    {
-        href: '/dashboard/contribuyentes',
-        icon: History,
-        title: 'Historial por Cliente',
-        description: 'Consulta la actividad de cada contribuyente.'
     }
 ];
 

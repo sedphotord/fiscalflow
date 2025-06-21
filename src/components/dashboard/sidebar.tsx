@@ -9,12 +9,13 @@ import {
   FileText,
   Settings,
   Package,
-  ShieldCheck,
+  Shield,
   Users,
   BookMarked,
   LifeBuoy,
   FileX,
   Plane,
+  ShieldCheck,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -156,6 +157,16 @@ export function AppSidebar() {
                 <Users className="h-4 w-4" />
                 Contribuyentes
               </Link>
+            <Link
+                href="/dashboard/validator"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                  pathname.startsWith('/dashboard/validator') && 'bg-muted text-primary'
+                )}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Validador DGII
+              </Link>
              <Link
               href="/dashboard/settings"
               className={cn(
@@ -187,7 +198,7 @@ export function AppSidebar() {
                     pathname === '/dashboard/super-admin' && 'bg-muted text-primary'
                   )}
                 >
-                  <ShieldCheck className="h-4 w-4" />
+                  <Shield className="h-4 w-4" />
                   Admin Panel
                 </Link>
             </div>
