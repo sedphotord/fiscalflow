@@ -14,7 +14,7 @@ import { PageHeader } from '@/components/dashboard/page-header';
 import { Form607Schema } from '@/lib/schemas';
 import { PlusCircle, Trash2, Save, FileDown } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 type FormValues = z.infer<typeof Form607Schema>;
 
@@ -31,8 +31,13 @@ const defaultRow = {
 export default function NewVentaPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addReport, getReport, updateReport, showToast, settings } = useAppContext();
+  const { addReport, getReport, updateReport, showToast, settings, companies } = useAppContext();
   const reportId = searchParams.get('id');
+
+  const allCompanies = useMemo(() => [
+    { ...settings, id: 'main', name: `${settings.name} (Principal)` }, 
+    ...companies
+  ], [settings, companies]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(Form607Schema),
@@ -101,14 +106,30 @@ export default function NewVentaPage() {
             <CardTitle>Información del Contribuyente</CardTitle>
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 gap-4">
-            <FormField control={form.control} name="rnc" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>RNC o Cédula</FormLabel>
-                  <FormControl><Input placeholder="Su RNC o Cédula" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+             <FormField
+                control={form.control}
+                name="rnc"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contribuyente</FormLabel>
+                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione una empresa o perfil..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {allCompanies.map((company) => (
+                          <SelectItem key={company.id} value={company.rnc}>
+                            {company.name} ({company.rnc})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <FormField control={form.control} name="periodo" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Período Fiscal (AAAAMM)</FormLabel>

@@ -14,7 +14,7 @@ import { PageHeader } from '@/components/dashboard/page-header';
 import { Form606Schema } from '@/lib/schemas';
 import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from '@/lib/constants';
 import { extractInvoiceData } from '@/ai/flows/extract-invoice-flow';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -49,10 +49,16 @@ const defaultRow = {
 export default function NewCompraPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addReport, getReport, updateReport, showToast, settings } = useAppContext();
+  const { addReport, getReport, updateReport, showToast, settings, companies } = useAppContext();
   const reportId = searchParams.get('id');
   const [isScanning, setIsScanning] = useState(false);
+  const [validatingRnc, setValidatingRnc] = useState<Record<number, boolean>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const allCompanies = useMemo(() => [
+    { ...settings, id: 'main', name: `${settings.name} (Principal)` }, 
+    ...companies
+  ], [settings, companies]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(Form606Schema),
@@ -159,6 +165,29 @@ export default function NewCompraPage() {
       setIsScanning(false);
     }
   };
+
+  const handleRncBlur = useCallback(async (index: number, rnc: string) => {
+    if (!rnc) {
+      form.setValue(`compras.${index}.isRncValid`, undefined);
+      return;
+    }
+    setValidatingRnc(prev => ({ ...prev, [index]: true }));
+    
+    // Autocomplete Tipo ID
+    if (rnc.length === 9) {
+      form.setValue(`compras.${index}.tipoId`, '1', { shouldValidate: true });
+    } else if (rnc.length === 11) {
+      form.setValue(`compras.${index}.tipoId`, '2', { shouldValidate: true });
+    }
+    
+    // Simulate network delay for validation feel
+    await new Promise(resolve => setTimeout(resolve, 500)); 
+
+    const rncValid = (rnc.length === 9 || rnc.length === 11) && /^\d+$/.test(rnc);
+    form.setValue(`compras.${index}.isRncValid`, rncValid, { shouldValidate: true });
+    
+    setValidatingRnc(prev => ({ ...prev, [index]: false }));
+  }, [form]);
   
   return (
     <TooltipProvider>
@@ -183,15 +212,26 @@ export default function NewCompraPage() {
               <CardTitle>Información del Contribuyente</CardTitle>
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 gap-4">
-              <FormField
+               <FormField
                 control={form.control}
                 name="rnc"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>RNC o Cédula</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Su RNC o Cédula" {...field} />
-                    </FormControl>
+                    <FormLabel>Contribuyente</FormLabel>
+                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione una empresa o perfil..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {allCompanies.map((company) => (
+                          <SelectItem key={company.id} value={company.rnc}>
+                            {company.name} ({company.rnc})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -260,10 +300,15 @@ export default function NewCompraPage() {
                     {fields.map((item, index) => (
                       <TableRow key={item.id}>
                         <TableCell className="min-w-[170px]">
-                          <FormField control={form.control} name={`compras.${index}.rncCedula`} render={({ field }) => (
+                           <FormField control={form.control} name={`compras.${index}.rncCedula`} render={({ field }) => (
                               <div className="relative">
-                                  <Input {...field} placeholder="RNC del Proveedor" className="pr-8" />
-                                  {item.isRncValid === true && (
+                                  <Input {...field} placeholder="RNC del Proveedor" className="pr-8" onBlur={(e) => handleRncBlur(index, e.target.value)} />
+                                   {validatingRnc[index] && (
+                                      <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-wait">
+                                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                                      </span>
+                                  )}
+                                  {item.isRncValid === true && !validatingRnc[index] && (
                                       <Tooltip>
                                           <TooltipTrigger asChild>
                                               <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
@@ -271,11 +316,11 @@ export default function NewCompraPage() {
                                               </span>
                                           </TooltipTrigger>
                                           <TooltipContent>
-                                              <p>RNC/Cédula válido (simulado)</p>
+                                              <p>Formato de RNC/Cédula válido</p>
                                           </TooltipContent>
                                       </Tooltip>
                                   )}
-                                  {item.isRncValid === false && (
+                                  {item.isRncValid === false && !validatingRnc[index] &&(
                                       <Tooltip>
                                           <TooltipTrigger asChild>
                                               <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
@@ -283,7 +328,7 @@ export default function NewCompraPage() {
                                               </span>
                                           </TooltipTrigger>
                                           <TooltipContent>
-                                              <p>Formato de RNC/Cédula inválido (simulado)</p>
+                                              <p>Formato de RNC/Cédula inválido</p>
                                           </TooltipContent>
                                       </Tooltip>
                                   )}
@@ -292,7 +337,7 @@ export default function NewCompraPage() {
                         </TableCell>
                         <TableCell className="min-w-[120px]">
                           <FormField control={form.control} name={`compras.${index}.tipoId`} render={({ field }) => (
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                                 <FormControl><SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger></FormControl>
                                 <SelectContent><SelectItem value="1">RNC</SelectItem><SelectItem value="2">Cédula</SelectItem></SelectContent>
                               </Select>
