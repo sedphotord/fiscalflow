@@ -12,6 +12,17 @@ import { Loader2 } from 'lucide-react';
 // Mock user ID until authentication is added
 const MOCK_USER_ID = 'default-user';
 
+// Mock data to use as a fallback if Firestore connection fails
+const MOCK_REPORTS: Report[] = [
+    // @ts-ignore
+    { id: 'mock-606-1', type: '606', rnc: '131999999', periodo: '202404', estado: 'Completado', fechaCreacion: new Date().toISOString(), compras: [] },
+    // @ts-ignore
+    { id: 'mock-607-1', type: '607', rnc: '131999999', periodo: '202404', estado: 'Borrador', fechaCreacion: new Date(Date.now() - 86400000).toISOString(), ventas: [] },
+];
+const MOCK_COMPANIES: Company[] = [
+    { id: 'mock-comp-1', name: 'Cliente de Muestra', rnc: '101000001' }
+];
+
 type AppState = {
   reports: Report[];
   settings: UserSettings;
@@ -39,8 +50,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         toast({
           variant: 'destructive',
           title: 'Modo sin Conexión',
-          description: 'No se pudo conectar a Firebase. Revise las credenciales en su archivo .env y que Firestore esté habilitado.',
+          description: 'No se pudo conectar a Firebase. La app se ejecutará con datos de muestra.',
           duration: Infinity,
+        });
+        setAppState({
+            settings: defaultInitialState.settings,
+            companies: MOCK_COMPANIES,
+            reports: MOCK_REPORTS,
         });
         setIsLoading(false);
         return;
@@ -72,19 +88,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setAppState({ settings, companies, reports });
 
       } catch (error: any) {
-        console.error("Error completo de Firestore:", error);
         const errorCode = error.code || 'desconocido';
-        
-        console.error(`Código de error de Firebase: ${errorCode}`);
+        console.error(`Código de error de Firebase: ${errorCode}`, error);
         
         toast({
           variant: 'destructive',
-          title: `Error de Carga (Código: ${errorCode})`,
-          description: 'No se pudieron cargar los datos de Firestore. Verifique las reglas de seguridad y la consola del navegador para más detalles.',
+          title: `Error de Conexión (Código: ${errorCode})`,
+          description: 'No se pudo conectar a Firestore. La app se ejecutará en modo offline con datos de muestra.',
           duration: Infinity,
         });
-        // Fallback to default state on error
-        setAppState(defaultInitialState);
+        // Fallback to mock data on error
+        setAppState({
+            settings: defaultInitialState.settings,
+            companies: MOCK_COMPANIES,
+            reports: MOCK_REPORTS,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -92,7 +110,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;
