@@ -23,7 +23,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 
 type FormValues = z.infer<typeof Form606Schema>;
@@ -74,7 +73,8 @@ export default function NewCompraPage() {
 
   const [companySearchResults, setCompanySearchResults] = useState<{name: string, rnc: string}[]>([]);
   const [isCompanySearching, setIsCompanySearching] = useState(false);
-  const [isSearchPopoverOpen, setIsSearchPopoverOpen] = useState(false);
+  const [isNameInputFocused, setIsNameInputFocused] = useState(false);
+
 
   const addCompanyForm = useForm<CompanyFormValues>({
     resolver: zodResolver(CompanySchema),
@@ -86,7 +86,6 @@ export default function NewCompraPage() {
   useEffect(() => {
     if (companyNameValue.length < 2) {
       setCompanySearchResults([]);
-      setIsSearchPopoverOpen(false);
       return;
     }
 
@@ -95,9 +94,6 @@ export default function NewCompraPage() {
       const results = await searchCompanies({ query: companyNameValue });
       setCompanySearchResults(results);
       setIsCompanySearching(false);
-      if(results.length > 0) {
-        setIsSearchPopoverOpen(true);
-      }
     }, 300);
 
     return () => clearTimeout(handler);
@@ -223,7 +219,7 @@ export default function NewCompraPage() {
         title: '¡Datos Extraídos y Validados!',
         description: extractedData.validationMessage || 'La información de la factura se ha agregado al formulario.',
       });
-  }, [form, append, showToast, fields.length]);
+  }, [form, append, showToast, fields.length, handleRncBlur]);
 
   const handleCaptureAndProcess = async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -719,40 +715,42 @@ export default function NewCompraPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nombre / Razón Social</FormLabel>
-                       <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
-                        <PopoverTrigger asChild>
-                           <FormControl>
-                            <Input
-                              placeholder="Buscar o escribir nombre de empresa..."
-                              {...field}
-                            />
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                           {isCompanySearching ? (
-                            <div className="p-4 text-sm text-center">Buscando...</div>
-                          ) : companySearchResults.length > 0 ? (
-                            <ul className="max-h-60 overflow-y-auto">
-                              {companySearchResults.map((company) => (
-                                <li
-                                  key={company.rnc}
-                                  className="p-2 text-sm hover:bg-accent cursor-pointer"
-                                  onMouseDown={() => { // onMouseDown to prevent input blur before click
-                                    addCompanyForm.setValue('name', company.name, { shouldValidate: true });
-                                    addCompanyForm.setValue('rnc', company.rnc, { shouldValidate: true });
-                                    setCompanySearchResults([]);
-                                    setIsSearchPopoverOpen(false);
-                                  }}
-                                >
-                                  {company.name}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : companyNameValue.length > 2 && (
-                            <div className="p-4 text-sm text-center">No se encontraron resultados.</div>
-                          )}
-                        </PopoverContent>
-                      </Popover>
+                      <div className="relative">
+                        <FormControl>
+                          <Input
+                            placeholder="Buscar o escribir nombre de empresa..."
+                            {...field}
+                            onFocus={() => setIsNameInputFocused(true)}
+                            onBlur={() => setTimeout(() => setIsNameInputFocused(false), 200)}
+                            autoComplete="off"
+                          />
+                        </FormControl>
+                        {isNameInputFocused && (
+                          <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
+                            {isCompanySearching ? (
+                              <div className="p-4 text-sm text-center">Buscando...</div>
+                            ) : companySearchResults.length > 0 ? (
+                              <ul className="max-h-60 overflow-y-auto p-1">
+                                {companySearchResults.map((company) => (
+                                  <li
+                                    key={company.rnc}
+                                    className="p-2 text-sm hover:bg-accent rounded-sm cursor-pointer"
+                                    onMouseDown={() => {
+                                      addCompanyForm.setValue('name', company.name, { shouldValidate: true });
+                                      addCompanyForm.setValue('rnc', company.rnc, { shouldValidate: true });
+                                      setCompanySearchResults([]);
+                                    }}
+                                  >
+                                    {company.name}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : companyNameValue.length > 1 ? (
+                              <div className="p-4 text-sm text-center text-muted-foreground">No se encontraron resultados.</div>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -787,5 +785,3 @@ export default function NewCompraPage() {
     </>
   );
 }
-
-    

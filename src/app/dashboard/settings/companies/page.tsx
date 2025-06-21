@@ -20,7 +20,6 @@ import { CompanySchema } from '@/lib/schemas';
 import type { Company } from '@/lib/types';
 import { lookupRnc } from '@/ai/flows/lookup-rnc-flow';
 import { searchCompanies } from '@/ai/flows/search-companies-flow';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 type FormValues = z.infer<typeof CompanySchema>;
 
@@ -32,7 +31,7 @@ export default function ManageCompaniesPage() {
 
   const [searchResults, setSearchResults] = useState<{name: string, rnc: string}[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [isSearchPopoverOpen, setIsSearchPopoverOpen] = useState(false);
+  const [isNameInputFocused, setIsNameInputFocused] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(CompanySchema),
@@ -49,7 +48,6 @@ export default function ManageCompaniesPage() {
   useEffect(() => {
     if (nameValue.length < 2) {
       setSearchResults([]);
-      setIsSearchPopoverOpen(false);
       return;
     }
 
@@ -58,9 +56,6 @@ export default function ManageCompaniesPage() {
       const results = await searchCompanies({ query: nameValue });
       setSearchResults(results);
       setIsSearching(false);
-      if(results.length > 0) {
-        setIsSearchPopoverOpen(true);
-      }
     }, 300);
 
     return () => clearTimeout(handler);
@@ -226,40 +221,42 @@ export default function ManageCompaniesPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nombre / Razón Social</FormLabel>
-                       <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
-                        <PopoverTrigger asChild>
-                           <FormControl>
-                            <Input
-                              placeholder="Buscar o escribir nombre de empresa..."
-                              {...field}
-                            />
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                           {isSearching ? (
-                            <div className="p-4 text-sm text-center">Buscando...</div>
-                          ) : searchResults.length > 0 ? (
-                            <ul className="max-h-60 overflow-y-auto">
-                              {searchResults.map((company) => (
-                                <li
-                                  key={company.rnc}
-                                  className="p-2 text-sm hover:bg-accent cursor-pointer"
-                                  onMouseDown={() => {
-                                    form.setValue('name', company.name, { shouldValidate: true });
-                                    form.setValue('rnc', company.rnc, { shouldValidate: true });
-                                    setSearchResults([]);
-                                    setIsSearchPopoverOpen(false);
-                                  }}
-                                >
-                                  {company.name}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : nameValue.length > 2 && (
-                            <div className="p-4 text-sm text-center">No se encontraron resultados.</div>
-                          )}
-                        </PopoverContent>
-                      </Popover>
+                       <div className="relative">
+                        <FormControl>
+                          <Input
+                            placeholder="Buscar o escribir nombre de empresa..."
+                            {...field}
+                            onFocus={() => setIsNameInputFocused(true)}
+                            onBlur={() => setTimeout(() => setIsNameInputFocused(false), 200)}
+                            autoComplete="off"
+                          />
+                        </FormControl>
+                         {isNameInputFocused && (
+                          <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
+                            {isSearching ? (
+                              <div className="p-4 text-sm text-center">Buscando...</div>
+                            ) : searchResults.length > 0 ? (
+                              <ul className="max-h-60 overflow-y-auto p-1">
+                                {searchResults.map((company) => (
+                                  <li
+                                    key={company.rnc}
+                                    className="p-2 text-sm hover:bg-accent rounded-sm cursor-pointer"
+                                    onMouseDown={() => {
+                                      form.setValue('name', company.name, { shouldValidate: true });
+                                      form.setValue('rnc', company.rnc, { shouldValidate: true });
+                                      setSearchResults([]);
+                                    }}
+                                  >
+                                    {company.name}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : nameValue.length > 1 ? (
+                              <div className="p-4 text-sm text-center text-muted-foreground">No se encontraron resultados.</div>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -322,5 +319,3 @@ export default function ManageCompaniesPage() {
     </div>
   );
 }
-
-    
