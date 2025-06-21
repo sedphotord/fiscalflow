@@ -1,5 +1,5 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getFirestore, enableIndexedDbPersistence, type Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,22 +10,38 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-let app = null;
-let db = null;
+let app: FirebaseApp | null = null;
+let db: Firestore | null = null;
 
 if (firebaseConfig.projectId && firebaseConfig.apiKey) {
-    console.log(`Firebase config found for project: ${firebaseConfig.projectId}`);
     try {
         app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-        db = getFirestore(app);
-        console.log("Firebase initialized successfully.");
+        const firestoreDb = getFirestore(app);
+        
+        enableIndexedDbPersistence(firestoreDb)
+            .then(() => {
+                console.log("Firebase persistence enabled successfully.");
+            })
+            .catch((err) => {
+                if (err.code == 'failed-precondition') {
+                    console.warn("Firebase persistence failed: Multiple tabs open. Persistence can only be enabled in one tab at a time.");
+                } else if (err.code == 'unimplemented') {
+                    console.warn("Firebase persistence failed: Browser does not support required features.");
+                } else {
+                    console.error("Firebase persistence failed with error: ", err);
+                }
+            });
+        
+        db = firestoreDb;
+        console.log("Firebase initialized. Persistence setup initiated.");
+
     } catch (error) {
         console.error("Firebase initialization failed:", error);
         app = null;
         db = null;
     }
 } else {
-    console.warn("Firebase configuration is missing or incomplete. The application will operate in a simulated offline mode. Please ensure your .env file is correctly set up with all NEXT_PUBLIC_FIREBASE_ variables.");
+    console.warn("Firebase configuration is missing or incomplete. The application will operate in a simulated offline mode.");
 }
 
 export { app, db };
