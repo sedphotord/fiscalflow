@@ -19,11 +19,11 @@ const mockUsers: UserSettings[] = [
 
 const mockReports: Report[] = [
     // @ts-ignore
-    { id: crypto.randomUUID(), type: '606', rnc: '131223344', periodo: '202304', estado: 'Completado', fechaCreacion: new Date('2023-05-10').toISOString(), compras: [] },
+    { id: 'mock-rep-1', type: '606', rnc: '131223344', periodo: '202304', estado: 'Completado', fechaCreacion: new Date('2023-05-10').toISOString(), compras: [] },
     // @ts-ignore
-    { id: crypto.randomUUID(), type: '607', rnc: '00112345678', periodo: '202304', estado: 'Borrador', fechaCreacion: new Date('2023-05-11').toISOString(), ventas: [] },
+    { id: 'mock-rep-2', type: '607', rnc: '00112345678', periodo: '202304', estado: 'Borrador', fechaCreacion: new Date('2023-05-11').toISOString(), ventas: [] },
     // @ts-ignore
-    { id: crypto.randomUUID(), type: '606', rnc: '130987654', periodo: '202305', estado: 'Completado', fechaCreacion: new Date('2023-06-05').toISOString(), compras: [] },
+    { id: 'mock-rep-3', type: '606', rnc: '130987654', periodo: '202305', estado: 'Completado', fechaCreacion: new Date('2023-06-05').toISOString(), compras: [] },
 ];
 
 

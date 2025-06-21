@@ -1,21 +1,40 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Report } from '@/lib/types';
 import { format } from 'date-fns';
-import { FileText, FileUp, ScanLine } from 'lucide-react';
+import { FileText, FileUp, ScanLine, Loader2 } from 'lucide-react';
 
 interface RecentActivityProps {
   reports: Report[];
 }
 
+type Activity = {
+    id: string;
+    type: string;
+    description: string;
+    date: string;
+    icon: React.ElementType;
+};
+
+
 export function RecentActivity({ reports }: RecentActivityProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // This hook ensures the component is mounted on the client, preventing hydration errors.
+    setIsClient(true);
+  }, []);
+
   const recentActivities = useMemo(() => {
-    // We don't have individual invoice data, so we'll simulate a mix of activities
-    // based on report creation.
-    const activities = reports.slice(0, 5).map(report => ({
+    // We only generate dynamic/random data on the client side.
+    if (!isClient) {
+      return [];
+    }
+
+    const activities: Activity[] = reports.slice(0, 5).map(report => ({
       id: report.id,
       type: report.type === '606' ? 'Compra (606)' : 'Venta (607)',
       description: `Generado Formulario ${report.periodo}`,
@@ -23,7 +42,7 @@ export function RecentActivity({ reports }: RecentActivityProps) {
       icon: FileText
     }));
 
-    // Add some mock "scanned" activities for visual variety
+    // Add some mock "scanned" activities for visual variety using client-side specific APIs
     if (reports.length > 0) {
         activities.push({
             id: crypto.randomUUID(),
@@ -44,7 +63,7 @@ export function RecentActivity({ reports }: RecentActivityProps) {
     }
 
     return activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
-  }, [reports]);
+  }, [reports, isClient]);
 
   return (
     <Card>
@@ -63,7 +82,16 @@ export function RecentActivity({ reports }: RecentActivityProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentActivities.length === 0 ? (
+              {!isClient ? (
+                 <TableRow>
+                  <TableCell colSpan={3} className="h-24 text-center">
+                     <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Cargando actividad...
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : recentActivities.length === 0 ? (
                  <TableRow>
                   <TableCell colSpan={3} className="h-24 text-center">
                     No hay actividad reciente.
