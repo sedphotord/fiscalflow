@@ -36,6 +36,51 @@ export default function LandingPage() {
     }
   };
 
+  const servicesList = [
+    {
+      icon: Copy,
+      title: 'Escaneo en Lote',
+      description: 'Procesa múltiples facturas simultáneamente con repetición automática si hay errores.',
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      bgColor: 'bg-blue-100 dark:bg-blue-900/40'
+    },
+    {
+      icon: FileText,
+      title: 'Formularios Automáticos',
+      description: 'Genera formularios 606, 607, 608, 609, 612, 615, 987 de la DGII automáticamente.',
+      iconColor: 'text-green-600 dark:text-green-400',
+      bgColor: 'bg-green-100 dark:bg-green-900/40'
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Validación RNC/NCF',
+      description: 'Verifica RNC y NCF en tiempo real con la base de datos oficial de la DGII.',
+      iconColor: 'text-purple-600 dark:text-purple-400',
+      bgColor: 'bg-purple-100 dark:bg-purple-900/40'
+    },
+    {
+      icon: CalendarDays,
+      title: 'Organización por Mes',
+      description: 'Organiza automáticamente facturas por empresa y mes, ordenadas cronológicamente.',
+      iconColor: 'text-orange-600 dark:text-orange-400',
+      bgColor: 'bg-orange-100 dark:bg-orange-900/40'
+    },
+    {
+      icon: FileEdit,
+      title: 'Edición Manual',
+      description: 'Revisa y edita cada factura individualmente antes de generar los formularios.',
+      iconColor: 'text-indigo-600 dark:text-indigo-400',
+      bgColor: 'bg-indigo-100 dark:bg-indigo-900/40'
+    },
+    {
+      icon: Lock,
+      title: 'Respaldo Seguro',
+      description: 'Respaldo automático en la nube con encriptación y acceso desde cualquier dispositivo.',
+      iconColor: 'text-red-600 dark:text-red-400',
+      bgColor: 'bg-red-100 dark:bg-red-900/40'
+    }
+  ];
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -168,54 +213,25 @@ export default function LandingPage() {
                 </p>
             </div>
             <motion.div 
-                className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-12"
+                className="mx-auto grid max-w-7xl items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-12"
                 variants={staggeredContainer}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.2 }}
             >
-                <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                    <Copy className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-                    <div>
-                        <h3 className="text-lg font-semibold">Escaneo en Lote</h3>
-                        <p className="text-muted-foreground">Procesa múltiples facturas simultáneamente con repetición automática si hay errores.</p>
-                    </div>
+              {servicesList.map((service, index) => (
+                <motion.div key={index} variants={itemVariants}>
+                  <Card className="h-full flex flex-col text-left p-6 hover:shadow-lg transition-shadow duration-300">
+                      <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full ${service.bgColor}`}>
+                          <service.icon className={`h-6 w-6 ${service.iconColor}`} />
+                      </div>
+                      <h3 className="text-xl font-bold">{service.title}</h3>
+                      <p className="mt-2 text-muted-foreground flex-1">
+                          {service.description}
+                      </p>
+                  </Card>
                 </motion.div>
-                <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                    <FileText className="h-8 w-8 text-accent flex-shrink-0 mt-1" />
-                    <div>
-                        <h3 className="text-lg font-semibold">Formularios Automáticos</h3>
-                        <p className="text-muted-foreground">Genera formularios 606, 607, 608, 609, 612, 615, 987 de la DGII automáticamente.</p>
-                    </div>
-                </motion.div>
-                 <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                    <ShieldCheck className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-                    <div>
-                        <h3 className="text-lg font-semibold">Validación RNC/NCF</h3>
-                        <p className="text-muted-foreground">Verifica RNC y NCF en tiempo real con la base de datos oficial de la DGII.</p>
-                    </div>
-                </motion.div>
-                 <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                    <CalendarDays className="h-8 w-8 text-accent flex-shrink-0 mt-1" />
-                    <div>
-                        <h3 className="text-lg font-semibold">Organización por Mes</h3>
-                        <p className="text-muted-foreground">Organiza automáticamente facturas por empresa y mes, ordenadas cronológicamente.</p>
-                    </div>
-                </motion.div>
-                 <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                    <FileEdit className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-                    <div>
-                        <h3 className="text-lg font-semibold">Edición Manual</h3>
-                        <p className="text-muted-foreground">Revisa y edita cada factura individualmente antes de generar los formularios.</p>
-                    </div>
-                </motion.div>
-                 <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                    <Lock className="h-8 w-8 text-accent flex-shrink-0 mt-1" />
-                    <div>
-                        <h3 className="text-lg font-semibold">Respaldo Seguro</h3>
-                        <p className="text-muted-foreground">Respaldo automático en la nube con encriptación y acceso desde cualquier dispositivo.</p>
-                    </div>
-                </motion.div>
+              ))}
             </motion.div>
           </div>
         </motion.section>
