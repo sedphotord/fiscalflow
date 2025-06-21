@@ -38,21 +38,21 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold font-headline">Visión General</h1>
       </div>
       
-      <QuickActions />
-
       <CtaBanner
         title={<span>Contabilidad Inteligente es <span className="font-bold">trabajo en equipo.</span></span>}
         description="Descubre cómo nuestra plataforma facilita la colaboración entre clientes y contadores, permitiendo trabajar en tiempo real desde cualquier lugar."
-        imageUrl="https://placehold.co/1200x200.png"
+        imageUrl="https://cdn1.alegra.com/websites/green-banner-background-2.webp"
       >
         <Button asChild size="lg" variant="secondary">
           <Link href="/dashboard/settings/team"><Zap className="mr-2"/>Invitar al Equipo</Link>
         </Button>
-        <Button asChild size="lg" variant="outline">
+        <Button asChild size="lg" variant="ghost">
           <Link href="/dashboard/support"><LifeBuoy className="mr-2"/>Contactar Soporte</Link>
         </Button>
       </CtaBanner>
       
+      <QuickActions />
+
       <AnalyticsCharts reports={reports} />
       
       <RecentActivity reports={reports} />
