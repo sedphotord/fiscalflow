@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Download, Filter, TrendingUp, Users, Wallet } from 'lucide-react';
 import { format } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const mockTransactions = [
   { id: 'txn_1', user: 'Empresa ABC SRL', plan: 'Pro', amount: 2500, status: 'Completado', date: new Date('2024-07-20') },
@@ -19,6 +21,12 @@ const mockTransactions = [
 
 
 export default function AdminPaymentAnalyticsPage() {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
     const getBadgeVariant = (status: string) => {
         if (status === 'Completado') return 'default';
         if (status === 'Fallido') return 'destructive';
@@ -100,7 +108,7 @@ export default function AdminPaymentAnalyticsPage() {
                   <TableCell>
                     <Badge variant={getBadgeVariant(txn.status)}>{txn.status}</Badge>
                   </TableCell>
-                  <TableCell>{format(txn.date, 'dd/MM/yyyy')}</TableCell>
+                  <TableCell>{isClient ? format(txn.date, 'dd/MM/yyyy') : <Skeleton className="h-4 w-20" />}</TableCell>
                   <TableCell className="text-right">RD$ {txn.amount.toFixed(2)}</TableCell>
                 </TableRow>
               ))}

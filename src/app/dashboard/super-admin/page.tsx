@@ -1,6 +1,8 @@
+
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -38,6 +40,12 @@ const mockTransactions = [
 
 
 export default function SuperAdminPage() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
   const getBadgeVariant = (status: string) => {
     return status === 'Completado' ? 'default' : 'destructive';
   };
@@ -119,7 +127,7 @@ export default function SuperAdminPage() {
                   <TableCell>
                     <Badge variant={getBadgeVariant(txn.status)}>{txn.status}</Badge>
                   </TableCell>
-                  <TableCell>{format(txn.date, 'dd/MM/yyyy')}</TableCell>
+                  <TableCell>{isClient ? format(txn.date, 'dd/MM/yyyy') : <Skeleton className="h-4 w-20" />}</TableCell>
                   <TableCell className="text-right">RD$ {txn.amount.toFixed(2)}</TableCell>
                   <TableCell>
                      <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
