@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Logo } from '@/components/logo';
-import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook } from 'lucide-react';
+import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook, BarChartHorizontal, Users, Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -109,6 +109,30 @@ export default function LandingPage() {
       detailedDescription: 'Tu información es invaluable. Todas tus facturas y reportes se respaldan automáticamente en nuestra nube segura, con encriptación de extremo a extremo. Accede a tus datos desde cualquier lugar y dispositivo con total tranquilidad.',
       iconColor: 'text-red-600 dark:text-red-400',
       bgColor: 'bg-red-100 dark:bg-red-900/40'
+    },
+    {
+      icon: BarChartHorizontal,
+      title: 'Dashboard Analítico',
+      description: 'Visualiza tus finanzas con gráficos de compras, ventas e impuestos.',
+      detailedDescription: 'Toma decisiones informadas con nuestro dashboard interactivo. Visualiza tendencias de compras y ventas, compara períodos fiscales, y analiza la distribución de tus gastos e ingresos. Los gráficos claros y concisos te ayudan a entender la salud financiera de tu negocio de un vistazo.',
+      iconColor: 'text-yellow-600 dark:text-yellow-400',
+      bgColor: 'bg-yellow-100 dark:bg-yellow-900/40'
+    },
+    {
+      icon: Users,
+      title: 'Gestión Multi-Empresa',
+      description: 'Ideal para contadores. Administra múltiples clientes desde una sola cuenta.',
+      detailedDescription: 'Diseñado para profesionales de la contabilidad. Agrega y gestiona los perfiles de todos tus clientes desde un único panel de control. Genera reportes individuales para cada empresa de forma segura y organizada, optimizando tu flujo de trabajo y ahorrando tiempo valioso.',
+      iconColor: 'text-cyan-600 dark:text-cyan-400',
+      bgColor: 'bg-cyan-100 dark:bg-cyan-900/40'
+    },
+    {
+      icon: Bell,
+      title: 'Alertas y Recordatorios',
+      description: 'No olvides una fecha límite. Recibe notificaciones de vencimientos de impuestos.',
+      detailedDescription: 'Mantente siempre al día con tus obligaciones fiscales. Nuestro sistema te enviará recordatorios y alertas sobre las fechas límite para la presentación de los formatos 606, 607 y otras declaraciones importantes. Configura las notificaciones para que se adapten a tus necesidades y evita multas y recargos.',
+      iconColor: 'text-lime-600 dark:text-lime-400',
+      bgColor: 'bg-lime-100 dark:bg-lime-900/40'
     }
   ];
 
