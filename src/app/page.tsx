@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 export default function LandingPage() {
   const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedFeature, setSelectedFeature] = useState<any>(null);
 
   const sectionVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -38,6 +39,27 @@ export default function LandingPage() {
       }
     }
   };
+
+  const featuresList = [
+    {
+      icon: ScanLine,
+      title: 'Escaneo Inteligente',
+      shortDescription: 'Escanea facturas físicas o sube imágenes/PDFs. OCR avanzado extrae RNC, NCF, montos e ITBIS automáticamente.',
+      detailedDescription: `Nuestra tecnología de **Reconocimiento Óptico de Caracteres (OCR) impulsada por Inteligencia Artificial** transforma la tediosa tarea de digitar facturas en un proceso de segundos. Simplemente toma una foto de tu factura de compra o sube un archivo PDF, y FiscalFlow se encarga del resto.\n\nEl sistema identifica y extrae con precisión los campos clave: **RNC del proveedor, Número de Comprobante Fiscal (NCF), fecha de emisión, monto total e ITBIS facturado**. Estos datos se colocan directamente en el borrador del Formato 606, minimizando errores humanos y ahorrándote horas de trabajo manual. Es la forma más rápida y segura de registrar tus compras.`
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Validación Automática',
+      shortDescription: 'Valida RNC y NCF en tiempo real. Detecta errores antes de generar formularios oficiales.',
+      detailedDescription: `Evita los rechazos de la DGII antes de que ocurran. Cada vez que ingresas un RNC o un NCF, ya sea manualmente o a través del escáner, nuestro sistema lo **valida en tiempo real** contra las reglas de la DGII.\n\nVerificamos la longitud correcta, el formato y la estructura de los RNC/Cédulas y los NCF. Esta capa de seguridad proactiva asegura que tus datos sean correctos desde el principio, garantizando que los archivos \`.txt\` que generes cumplan con los estándares de la DGII y sean aceptados sin problemas.`
+    },
+    {
+      icon: FileText,
+      title: 'Generación de Formularios DGII',
+      shortDescription: 'Genera automáticamente los archivos de envío de datos requeridos por la DGII, listos para declarar.',
+      detailedDescription: `El corazón de FiscalFlow. Convierte tus registros de compras y ventas en los archivos de texto (\`.txt\`) listos para ser subidos a la Oficina Virtual de la DGII. Olvídate de los formatos complicados y las especificaciones técnicas.\n\nActualmente, la plataforma te permite generar:\n• **Formato 606:** Reporte de Compras de Bienes y Servicios.\n• **Formato 607:** Reporte de Ventas de Bienes y Servicios.\n\nEstamos trabajando para ampliar nuestro catálogo de formularios para incluir el **Formato 608 (NCF Anulados)**, el **Formato 609 (Pagos al Exterior)** y las declaraciones juradas anuales como el **IR-1** para personas físicas y el **IR-2** para sociedades. Con FiscalFlow, el cumplimiento fiscal está a solo un clic de distancia.`
+    }
+  ];
 
   const servicesList = [
     {
@@ -187,21 +209,18 @@ export default function LandingPage() {
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
               >
-                <motion.div className="grid gap-2 text-center" variants={itemVariants}>
-                   <ScanLine className="h-12 w-12 mx-auto text-primary" />
-                  <h3 className="text-xl font-bold">Escaneo Inteligente</h3>
-                  <p className="text-muted-foreground">Escanea facturas físicas o sube imágenes/PDFs. OCR avanzado extrae RNC, NCF, montos e ITBIS automáticamente.</p>
-                </motion.div>
-                <motion.div className="grid gap-2 text-center" variants={itemVariants}>
-                  <ShieldCheck className="h-12 w-12 mx-auto text-primary" />
-                  <h3 className="text-xl font-bold">Validación Automática</h3>
-                  <p className="text-muted-foreground">Valida RNC y NCF en tiempo real. Detecta errores antes de generar formularios oficiales.</p>
-                </motion.div>
-                <motion.div className="grid gap-2 text-center" variants={itemVariants}>
-                  <FileText className="h-12 w-12 mx-auto text-primary" />
-                  <h3 className="text-xl font-bold">Formularios DGII</h3>
-                  <p className="text-muted-foreground">Genera automáticamente formularios 606, 607, y más, listos para declarar. Todo lo que necesitas sin errores.</p>
-                </motion.div>
+                {featuresList.map((feature, index) => (
+                  <motion.div 
+                    key={index} 
+                    className="grid gap-2 text-center p-4 rounded-lg hover:bg-muted/50 transition-colors duration-300 cursor-pointer"
+                    variants={itemVariants}
+                    onClick={() => setSelectedFeature(feature)}
+                  >
+                    <feature.icon className="h-12 w-12 mx-auto text-primary" />
+                    <h3 className="text-xl font-bold">{feature.title}</h3>
+                    <p className="text-muted-foreground">{feature.shortDescription}</p>
+                  </motion.div>
+                ))}
               </motion.div>
             </div>
           </motion.section>
@@ -400,6 +419,7 @@ export default function LandingPage() {
           </div>
         </footer>
       </div>
+      
       <Dialog open={!!selectedService} onOpenChange={(isOpen) => !isOpen && setSelectedService(null)}>
         <DialogContent>
           {selectedService && (
@@ -414,6 +434,26 @@ export default function LandingPage() {
               </DialogHeader>
               <DialogDescription className="text-base text-foreground whitespace-pre-wrap">
                 {selectedService.detailedDescription}
+              </DialogDescription>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={!!selectedFeature} onOpenChange={(isOpen) => !isOpen && setSelectedFeature(null)}>
+        <DialogContent>
+          {selectedFeature && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-4 mb-4">
+                   <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <selectedFeature.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <DialogTitle className="text-2xl">{selectedFeature.title}</DialogTitle>
+                </div>
+              </DialogHeader>
+              <DialogDescription className="text-base text-foreground whitespace-pre-wrap">
+                {selectedFeature.detailedDescription}
               </DialogDescription>
             </>
           )}
