@@ -64,7 +64,6 @@ export function AppSidebar() {
                 [
                   isEnvioActive ? 'formatos-envio' : '',
                   isDeclaracionesActive ? 'declaraciones-anuales' : '',
-                  isSuscripcionesActive ? 'suscripciones' : ''
                 ].filter(Boolean)
                 }>
               <AccordionItem value="formatos-envio" className="border-none">
@@ -153,6 +152,32 @@ export function AppSidebar() {
                   </nav>
                 </AccordionContent>
               </AccordionItem>
+            </Accordion>
+            <Link
+                href="/dashboard/contribuyentes"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                  pathname.startsWith('/dashboard/contribuyentes') && 'bg-muted text-primary'
+                )}
+              >
+                <Users className="h-4 w-4" />
+                Contribuyentes
+              </Link>
+            <Link
+                href="/dashboard/validator"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                  pathname.startsWith('/dashboard/validator') && 'bg-muted text-primary'
+                )}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Validador DGII
+              </Link>
+              <Accordion type="multiple" className="w-full" defaultValue={
+                [
+                  isSuscripcionesActive ? 'suscripciones' : ''
+                ].filter(Boolean)
+                }>
               <AccordionItem value="suscripciones" className="border-none">
                 <AccordionTrigger className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
@@ -217,26 +242,6 @@ export function AppSidebar() {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-            <Link
-                href="/dashboard/contribuyentes"
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                  pathname.startsWith('/dashboard/contribuyentes') && 'bg-muted text-primary'
-                )}
-              >
-                <Users className="h-4 w-4" />
-                Contribuyentes
-              </Link>
-            <Link
-                href="/dashboard/validator"
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                  pathname.startsWith('/dashboard/validator') && 'bg-muted text-primary'
-                )}
-              >
-                <ShieldCheck className="h-4 w-4" />
-                Validador DGII
-              </Link>
             <Link
               href="/dashboard/integrations"
               className={cn(
