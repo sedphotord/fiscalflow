@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import type { Report, User, Company, TeamMember, AppContextType, UserPlan, TeamMemberRole, Plan, InvoicePack, CreateUserByAdminData, PlanData, InvoicePackData } from '@/lib/types';
+import type { Report, User, Company, TeamMember, AppContextType, UserPlan, TeamMemberRole, Plan, InvoicePack, CreateUserByAdminData, PlanData, InvoicePackData, TeamMemberData } from '@/lib/types';
 import { type toast as toastFn } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from '@/components/ui/toaster';
@@ -91,17 +91,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [toast]);
   
   // --- Team Management ---
-  const inviteTeamMember = useCallback((email: string, role: TeamMemberRole) => {
+  const addTeamMember = useCallback((memberData: TeamMemberData) => {
     const newMember: TeamMember = {
+      ...memberData,
       id: `team-${Date.now()}`,
       ownerId: currentUser.id,
-      email,
-      role,
-      status: 'Pendiente'
+      status: 'Activo'
     };
     setTeamMembers(prev => [...prev, newMember]);
-    toast({ title: 'Invitación Enviada', description: `Se ha invitado a ${email} a unirse a su equipo.` });
+    toast({ title: 'Miembro Añadido', description: `${memberData.name} ha sido añadido al equipo.` });
   }, [currentUser.id, toast]);
+  
+  const updateTeamMember = useCallback((id: string, memberData: Partial<TeamMemberData>) => {
+    setTeamMembers(prev => prev.map(m => m.id === id ? { ...m, ...memberData } as TeamMember : m));
+    toast({ title: 'Miembro Actualizado' });
+  }, [toast]);
 
   const deleteTeamMember = useCallback((id: string) => {
     setTeamMembers(prev => prev.filter(m => m.id !== id));
@@ -140,9 +144,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const newTeamMembers = data.teamMembers.map(memberData => ({
         id: `team-${Date.now()}-${Math.random()}`,
         ownerId: ownerId,
+        name: `Miembro ${memberData.email.split('@')[0]}`,
         email: memberData.email,
         role: memberData.role,
-        status: 'Activo' as const, // Or 'Pendiente' if they need to accept
+        status: 'Activo' as const,
       }));
       setTeamMembers(prev => [...prev, ...newTeamMembers]);
     }
@@ -180,6 +185,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
      const newMember: TeamMember = {
       id: `team-${Date.now()}`,
       ownerId: userId,
+      name: 'Nuevo Miembro',
       email,
       role,
       status: 'Pendiente'
@@ -243,7 +249,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     deleteCompany,
     showToast: toast,
     // User functions
-    inviteTeamMember,
+    addTeamMember,
+    updateTeamMember,
     deleteTeamMember,
     // Super Admin functions
     createUserByAdmin,

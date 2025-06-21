@@ -21,9 +21,9 @@ export const MOCK_COMPANIES: Company[] = [
 ];
 
 export const MOCK_TEAM_MEMBERS: TeamMember[] = [
-    { id: 'team-1', ownerId: 'user-1', email: 'asistente@fiscalflow.app', role: 'Contable', status: 'Activo' },
-    { id: 'team-2', ownerId: 'user-1', email: 'nuevo.empleado@email.com', role: 'Solo Lectura', status: 'Pendiente' },
-    { id: 'team-3', ownerId: 'user-2', email: 'socio@empresa-abc.com', role: 'Admin', status: 'Activo' },
+    { id: 'team-1', ownerId: 'user-1', name: 'Asistente Contable', email: 'asistente@fiscalflow.app', role: 'Contable', status: 'Activo' },
+    { id: 'team-2', ownerId: 'user-1', name: 'Empleado Junior', email: 'nuevo.empleado@email.com', role: 'Solo Lectura', status: 'Pendiente' },
+    { id: 'team-3', ownerId: 'user-2', name: 'Socio Principal', email: 'socio@empresa-abc.com', role: 'Admin', status: 'Activo' },
 ];
 
 export const MOCK_REPORTS: Report[] = [

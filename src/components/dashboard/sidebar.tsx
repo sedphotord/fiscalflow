@@ -46,6 +46,7 @@ export function AppSidebar() {
   const isDeclaracionesActive = pathname.startsWith('/dashboard/declaraciones');
   const isSuscripcionesActive = pathname.startsWith('/dashboard/subscriptions');
   const isCalculatorsActive = pathname.startsWith('/dashboard/calculators');
+  const isSettingsActive = pathname.startsWith('/dashboard/settings');
 
   const calculators = [
     { title: 'Retenciones', icon: Percent, href: '/dashboard/calculators/retenciones', isImplemented: true },
@@ -83,6 +84,7 @@ export function AppSidebar() {
                   isDeclaracionesActive ? 'declaraciones-anuales' : '',
                   isSuscripcionesActive ? 'suscripciones' : '',
                   isCalculatorsActive ? 'calculators' : '',
+                  isSettingsActive ? 'settings' : '',
                 ].filter(Boolean)
                 }>
               <AccordionItem value="formatos-envio" className="border-none">
@@ -224,6 +226,16 @@ export function AppSidebar() {
                 <ShieldCheck className="h-4 w-4" />
                 Validador DGII
               </Link>
+            <Link
+                href="/dashboard/settings/team"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                  pathname.startsWith('/dashboard/settings/team') && 'bg-muted text-primary'
+                )}
+              >
+                <Users className="h-4 w-4" />
+                Equipo
+            </Link>
               <Accordion type="multiple" className="w-full" defaultValue={
                 [
                   isSuscripcionesActive ? 'suscripciones' : ''
@@ -309,7 +321,7 @@ export function AppSidebar() {
               href="/dashboard/settings"
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                pathname.startsWith('/dashboard/settings') && 'bg-muted text-primary'
+                pathname.startsWith('/dashboard/settings') && !pathname.startsWith('/dashboard/settings/team') && 'bg-muted text-primary'
               )}
             >
               <Settings className="h-4 w-4" />

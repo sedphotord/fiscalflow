@@ -9,7 +9,7 @@ import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, PlusCircle, Trash2, Send } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash2, Send, Edit } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -17,16 +17,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { InviteTeamMemberSchema } from '@/lib/schemas';
-import type { TeamMember, TeamMemberRole } from '@/lib/types';
+import { TeamMemberSchema } from '@/lib/schemas';
+import type { TeamMember } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TEAM_ROLES } from '@/lib/constants';
 
-type FormValues = z.infer<typeof InviteTeamMemberSchema>;
+type FormValues = z.infer<typeof TeamMemberSchema>;
 
 export default function ManageTeamPage() {
-  const { teamMembers, inviteTeamMember, currentUser, deleteTeamMember } = useAppContext();
+  const { teamMembers, addTeamMember, updateTeamMember, currentUser, deleteTeamMember } = useAppContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
 
   const planLimits = {
     'Gratis': 1,
@@ -34,22 +35,45 @@ export default function ManageTeamPage() {
     'Despacho': Infinity
   };
 
-  const currentMemberCount = 1 + teamMembers.filter(m => m.ownerId === currentUser.id).length; // Owner + team members for current user
+  const currentMemberCount = 1 + teamMembers.filter(m => m.ownerId === currentUser.id).length;
   const memberLimit = planLimits[currentUser.plan];
   const canAddMembers = currentMemberCount < memberLimit;
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(InviteTeamMemberSchema),
+    resolver: zodResolver(TeamMemberSchema),
     defaultValues: {
+      name: '',
       email: '',
       role: 'Contable',
     },
   });
 
+  const handleOpenDialog = (member: TeamMember | null = null) => {
+    setEditingMember(member);
+    if (member) {
+      form.reset({
+        id: member.id,
+        name: member.name,
+        email: member.email,
+        role: member.role,
+      });
+    } else {
+      form.reset({
+        name: '',
+        email: '',
+        role: 'Contable',
+      });
+    }
+    setIsDialogOpen(true);
+  };
+
   const onSubmit = (data: FormValues) => {
-    inviteTeamMember(data.email, data.role);
+    if (editingMember) {
+      updateTeamMember(editingMember.id, data);
+    } else {
+      addTeamMember(data);
+    }
     setIsDialogOpen(false);
-    form.reset();
   };
 
   const getStatusVariant = (status: TeamMember['status']) => {
@@ -61,12 +85,12 @@ export default function ManageTeamPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Gestionar Equipo"
-        description="Invite y gestione los miembros de su equipo y sus permisos."
+        title="Gestión de Equipo"
+        description="Añada, edite y gestione los miembros de su equipo y sus permisos."
       >
-        <Button onClick={() => setIsDialogOpen(true)} disabled={!canAddMembers}>
+        <Button onClick={() => handleOpenDialog(null)} disabled={!canAddMembers}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Invitar Miembro
+            Añadir Miembro
         </Button>
       </PageHeader>
       
@@ -93,6 +117,7 @@ export default function ManageTeamPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Nombre</TableHead>
                 <TableHead>Correo Electrónico</TableHead>
                 <TableHead>Rol</TableHead>
                 <TableHead>Estado</TableHead>
@@ -102,7 +127,8 @@ export default function ManageTeamPage() {
             <TableBody>
               {userTeamMembers.map((member) => (
                 <TableRow key={member.id}>
-                  <TableCell className="font-medium">{member.email}</TableCell>
+                  <TableCell className="font-medium">{member.name}</TableCell>
+                  <TableCell>{member.email}</TableCell>
                   <TableCell>{member.role}</TableCell>
                    <TableCell>
                     <Badge variant={getStatusVariant(member.status)}>{member.status}</Badge>
@@ -116,6 +142,10 @@ export default function ManageTeamPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => handleOpenDialog(member)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Editar
+                          </DropdownMenuItem>
                           <AlertDialogTrigger asChild>
                             <DropdownMenuItem className="text-destructive focus:text-destructive">
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -150,13 +180,26 @@ export default function ManageTeamPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Invitar Nuevo Miembro</DialogTitle>
+              <DialogTitle>{editingMember ? 'Editar Miembro' : 'Añadir Nuevo Miembro'}</DialogTitle>
               <DialogDescription>
-                Ingrese el correo electrónico y asigne un rol al nuevo miembro.
+                {editingMember ? 'Actualice los datos del miembro.' : 'Ingrese los datos del nuevo miembro del equipo.'}
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+                 <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre Completo</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                  <FormField
                   control={form.control}
                   name="email"
@@ -185,7 +228,10 @@ export default function ManageTeamPage() {
                           <SelectContent>
                             {TEAM_ROLES.map((role) => (
                               <SelectItem key={role.id} value={role.id}>
-                                {role.name}
+                                <div className="flex flex-col">
+                                  <span>{role.name}</span>
+                                  <span className="text-xs text-muted-foreground">{role.description}</span>
+                                </div>
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -200,7 +246,7 @@ export default function ManageTeamPage() {
                   </DialogClose>
                   <Button type="submit">
                       <Send className="mr-2 h-4 w-4" />
-                      Enviar Invitación
+                      {editingMember ? 'Guardar Cambios' : 'Añadir Miembro'}
                   </Button>
                 </DialogFooter>
               </form>

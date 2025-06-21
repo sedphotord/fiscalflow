@@ -1,6 +1,6 @@
 
 import { type z } from 'zod';
-import { type Form606Schema, type Form607Schema, type Form608Schema, type Form609Schema, type AdminCreateUserSchema, type PlanSchema, type InvoicePackSchema } from './schemas';
+import { type Form606Schema, type Form607Schema, type Form608Schema, type Form609Schema, type AdminCreateUserSchema, type PlanSchema, type InvoicePackSchema, type TeamMemberSchema } from './schemas';
 import { type toast } from '@/hooks/use-toast';
 import { TEAM_ROLES } from './constants';
 
@@ -67,10 +67,13 @@ export type Company = {
 export type TeamMember = {
     id: string;
     ownerId: string; // ID of the user who invited this member
+    name: string;
     email: string;
     role: TeamMemberRole;
     status: 'Activo' | 'Pendiente';
 };
+
+export type TeamMemberData = Omit<TeamMember, 'id' | 'ownerId' | 'status'>;
 
 export type Plan = {
     id: string;
@@ -108,7 +111,8 @@ export type AppContextType = {
   deleteCompany: (id: string) => void;
   showToast: typeof toast;
   // User functions
-  inviteTeamMember: (email: string, role: TeamMemberRole) => void;
+  addTeamMember: (memberData: TeamMemberData) => void;
+  updateTeamMember: (id: string, memberData: Partial<TeamMemberData>) => void;
   deleteTeamMember: (id: string) => void;
   // Super Admin functions
   createUserByAdmin: (data: CreateUserByAdminData) => void;

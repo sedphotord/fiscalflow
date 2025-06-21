@@ -166,6 +166,17 @@ export const InviteTeamMemberSchema = z.object({
   }),
 });
 
+// Schema for adding/editing a team member by a user
+export const TeamMemberSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
+  email: z.string().email({ message: 'Por favor ingrese un correo electrónico válido.' }),
+  role: z.custom<TeamMemberRole>(val => TEAM_ROLES.some(role => role.id === val), {
+    message: 'Por favor seleccione un rol válido.',
+  }),
+});
+
+
 // Admin Schemas
 const TeamMemberCreationSchema = z.object({
   email: z.string().email({ message: 'Correo de miembro inválido.' }),

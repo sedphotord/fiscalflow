@@ -237,8 +237,8 @@ export default function SettingsPage() {
             </Card>
              <Card>
                 <CardHeader>
-                    <CardTitle>Gestión de Cuentas</CardTitle>
-                    <CardDescription>Administre sus empresas y equipo de trabajo.</CardDescription>
+                    <CardTitle>Gestión de Empresas</CardTitle>
+                    <CardDescription>Administre los perfiles de sus empresas y clientes.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4">
                     <Link href="/dashboard/settings/companies" passHref>
@@ -248,18 +248,6 @@ export default function SettingsPage() {
                                 <div>
                                     <h3 className="font-semibold">Empresas</h3>
                                     <p className="text-sm text-muted-foreground">Gestione sus perfiles.</p>
-                                </div>
-                            </div>
-                            <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                    </Link>
-                     <Link href="/dashboard/settings/team" passHref>
-                        <div className="flex justify-between items-center p-4 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-4">
-                                <UserCog className="h-6 w-6 text-primary" />
-                                <div>
-                                    <h3 className="font-semibold">Equipo</h3>
-                                    <p className="text-sm text-muted-foreground">Invite y gestione miembros.</p>
                                 </div>
                             </div>
                             <ArrowRight className="h-5 w-5 text-muted-foreground" />
