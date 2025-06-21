@@ -21,6 +21,7 @@ import {
   Gauge,
   Wallet,
   Plug,
+  Calculator,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -71,10 +72,10 @@ export function AppSidebar() {
                   "flex items-center rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
                   isEnvioActive && 'text-primary'
                   )}>
-                  <span className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                     <FileText className="h-4 w-4" />
-                    Formatos de Envío
-                  </span>
+                    <span>Formatos de Envío</span>
+                  </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                   <nav className="grid gap-1">
@@ -136,10 +137,10 @@ export function AppSidebar() {
                   "flex items-center rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
                   isDeclaracionesActive && 'text-primary'
                   )}>
-                  <span className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                     <BookMarked className="h-4 w-4" />
-                    Declaraciones Anuales
-                  </span>
+                    <span>Declaraciones Anuales</span>
+                  </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                    <nav className="grid gap-1">
@@ -177,6 +178,16 @@ export function AppSidebar() {
                 <ShieldCheck className="h-4 w-4" />
                 Validador DGII
               </Link>
+            <Link
+              href="/dashboard/calculators"
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                pathname.startsWith('/dashboard/calculators') && 'bg-muted text-primary'
+              )}
+            >
+              <Calculator className="h-4 w-4" />
+              Calculadoras
+            </Link>
               <Accordion type="multiple" className="w-full" defaultValue={
                 [
                   isSuscripcionesActive ? 'suscripciones' : ''
@@ -187,10 +198,10 @@ export function AppSidebar() {
                   "flex items-center rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
                   isSuscripcionesActive && 'text-primary'
                   )}>
-                  <span className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                     <CreditCard className="h-4 w-4" />
-                    Suscripciones
-                  </span>
+                    <span>Suscripciones</span>
+                  </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                    <nav className="grid gap-1">
