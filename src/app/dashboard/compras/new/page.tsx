@@ -114,6 +114,14 @@ export default function NewCompraPage() {
   });
 
   useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'scan' && !isCameraDialogOpen) {
+        setIsCameraDialogOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  useEffect(() => {
     if (reportId) {
       const report = getReport(reportId);
       if (report && report.type === '606') {

@@ -81,6 +81,8 @@ export const Form607RowSchema = z.object({
   fechaComprobante: z.string().min(1, "Fecha requerida"),
   montoFacturado: z.number({invalid_type_error: "Monto requerido"}).positive("Debe ser positivo"),
   itbisFacturado: z.number({invalid_type_error: "Monto requerido"}).min(0, "No puede ser negativo"),
+  isRncValid: z.boolean().optional(),
+  isNcfValid: z.boolean().optional(),
 });
 
 // Schema for the entire 607 form

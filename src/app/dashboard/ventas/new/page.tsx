@@ -12,13 +12,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Form607Schema, CompanySchema } from '@/lib/schemas';
-import { PlusCircle, Trash2, Save, FileDown, Loader2, ShieldCheck } from 'lucide-react';
+import { PlusCircle, Trash2, Save, FileDown, Loader2, ShieldCheck, Upload, Camera, CheckCircle2, XCircle } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { lookupRnc } from '@/ai/flows/lookup-rnc-flow';
 import { searchCompanies } from '@/ai/flows/search-companies-flow';
+import { extractInvoiceData } from '@/ai/flows/extract-invoice-flow';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
 type FormValues = z.infer<typeof Form607Schema>;
@@ -32,6 +35,8 @@ const defaultRow = {
   fechaComprobante: '',
   montoFacturado: 0,
   itbisFacturado: 0,
+  isRncValid: undefined,
+  isNcfValid: undefined,
 };
 
 export default function NewVentaPage() {
@@ -45,6 +50,14 @@ export default function NewVentaPage() {
   const [companySearchResults, setCompanySearchResults] = useState<{name: string, rnc: string}[]>([]);
   const [isCompanySearching, setIsCompanySearching] = useState(false);
   const [isNameInputFocused, setIsNameInputFocused] = useState(false);
+
+  const [isScanning, setIsScanning] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCameraDialogOpen, setIsCameraDialogOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const allCompanies = useMemo(() => [
     { id: currentUser.id, name: `${currentUser.name} (Principal)`, rnc: currentUser.rnc }, 
@@ -66,6 +79,14 @@ export default function NewVentaPage() {
   });
 
   const companyNameValue = addCompanyForm.watch('name');
+
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'scan' && !isCameraDialogOpen) {
+        setIsCameraDialogOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     if (reportId) {
@@ -91,6 +112,44 @@ export default function NewVentaPage() {
 
     return () => clearTimeout(handler);
   }, [companyNameValue]);
+
+  useEffect(() => {
+    if (!isCameraDialogOpen) {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+      return;
+    }
+
+    let stream: MediaStream;
+    const getCameraPermission = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        setHasCameraPermission(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        showToast({
+          variant: 'destructive',
+          title: 'Acceso a Cámara Denegado',
+          description: 'Por favor, habilita los permisos de la cámara en tu navegador.',
+        });
+      }
+    };
+
+    getCameraPermission();
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    }
+  }, [isCameraDialogOpen, showToast]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -157,8 +216,119 @@ export default function NewVentaPage() {
     }
   };
 
+  const processInvoiceData = useCallback((extractedData: any) => {
+    const firstEmptyIndex = form.getValues('ventas').findIndex(c => !c.rncCedula && !c.ncf && c.montoFacturado === 0);
+
+    const newRow = {
+      ...defaultRow,
+      rncCedula: extractedData.rncCedula || '',
+      ncf: extractedData.ncf || '',
+      fechaComprobante: extractedData.fechaComprobante || '',
+      montoFacturado: extractedData.montoFacturado || 0,
+      itbisFacturado: extractedData.itbisFacturado || 0,
+      isRncValid: extractedData.isRncValid,
+      isNcfValid: extractedData.isNcfValid,
+    };
+    
+    if (newRow.rncCedula.length === 11) {
+        newRow.tipoId = '2';
+    } else {
+        newRow.tipoId = '1';
+    }
+
+    if (firstEmptyIndex !== -1) {
+      form.setValue(`ventas.${firstEmptyIndex}`, newRow, { shouldValidate: true });
+    } else {
+      append(newRow, { shouldFocus: false });
+    }
+
+    showToast({
+      title: '¡Datos Extraídos y Validados!',
+      description: extractedData.validationMessage || 'La información de la factura se ha agregado al formulario.',
+    });
+  }, [form, append, showToast]);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    showToast({
+      title: 'Procesando Factura...',
+      description: 'El escáner inteligente está extrayendo y validando los datos.',
+    });
+
+    try {
+      const fileReader = new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+      });
+
+      const photoDataUri = await fileReader;
+      const extractedData = await extractInvoiceData({ photoDataUri });
+      processInvoiceData(extractedData);
+
+    } catch (error) {
+      console.error('Error scanning invoice:', error);
+      showToast({
+        variant: 'destructive',
+        title: 'Error en el Escaneo',
+        description: 'No se pudieron extraer los datos. Intente de nuevo o ingréselos manualmente.',
+      });
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      setIsScanning(false);
+    }
+  };
+
+  const handleCaptureAndProcess = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    setIsCapturing(true);
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    if(context) {
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const photoDataUri = canvas.toDataURL('image/jpeg');
+        
+        setIsCameraDialogOpen(false);
+        showToast({
+          title: 'Procesando Factura...',
+          description: 'El escáner inteligente está extrayendo y validando los datos.',
+        });
+
+        try {
+            const extractedData = await extractInvoiceData({ photoDataUri });
+            processInvoiceData(extractedData);
+        } catch (error) {
+            console.error('Error processing captured invoice:', error);
+            showToast({
+                variant: 'destructive',
+                title: 'Error en el Escaneo',
+                description: 'No se pudieron extraer los datos de la imagen capturada.',
+            });
+        } finally {
+            setIsCapturing(false);
+        }
+    } else {
+         showToast({
+            variant: 'destructive',
+            title: 'Error de Captura',
+            description: 'No se pudo obtener el contexto del canvas.',
+        });
+        setIsCapturing(false);
+    }
+  };
+
   return (
-    <>
+    <TooltipProvider>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <PageHeader
@@ -233,8 +403,21 @@ export default function NewVentaPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Detalle de Ventas</CardTitle>
-              <CardDescription>Agregue cada una de las ventas de bienes o servicios.</CardDescription>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <CardTitle>Detalle de Ventas</CardTitle>
+                  <CardDescription>Agregue sus ventas manualmente o use el escaneo inteligente.</CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,application/pdf" />
+                  <Button type="button" variant="outline" onClick={() => setIsCameraDialogOpen(true)} disabled={isScanning || isCapturing}>
+                    <Camera className="mr-2 h-4 w-4" /> Escanear Factura
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isScanning || isCapturing}>
+                    {isScanning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />} Subir Archivo
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -254,8 +437,36 @@ export default function NewVentaPage() {
                   <TableBody>
                     {fields.map((item, index) => (
                       <TableRow key={item.id}>
-                        <TableCell className="min-w-[150px]">
-                          <FormField control={form.control} name={`ventas.${index}.rncCedula`} render={({ field }) => <Input {...field} placeholder="RNC del Cliente" />} />
+                        <TableCell className="min-w-[170px]">
+                          <FormField control={form.control} name={`ventas.${index}.rncCedula`} render={({ field }) => (
+                              <div className="relative">
+                                  <Input {...field} placeholder="RNC del Cliente" className="pr-8" />
+                                  {form.getValues(`ventas.${index}.isRncValid`) === true && (
+                                      <Tooltip>
+                                          <TooltipTrigger asChild>
+                                              <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
+                                                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                              </span>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                              <p>Formato de RNC/Cédula válido</p>
+                                          </TooltipContent>
+                                      </Tooltip>
+                                  )}
+                                  {form.getValues(`ventas.${index}.isRncValid`) === false && (
+                                      <Tooltip>
+                                          <TooltipTrigger asChild>
+                                              <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
+                                                  <XCircle className="h-5 w-5 text-destructive" />
+                                              </span>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                              <p>Formato de RNC/Cédula inválido</p>
+                                          </TooltipContent>
+                                      </Tooltip>
+                                  )}
+                              </div>
+                          )} />
                         </TableCell>
                         <TableCell className="min-w-[120px]">
                            <FormField control={form.control} name={`ventas.${index}.tipoId`} render={({ field }) => (
@@ -265,8 +476,36 @@ export default function NewVentaPage() {
                               </Select>
                             )} />
                         </TableCell>
-                         <TableCell className="min-w-[150px]">
-                          <FormField control={form.control} name={`ventas.${index}.ncf`} render={({ field }) => <Input {...field} placeholder="B0100..." />} />
+                         <TableCell className="min-w-[170px]">
+                          <FormField control={form.control} name={`ventas.${index}.ncf`} render={({ field }) => (
+                             <div className="relative">
+                                <Input {...field} placeholder="B0100..." className="pr-8" />
+                                {form.getValues(`ventas.${index}.isNcfValid`) === true && (
+                                     <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
+                                                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>NCF válido</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                )}
+                                {form.getValues(`ventas.${index}.isNcfValid`) === false && (
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
+                                                <XCircle className="h-5 w-5 text-destructive" />
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>NCF inválido</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                )}
+                            </div>
+                          )} />
                         </TableCell>
                          <TableCell className="min-w-[150px]">
                           <FormField control={form.control} name={`ventas.${index}.ncfModificado`} render={({ field }) => <Input {...field} placeholder="B0100... (Opcional)" />} />
@@ -304,6 +543,42 @@ export default function NewVentaPage() {
           </Card>
         </form>
       </Form>
+
+       <Dialog open={isCameraDialogOpen} onOpenChange={setIsCameraDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Escanear Factura con Cámara</DialogTitle>
+            <DialogDescription>
+              Apunta la cámara a tu factura y presiona capturar. Asegúrate de que el documento esté bien iluminado y sea legible.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative">
+            <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted playsInline />
+            <canvas ref={canvasRef} className="hidden" />
+             {hasCameraPermission === false && (
+                <Alert variant="destructive" className="mt-4">
+                  <AlertTitle>Acceso a Cámara Denegado</AlertTitle>
+                  <AlertDescription>
+                    Por favor, habilita los permisos de la cámara en tu navegador para usar esta función.
+                  </AlertDescription>
+                </Alert>
+            )}
+             {hasCameraPermission === null && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-md">
+                    <Loader2 className="h-8 w-8 animate-spin text-white" />
+                </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCameraDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleCaptureAndProcess} disabled={!hasCameraPermission || isCapturing}>
+              {isCapturing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
+              {isCapturing ? 'Procesando...' : 'Capturar y Procesar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={isAddCompanyDialogOpen} onOpenChange={setIsAddCompanyDialogOpen}>
         <DialogContent>
@@ -388,6 +663,6 @@ export default function NewVentaPage() {
             </Form>
         </DialogContent>
       </Dialog>
-    </>
+    </TooltipProvider>
   );
 }
