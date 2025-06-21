@@ -112,7 +112,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error: any) {
         const errorCode = error.code || 'desconocido';
-        console.error(`Error al conectar con Firestore. Código: ${errorCode}`, error);
+        console.error(`Código de error de Firebase: ${errorCode}`);
         
         toast({
           variant: 'destructive',

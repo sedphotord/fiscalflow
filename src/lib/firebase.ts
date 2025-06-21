@@ -2,12 +2,21 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 
 // --- CONFIGURACIÓN DE FIREBASE ---
-// ¡ACCIÓN REQUERIDA! Como has descubierto, falta la clave de API.
-// 1. Ve a la configuración de tu proyecto en Firebase.
-// 2. Asegúrate de tener una "Aplicación web" registrada. Si no, créala.
-// 3. Copia la `apiKey` que te proporciona Firebase.
-// 4. Pégala en el campo `apiKey` de abajo, reemplazando el texto de marcador de posición.
+// ¡ACCIÓN REQUERIDA! Has encontrado la "Clave de Cuenta de Servicio", ¡gracias!
+// Sin embargo, para una aplicación web como esta, necesitamos la "Clave de API web".
+
+// PASOS PARA ENCONTRAR TU API KEY:
+// 1. Ve a la consola de Firebase: https://console.firebase.google.com/
+// 2. Selecciona tu proyecto (fiscalflow-j6b89).
+// 3. Haz clic en el ícono de engranaje (⚙️) junto a "Project Overview" y ve a "Project settings".
+// 4. En la pestaña "General", baja hasta la sección "Your apps".
+// 5. Deberías ver tu aplicación web. Haz clic en ella.
+// 6. En la configuración, verás un objeto llamado `firebaseConfig`. Copia el valor de la propiedad `apiKey`.
+// 7. Pega esa clave aquí abajo, reemplazando el texto del marcador de posición.
+
 const firebaseConfig = {
+  // Pega aquí la clave que copiaste de la consola de Firebase.
+  // NO uses la "Clave de Cuenta de Servicio" que encontraste antes.
   apiKey: "REEMPLAZA_ESTO_CON_TU_API_KEY_REAL", // <--- ¡AQUÍ!
   authDomain: "fiscalflow-j6b89.firebaseapp.com",
   projectId: "fiscalflow-j6b89",
