@@ -9,6 +9,7 @@ import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileE
 import { Badge } from '@/components/ui/badge';
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function LandingPage() {
   const [selectedService, setSelectedService] = useState<any>(null);
@@ -158,6 +159,29 @@ export default function LandingPage() {
       { amount: 200, price: 2500, description: "Para meses de alta actividad." },
   ];
 
+  const faqItems = [
+    {
+      question: "¿Cómo funciona el escaneo inteligente de facturas?",
+      answer: "Nuestro escáner utiliza tecnología de Reconocimiento Óptico de Caracteres (OCR) con inteligencia artificial. Simplemente suba una foto o PDF de su factura, y el sistema extraerá automáticamente el RNC, NCF, fecha y montos, llenando los campos del formulario por usted y minimizando errores."
+    },
+    {
+      question: "¿Qué tan segura es mi información fiscal?",
+      answer: "La seguridad es nuestra máxima prioridad. Todos sus datos se almacenan utilizando encriptación de nivel bancario. El acceso a su cuenta está protegido y seguimos las mejores prácticas de la industria para garantizar que su información fiscal y la de sus clientes esté siempre a salvo."
+    },
+    {
+      question: "¿Puedo gestionar múltiples empresas o clientes?",
+      answer: "¡Sí! FiscalFlow está diseñado tanto para contribuyentes individuales como para contadores. En nuestros planes Pro y Despacho, puede añadir y gestionar los perfiles de múltiples clientes desde un único panel de control, generando reportes individuales para cada uno de forma organizada."
+    },
+    {
+      question: "¿Qué formatos de la DGII puedo generar con la aplicación?",
+      answer: "Actualmente, puede generar los Formatos de Envío de Datos 606 (Compras) y 607 (Ventas). Estamos trabajando activamente para incorporar más formatos, como el 608 (NCF Anulados) y las declaraciones anuales (IR-1, IR-2) en futuras actualizaciones."
+    },
+    {
+      question: "¿Qué hago si el escáner extrae un dato incorrecto?",
+      answer: "Aunque nuestra IA es muy precisa, siempre tendrá la última palabra. Si nota un error después del escaneo, puede editar manualmente cualquier campo en el formulario antes de guardar o generar el reporte. La validación en tiempo real le ayudará a corregir formatos inválidos."
+    }
+  ];
+
   const renderFeature = (value: string | boolean) => {
     if (typeof value === 'boolean') {
       return value ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <XCircle className="h-6 w-6 text-destructive mx-auto" />;
@@ -182,6 +206,9 @@ export default function LandingPage() {
             <Link href="#pricing" className="text-sm font-medium hover:underline underline-offset-4">
               Planes
             </Link>
+            <Link href="#faq" className="text-sm font-medium hover:underline underline-offset-4">
+              FAQ
+            </Link>
             <Link href="/login" className="text-sm font-medium hover:underline underline-offset-4">
               Iniciar Sesión
             </Link>
@@ -197,13 +224,13 @@ export default function LandingPage() {
         </header>
         <main className="flex-1">
           <motion.section 
-            className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-secondary/30"
+            className="w-full py-12 md:py-24 lg:py-32"
             initial="hidden"
             animate="visible"
             variants={staggeredContainer}
           >
             <div className="container px-4 md:px-6">
-              <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+              <div className="grid gap-8 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px] bg-secondary/30 p-8 md:p-12 rounded-2xl items-center">
                 <motion.div className="flex flex-col justify-center space-y-4" variants={itemVariants}>
                   <div className="space-y-2">
                     <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
@@ -427,6 +454,37 @@ export default function LandingPage() {
               </div>
           </motion.section>
 
+           <motion.section 
+              id="faq" 
+              className="w-full py-12 md:py-24 lg:py-32"
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="container px-4 md:px-6">
+              <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">FAQ</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Preguntas Frecuentes</h2>
+                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  Aquí encontrará respuestas a las preguntas más comunes sobre FiscalFlow.
+                </p>
+              </div>
+              <div className="mx-auto mt-12 max-w-3xl">
+                <Accordion type="single" collapsible className="w-full">
+                  {faqItems.map((item, index) => (
+                    <AccordionItem key={index} value={`item-${index}`}>
+                      <AccordionTrigger className="text-left text-lg">{item.question}</AccordionTrigger>
+                      <AccordionContent className="text-base text-muted-foreground">
+                        {item.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+            </div>
+          </motion.section>
+
         </main>
         <footer className="border-t bg-secondary/30">
           <div className="container grid items-center gap-8 px-4 py-12 md:grid-cols-3 md:px-6">
@@ -442,6 +500,7 @@ export default function LandingPage() {
                 <Link href="#features" className="hover:underline">Características</Link>
                 <Link href="#services" className="hover:underline">Servicios</Link>
                 <Link href="#pricing" className="hover:underline">Planes</Link>
+                <Link href="#faq" className="hover:underline">FAQ</Link>
               </div>
               <div className="grid gap-1">
                 <h3 className="font-semibold">Compañía</h3>
