@@ -10,11 +10,14 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// Check if essential Firebase config keys are present
+const isFirebaseConfigured = firebaseConfig.projectId && firebaseConfig.apiKey;
+
 // Initialize Firebase
 let app;
 if (getApps().length === 0) {
-  if (!firebaseConfig.projectId) {
-     console.error("Firebase config not found, please set up your .env file");
+  if (!isFirebaseConfigured) {
+     console.warn("Firebase config is incomplete. The app will run in offline mode. Please set up your .env file to enable cloud features.");
      app = null;
   } else {
      app = initializeApp(firebaseConfig);
