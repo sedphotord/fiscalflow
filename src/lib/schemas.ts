@@ -158,18 +158,19 @@ export const BillingSchema = z.object({
   zip: z.string().min(3, "El código postal es requerido."),
 });
 
-// Schema for inviting a team member
-export const InviteTeamMemberSchema = z.object({
-  email: z.string().email({ message: 'Por favor ingrese un correo electrónico válido.' }),
-  role: z.custom<TeamMemberRole>(val => TEAM_ROLES.some(role => role.id === val), {
-    message: 'Por favor seleccione un rol válido.',
-  }),
-});
-
 // Schema for adding/editing a team member by a user
 export const TeamMemberSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
+  email: z.string().email({ message: 'Por favor ingrese un correo electrónico válido.' }),
+  role: z.custom<TeamMemberRole>(val => TEAM_ROLES.some(role => role.id === val), {
+    message: 'Por favor seleccione un rol válido.',
+  }),
+  invoiceLimit: z.number().int().min(0, "El límite no puede ser negativo."),
+});
+
+// Schema for inviting a team member
+export const InviteTeamMemberSchema = z.object({
   email: z.string().email({ message: 'Por favor ingrese un correo electrónico válido.' }),
   role: z.custom<TeamMemberRole>(val => TEAM_ROLES.some(role => role.id === val), {
     message: 'Por favor seleccione un rol válido.',

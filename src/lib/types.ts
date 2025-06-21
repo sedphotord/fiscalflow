@@ -66,14 +66,21 @@ export type Company = {
 
 export type TeamMember = {
     id: string;
-    ownerId: string; // ID of the user who invited this member
+    ownerId: string;
     name: string;
     email: string;
     role: TeamMemberRole;
     status: 'Activo' | 'Pendiente';
+    invoiceUsage: {
+        current: number;
+        limit: number;
+    };
 };
 
-export type TeamMemberData = Omit<TeamMember, 'id' | 'ownerId' | 'status'>;
+export type TeamMemberData = Omit<TeamMember, 'id' | 'ownerId' | 'status' | 'invoiceUsage'> & {
+    invoiceLimit: number;
+};
+
 
 export type Plan = {
     id: string;
@@ -114,6 +121,7 @@ export type AppContextType = {
   addTeamMember: (memberData: TeamMemberData) => void;
   updateTeamMember: (id: string, memberData: Partial<TeamMemberData>) => void;
   deleteTeamMember: (id: string) => void;
+  inviteTeamMember: (email: string, role: TeamMemberRole) => void;
   // Super Admin functions
   createUserByAdmin: (data: CreateUserByAdminData) => void;
   updateUserPlan: (userId: string, plan: UserPlan) => void;

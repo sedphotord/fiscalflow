@@ -9,7 +9,7 @@ import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, PlusCircle, Trash2, Send, Edit } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash2, Send, Edit, Mail } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -17,16 +17,19 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { TeamMemberSchema } from '@/lib/schemas';
+import { TeamMemberSchema, InviteTeamMemberSchema } from '@/lib/schemas';
 import type { TeamMember } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TEAM_ROLES } from '@/lib/constants';
+import { Progress } from '@/components/ui/progress';
 
 type FormValues = z.infer<typeof TeamMemberSchema>;
+type InviteFormValues = z.infer<typeof InviteTeamMemberSchema>;
 
 export default function ManageTeamPage() {
-  const { teamMembers, addTeamMember, updateTeamMember, currentUser, deleteTeamMember } = useAppContext();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { teamMembers, addTeamMember, updateTeamMember, currentUser, deleteTeamMember, inviteTeamMember } = useAppContext();
+  const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
 
   const planLimits = {
@@ -45,6 +48,15 @@ export default function ManageTeamPage() {
       name: '',
       email: '',
       role: 'Contable',
+      invoiceLimit: 0,
+    },
+  });
+  
+  const inviteForm = useForm<InviteFormValues>({
+    resolver: zodResolver(InviteTeamMemberSchema),
+    defaultValues: {
+      email: '',
+      role: 'Contable',
     },
   });
 
@@ -56,24 +68,32 @@ export default function ManageTeamPage() {
         name: member.name,
         email: member.email,
         role: member.role,
+        invoiceLimit: member.invoiceUsage.limit,
       });
     } else {
       form.reset({
         name: '',
         email: '',
         role: 'Contable',
+        invoiceLimit: 100, // Default limit for new members
       });
     }
-    setIsDialogOpen(true);
+    setIsAddEditDialogOpen(true);
   };
 
-  const onSubmit = (data: FormValues) => {
+  const onAddEditSubmit = (data: FormValues) => {
     if (editingMember) {
       updateTeamMember(editingMember.id, data);
     } else {
       addTeamMember(data);
     }
-    setIsDialogOpen(false);
+    setIsAddEditDialogOpen(false);
+  };
+
+  const onInviteSubmit = (data: InviteFormValues) => {
+    inviteTeamMember(data.email, data.role);
+    setIsInviteDialogOpen(false);
+    inviteForm.reset();
   };
 
   const getStatusVariant = (status: TeamMember['status']) => {
@@ -88,10 +108,16 @@ export default function ManageTeamPage() {
         title="Gestión de Equipo"
         description="Añada, edite y gestione los miembros de su equipo y sus permisos."
       >
-        <Button onClick={() => handleOpenDialog(null)} disabled={!canAddMembers}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Añadir Miembro
-        </Button>
+        <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsInviteDialogOpen(true)} disabled={!canAddMembers}>
+                <Mail className="mr-2 h-4 w-4" />
+                Invitar Miembro
+            </Button>
+            <Button onClick={() => handleOpenDialog(null)} disabled={!canAddMembers}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Añadir Miembro
+            </Button>
+        </div>
       </PageHeader>
       
       {!canAddMembers && (
@@ -120,6 +146,7 @@ export default function ManageTeamPage() {
                 <TableHead>Nombre</TableHead>
                 <TableHead>Correo Electrónico</TableHead>
                 <TableHead>Rol</TableHead>
+                <TableHead>Uso de Facturas</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -130,6 +157,12 @@ export default function ManageTeamPage() {
                   <TableCell className="font-medium">{member.name}</TableCell>
                   <TableCell>{member.email}</TableCell>
                   <TableCell>{member.role}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1 w-24">
+                        <Progress value={member.invoiceUsage.limit > 0 ? (member.invoiceUsage.current / member.invoiceUsage.limit) * 100 : 0} className="h-2"/>
+                        <span className="text-xs text-muted-foreground text-center">{member.invoiceUsage.current} / {member.invoiceUsage.limit}</span>
+                    </div>
+                  </TableCell>
                    <TableCell>
                     <Badge variant={getStatusVariant(member.status)}>{member.status}</Badge>
                   </TableCell>
@@ -177,7 +210,7 @@ export default function ManageTeamPage() {
         </CardContent>
       </Card>
       
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isAddEditDialogOpen} onOpenChange={setIsAddEditDialogOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingMember ? 'Editar Miembro' : 'Añadir Nuevo Miembro'}</DialogTitle>
@@ -186,7 +219,7 @@ export default function ManageTeamPage() {
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+              <form onSubmit={form.handleSubmit(onAddEditSubmit)} className="space-y-4 pt-4">
                  <FormField
                   control={form.control}
                   name="name"
@@ -240,12 +273,24 @@ export default function ManageTeamPage() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="invoiceLimit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Límite Mensual de Facturas</FormLabel>
+                       <FormControl>
+                        <Input type="number" placeholder="100" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                  <DialogFooter>
                   <DialogClose asChild>
                       <Button type="button" variant="ghost">Cancelar</Button>
                   </DialogClose>
                   <Button type="submit">
-                      <Send className="mr-2 h-4 w-4" />
                       {editingMember ? 'Guardar Cambios' : 'Añadir Miembro'}
                   </Button>
                 </DialogFooter>
@@ -253,6 +298,71 @@ export default function ManageTeamPage() {
             </Form>
           </DialogContent>
       </Dialog>
+
+      <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Invitar Nuevo Miembro</DialogTitle>
+              <DialogDescription>
+                Se enviará una invitación por correo electrónico para que el nuevo miembro se una a su equipo y configure su cuenta.
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...inviteForm}>
+              <form onSubmit={inviteForm.handleSubmit(onInviteSubmit)} className="space-y-4 pt-4">
+                 <FormField
+                  control={inviteForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Correo Electrónico del Invitado</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="invitado@ejemplo.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={inviteForm.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Asignar Rol</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleccione un rol" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {TEAM_ROLES.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>
+                                <div className="flex flex-col">
+                                  <span>{role.name}</span>
+                                  <span className="text-xs text-muted-foreground">{role.description}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <DialogFooter>
+                  <DialogClose asChild>
+                      <Button type="button" variant="ghost">Cancelar</Button>
+                  </DialogClose>
+                  <Button type="submit">
+                      <Send className="mr-2 h-4 w-4" />
+                      Enviar Invitación
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

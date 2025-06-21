@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview In-memory mock database for the application.
  * This acts as a replacement for Firestore when it's not configured.
@@ -21,9 +22,9 @@ export const MOCK_COMPANIES: Company[] = [
 ];
 
 export const MOCK_TEAM_MEMBERS: TeamMember[] = [
-    { id: 'team-1', ownerId: 'user-1', name: 'Asistente Contable', email: 'asistente@fiscalflow.app', role: 'Contable', status: 'Activo' },
-    { id: 'team-2', ownerId: 'user-1', name: 'Empleado Junior', email: 'nuevo.empleado@email.com', role: 'Solo Lectura', status: 'Pendiente' },
-    { id: 'team-3', ownerId: 'user-2', name: 'Socio Principal', email: 'socio@empresa-abc.com', role: 'Admin', status: 'Activo' },
+    { id: 'team-1', ownerId: 'user-1', name: 'Asistente Contable', email: 'asistente@fiscalflow.app', role: 'Contable', status: 'Activo', invoiceUsage: { current: 50, limit: 100 } },
+    { id: 'team-2', ownerId: 'user-1', name: 'Empleado Junior', email: 'nuevo.empleado@email.com', role: 'Solo Lectura', status: 'Pendiente', invoiceUsage: { current: 0, limit: 10 } },
+    { id: 'team-3', ownerId: 'user-2', name: 'Socio Principal', email: 'socio@empresa-abc.com', role: 'Admin', status: 'Activo', invoiceUsage: { current: 200, limit: 1000 } },
 ];
 
 export const MOCK_REPORTS: Report[] = [

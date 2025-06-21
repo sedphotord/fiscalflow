@@ -91,19 +91,34 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [toast]);
   
   // --- Team Management ---
-  const addTeamMember = useCallback((memberData: TeamMemberData) => {
+    const addTeamMember = useCallback((memberData: TeamMemberData) => {
     const newMember: TeamMember = {
-      ...memberData,
+      name: memberData.name,
+      email: memberData.email,
+      role: memberData.role,
       id: `team-${Date.now()}`,
       ownerId: currentUser.id,
-      status: 'Activo'
+      status: 'Activo',
+      invoiceUsage: {
+        current: 0,
+        limit: memberData.invoiceLimit,
+      }
     };
     setTeamMembers(prev => [...prev, newMember]);
     toast({ title: 'Miembro Añadido', description: `${memberData.name} ha sido añadido al equipo.` });
   }, [currentUser.id, toast]);
   
   const updateTeamMember = useCallback((id: string, memberData: Partial<TeamMemberData>) => {
-    setTeamMembers(prev => prev.map(m => m.id === id ? { ...m, ...memberData } as TeamMember : m));
+    setTeamMembers(prev => prev.map(m => {
+        if (m.id === id) {
+            const updatedMember = { ...m, name: memberData.name!, email: memberData.email!, role: memberData.role! };
+            if (memberData.invoiceLimit !== undefined) {
+                updatedMember.invoiceUsage.limit = memberData.invoiceLimit;
+            }
+            return updatedMember;
+        }
+        return m;
+    }));
     toast({ title: 'Miembro Actualizado' });
   }, [toast]);
 
@@ -111,6 +126,24 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setTeamMembers(prev => prev.filter(m => m.id !== id));
     toast({ title: 'Miembro Eliminado' });
   }, [toast]);
+
+  const inviteTeamMember = useCallback((email: string, role: TeamMemberRole) => {
+    const newMember: TeamMember = {
+      id: `team-${Date.now()}`,
+      ownerId: currentUser.id,
+      name: `(Invitado)`,
+      email: email,
+      role: role,
+      status: 'Pendiente',
+      invoiceUsage: {
+        current: 0,
+        limit: 0, // Admin can update this later
+      }
+    };
+    setTeamMembers(prev => [...prev, newMember]);
+    toast({ title: 'Invitación Enviada', description: `Se ha enviado una invitación a ${email}.` });
+  }, [currentUser.id, toast]);
+
 
   // --- Super Admin Functions ---
   const createUserByAdmin = useCallback((data: CreateUserByAdminData) => {
@@ -148,6 +181,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         email: memberData.email,
         role: memberData.role,
         status: 'Activo' as const,
+        invoiceUsage: { current: 0, limit: 0 },
       }));
       setTeamMembers(prev => [...prev, ...newTeamMembers]);
     }
@@ -188,7 +222,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       name: 'Nuevo Miembro',
       email,
       role,
-      status: 'Pendiente'
+      status: 'Pendiente',
+      invoiceUsage: { current: 0, limit: 0 }
     };
     setTeamMembers(prev => [...prev, newMember]);
     toast({ title: 'Invitación Enviada', description: `Se ha invitado a ${email} al equipo.` });
@@ -252,6 +287,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     addTeamMember,
     updateTeamMember,
     deleteTeamMember,
+    inviteTeamMember,
     // Super Admin functions
     createUserByAdmin,
     updateUserPlan,
