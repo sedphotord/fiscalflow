@@ -45,57 +45,63 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchData = async () => {
-        const offlineToast = {
-            variant: "destructive",
-            title: "Modo Sin Conexión Activado",
-            description: "No se pudo conectar a Firebase. Revisa tus credenciales en el archivo .env o tu conexión a internet.",
-            duration: 9000,
-        };
+    const initApp = async () => {
+      const offlineToast = {
+          variant: "destructive" as const,
+          title: "Modo Sin Conexión Activado",
+          description: "No se pudo conectar a Firebase. La app usará datos de demostración.",
+          duration: 9000,
+      };
 
-        if (!db) {
-            console.warn("Firebase no está disponible. Entrando en modo sin conexión.");
-            setAppState(mockInitialState);
-            setIsOffline(true);
-            setIsLoading(false);
-            toast(offlineToast);
-            return;
-        }
+      if (!db) {
+        console.warn("Firebase no está disponible. Entrando en modo sin conexión.");
+        setAppState(mockInitialState);
+        setIsOffline(true);
+        setIsLoading(false);
+        toast(offlineToast);
+        return;
+      }
 
-        try {
-            setIsLoading(true);
-            const settingsDocRef = doc(db, 'settings', 'main-profile');
-            const companiesQuery = query(collection(db, 'companies'), orderBy('name'));
-            const reportsQuery = query(collection(db, 'reports'), orderBy('fechaCreacion', 'desc'));
+      try {
+        // 1. Fetch critical settings first to unblock UI
+        const settingsDocRef = doc(db, 'settings', 'main-profile');
+        const settingsSnap = await getDoc(settingsDocRef);
+        const settings = settingsSnap.exists() ? (settingsSnap.data() as UserSettings) : defaultSettings;
+        
+        // Set settings and unblock UI rendering
+        setAppState(prev => ({ ...prev, settings }));
+        setIsOffline(false);
+        setIsLoading(false);
 
-            const [settingsSnap, companiesSnap, reportsSnap] = await Promise.all([
-                getDoc(settingsDocRef),
-                getDocs(companiesQuery),
-                getDocs(reportsQuery),
-            ]);
+        // 2. Fetch non-critical data in the background
+        const companiesQuery = query(collection(db, 'companies'), orderBy('name'));
+        const reportsQuery = query(collection(db, 'reports'), orderBy('fechaCreacion', 'desc'));
 
-            const settings = settingsSnap.exists() ? (settingsSnap.data() as UserSettings) : defaultSettings;
-            const companies = companiesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Company[];
-            const reports = reportsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Report[];
-            
-            setAppState({ settings, companies, reports });
-            setIsOffline(false);
+        const [companiesSnap, reportsSnap] = await Promise.all([
+          getDocs(companiesQuery),
+          getDocs(reportsQuery),
+        ]);
 
-        } catch (error) {
-            console.error("Error al cargar datos de Firebase:", error);
-            setAppState(mockInitialState);
-            setIsOffline(true);
-            toast(offlineToast);
-        } finally {
-            setIsLoading(false);
-        }
+        const companies = companiesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Company[];
+        const reports = reportsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Report[];
+
+        // Update state with the rest of the data without a loading screen
+        setAppState(prev => ({ ...prev, companies, reports }));
+
+      } catch (error) {
+        console.error("Error al cargar datos de Firebase:", error);
+        setAppState(mockInitialState);
+        setIsOffline(true);
+        setIsLoading(false); // Also unblock UI on error
+        toast(offlineToast);
+      }
     };
 
-    fetchData();
+    initApp();
   }, [toast]);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading) return; // Only run after initial settings are loaded
     const root = window.document.documentElement;
     const theme = appState.settings.theme;
     root.classList.remove('light', 'dark');
@@ -150,11 +156,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updateSettings = useCallback(async (newSettings: Partial<UserSettings>) => {
     const updatedSettings = { ...appState.settings, ...newSettings };
-    if (!isOffline) {
-        await setDoc(doc(db, 'settings', 'main-profile'), updatedSettings);
-    }
     setAppState(prev => ({ ...prev, settings: updatedSettings }));
-    if (!isOffline) toast({ title: 'Ajustes Guardados' });
+    if (!isOffline) {
+        try {
+            await setDoc(doc(db, 'settings', 'main-profile'), updatedSettings);
+            if(newSettings.theme === undefined) toast({ title: 'Ajustes Guardados' });
+        } catch (error) {
+            console.error("Error guardando ajustes:", error)
+            toast({ title: 'Error', description: 'No se pudieron guardar los ajustes.' })
+        }
+    }
   }, [appState.settings, isOffline, toast]);
   
   const setTheme = useCallback((theme: UserSettings['theme']) => {
@@ -168,7 +179,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
     const docRef = await addDoc(collection(db, 'companies'), companyData);
     const newCompany = { ...companyData, id: docRef.id };
-    setAppState(prev => ({ ...prev, companies: [...prev.companies, newCompany] }));
+    setAppState(prev => ({ ...prev, companies: [...prev.companies, newCompany].sort((a,b) => a.name.localeCompare(b.name)) }));
     toast({ title: 'Empresa Agregada' });
     return newCompany;
   }, [isOffline, toast]);
@@ -181,7 +192,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
      await updateDoc(doc(db, 'companies', id), companyData);
      setAppState(prev => ({
         ...prev,
-        companies: prev.companies.map(c => c.id === id ? { ...c, ...companyData } as Company : c),
+        companies: prev.companies.map(c => c.id === id ? { ...c, ...companyData } as Company : c).sort((a,b) => a.name.localeCompare(b.name)),
     }));
     toast({ title: 'Empresa Actualizada' });
   }, [isOffline, toast]);

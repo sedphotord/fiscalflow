@@ -1,3 +1,4 @@
+
 export type MockCompany = {
   rnc: string;
   razonSocial: string;
@@ -19,4 +20,11 @@ export const MOCK_COMPANY_DB: MockCompany[] = [
   { rnc: '101732731', razonSocial: 'AEROPUERTOS DOMINICANOS SIGLO XXI, S.A. (AERODOM)' },
   { rnc: '130005232', razonSocial: 'REFINERIA DOMINICANA DE PETROLEO PDV, S.A.' },
   { rnc: '101505537', razonSocial: 'ALTICE DOMINICANA, S.A.' },
+  { rnc: '101007784', razonSocial: 'BANCO DE RESERVAS DE LA REPUBLICA DOMINICANA' },
+  { rnc: '130655388', razonSocial: 'EGE HAINA' },
+  { rnc: '131828236', razonSocial: 'FALCONBRIDGE DOMINICANA S A' },
+  { rnc: '101014163', razonSocial: 'BANCO MULTIPLE BHD S.A.' },
+  { rnc: '101008292', razonSocial: 'ASOCIACION POPULAR DE AHORROS Y PRESTAMOS' },
+  { rnc: '101011989', razonSocial: 'GRUPO CCN, S.A.S.' },
+  { rnc: '131742463', razonSocial: 'DP WORLD CAUCEDO' },
 ];
