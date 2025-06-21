@@ -47,6 +47,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchData = async () => {
       if (!db) {
+        toast({
+          variant: 'destructive',
+          title: 'Configuración de Firebase Incompleta',
+          description: "Falta la 'apiKey' en src/lib/firebase.ts. La aplicación se ejecutará en modo sin conexión.",
+          duration: 20000,
+        });
         console.warn("Firestore is not initialized. Running in offline mode.");
         setAppState({
             settings: defaultInitialState.settings,
