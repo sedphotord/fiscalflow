@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -25,6 +25,19 @@ if (firebaseConfig.projectId && firebaseConfig.apiKey) {
             console.log("Re-using existing Firebase app instance.");
         }
         db = getFirestore(app);
+        
+        enableIndexedDbPersistence(db)
+            .then(() => console.log("Firebase offline persistence enabled."))
+            .catch((err) => {
+                if (err.code == 'failed-precondition') {
+                    console.warn("Firebase persistence failed: Can only be enabled in one tab at a time.");
+                } else if (err.code == 'unimplemented') {
+                    console.warn("Firebase persistence is not supported in this browser.");
+                } else {
+                    console.error("Firebase persistence failed with code:", err.code);
+                }
+            });
+
     } catch (error) {
         console.error("Firebase initialization failed:", error);
         app = null;
