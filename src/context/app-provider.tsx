@@ -13,33 +13,16 @@ import { Loader2 } from 'lucide-react';
 // Mock user ID until authentication is added
 const MOCK_USER_ID = 'default-user';
 
-// Mock data to use as a fallback if Firestore connection fails or for initial creation
-const MOCK_REPORTS: Report[] = [
-    // @ts-ignore
-    { id: 'mock-606-1', type: '606', rnc: '131999999', periodo: '202404', estado: 'Completado', fechaCreacion: new Date().toISOString(), compras: [] },
-    // @ts-ignore
-    { id: 'mock-607-1', type: '607', rnc: '131999999', periodo: '202404', estado: 'Borrador', fechaCreacion: new Date(Date.now() - 86400000).toISOString(), ventas: [] },
-];
-const MOCK_COMPANIES: Company[] = [
-    { id: 'mock-comp-1', name: 'Cliente de Muestra', rnc: '101000001', email: 'cliente@muestra.com', whatsapp: '+18095551234' }
-];
-
-type AppState = {
-  reports: Report[];
-  settings: UserSettings;
-  companies: Company[];
+const defaultInitialState = {
+    reports: [] as Report[],
+    settings: { name: 'Usuario', rnc: '', theme: 'system' } as UserSettings,
+    companies: [] as Company[],
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const defaultInitialState: AppState = {
-    reports: [],
-    settings: { name: 'Usuario Demo', rnc: '131999999', theme: 'system' },
-    companies: [],
-};
-
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [appState, setAppState] = useState<AppState>(defaultInitialState);
+  const [appState, setAppState] = useState(defaultInitialState);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -47,18 +30,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchData = async () => {
       if (!db) {
-        toast({
-          variant: 'destructive',
-          title: 'Configuración de Firebase Incompleta',
-          description: "Falta la 'apiKey' en src/lib/firebase.ts. La aplicación se ejecutará en modo sin conexión.",
-          duration: 20000,
-        });
-        console.warn("Firestore is not initialized. Running in offline mode.");
-        setAppState({
-            settings: defaultInitialState.settings,
-            companies: MOCK_COMPANIES,
-            reports: MOCK_REPORTS,
-        });
+        console.error("Firestore is not initialized.");
         setIsLoading(false);
         return;
       }
@@ -88,42 +60,27 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               description: 'Creando su perfil y datos de ejemplo en Firestore...',
             });
             
-            const settings = defaultInitialState.settings;
+            const settings = { name: 'Usuario Principal', rnc: '123456789', theme: 'system' };
             await setDoc(userRef, settings);
 
             // Create a sample company
             const companiesRef = collection(userRef, 'companies');
-            const { id: mockCompanyId, ...sampleCompanyData } = MOCK_COMPANIES[0];
-            const companyDocRef = await addDoc(companiesRef, sampleCompanyData);
-            const createdCompany = { ...sampleCompanyData, id: companyDocRef.id };
+            const sampleCompanyData = { name: 'Cliente de Ejemplo', rnc: '101000001', email: 'cliente@ejemplo.com', whatsapp: '+18095551234' };
+            await addDoc(companiesRef, sampleCompanyData);
             
-            // Create a sample report
-            const reportsRef = collection(userRef, 'reports');
-            // @ts-ignore
-            const { id: mockReportId, ...sampleReportData } = MOCK_REPORTS[0];
-            const reportDocRef = await addDoc(reportsRef, sampleReportData);
-            const createdReport = { ...sampleReportData, id: reportDocRef.id } as Report;
-
             setAppState({
                 settings,
-                companies: [createdCompany],
-                reports: [createdReport]
+                companies: [{...sampleCompanyData, id: 'temp-id'}], // Add with temp id
+                reports: []
             });
         }
       } catch (error: any) {
-        const errorCode = error.code || 'desconocido';
-        console.error(`Código de error de Firebase: ${errorCode}`);
-        
+        console.error(`Error al conectar con Firestore:`, error);
         toast({
           variant: 'destructive',
-          title: 'Error de Conexión a Firebase',
-          description: `No se pudo conectar a la base de datos (Error: ${errorCode}). La aplicación se ha iniciado en modo sin conexión con datos de muestra.`,
-        });
-
-        setAppState({
-            settings: defaultInitialState.settings,
-            companies: MOCK_COMPANIES,
-            reports: MOCK_REPORTS,
+          title: 'Error de Conexión',
+          description: `No se pudo conectar a la base de datos (Error: ${error.code}). Por favor, revise las reglas de seguridad y la conexión.`,
+          duration: 9000,
         });
       } finally {
         setIsLoading(false);
