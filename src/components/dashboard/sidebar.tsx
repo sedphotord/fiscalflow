@@ -23,6 +23,11 @@ import {
   Wallet,
   Plug,
   Calculator,
+  Percent,
+  Building2,
+  TrendingUp,
+  Landmark,
+  AlertTriangle,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -40,6 +45,16 @@ export function AppSidebar() {
   const isEnvioActive = ['/compras', '/ventas', '/ncf-anulados', '/pagos-exterior', '/otros'].some(p => pathname.startsWith(`/dashboard${p}`));
   const isDeclaracionesActive = pathname.startsWith('/dashboard/declaraciones');
   const isSuscripcionesActive = pathname.startsWith('/dashboard/subscriptions');
+  const isCalculatorsActive = pathname.startsWith('/dashboard/calculators');
+
+  const calculators = [
+    { title: 'Retenciones', icon: Percent, href: '/dashboard/calculators/retenciones', isImplemented: true },
+    { title: 'Constitución de Compañías', icon: Building2, href: '#', isImplemented: false },
+    { title: 'Variación Capital Social', icon: TrendingUp, href: '#', isImplemented: false },
+    { title: 'Transferencia Inmobiliaria', icon: Landmark, href: '#', isImplemented: false },
+    { title: 'Recargos e Intereses', icon: AlertTriangle, href: '#', isImplemented: false },
+    { title: 'Régimen Simplificado (RST)', icon: FileText, href: '#', isImplemented: false },
+  ];
 
   return (
     <div className="hidden border-r bg-background md:block">
@@ -66,6 +81,8 @@ export function AppSidebar() {
                 [
                   isEnvioActive ? 'formatos-envio' : '',
                   isDeclaracionesActive ? 'declaraciones-anuales' : '',
+                  isSuscripcionesActive ? 'suscripciones' : '',
+                  isCalculatorsActive ? 'calculators' : '',
                 ].filter(Boolean)
                 }>
               <AccordionItem value="formatos-envio" className="border-none">
@@ -158,6 +175,34 @@ export function AppSidebar() {
                   </nav>
                 </AccordionContent>
               </AccordionItem>
+              <AccordionItem value="calculators" className="border-none">
+                  <AccordionTrigger className={cn(
+                    "flex items-center rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
+                    isCalculatorsActive && 'text-primary'
+                    )}>
+                    <div className="flex items-center gap-3">
+                      <Calculator className="h-4 w-4" />
+                      <span>Calculadoras</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pl-8 pt-1">
+                    <nav className="grid gap-1">
+                      {calculators.map(calc => (
+                        <Link
+                          key={calc.title}
+                          href={calc.isImplemented ? calc.href : '/dashboard/calculators'}
+                          className={cn(
+                            'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                            calc.isImplemented && pathname.startsWith(calc.href) && 'bg-muted text-primary',
+                          )}
+                        >
+                          <calc.icon className="h-4 w-4" />
+                          {calc.title}
+                        </Link>
+                      ))}
+                    </nav>
+                  </AccordionContent>
+                </AccordionItem>
             </Accordion>
             <Link
                 href="/dashboard/contribuyentes"
@@ -179,16 +224,6 @@ export function AppSidebar() {
                 <ShieldCheck className="h-4 w-4" />
                 Validador DGII
               </Link>
-            <Link
-              href="/dashboard/calculators"
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                pathname.startsWith('/dashboard/calculators') && 'bg-muted text-primary'
-              )}
-            >
-              <Calculator className="h-4 w-4" />
-              Calculadoras
-            </Link>
               <Accordion type="multiple" className="w-full" defaultValue={
                 [
                   isSuscripcionesActive ? 'suscripciones' : ''
