@@ -64,6 +64,16 @@ export function SuperAdminSidebar() {
                 <Users className="h-4 w-4" />
                 Usuarios
               </Link>
+               <Link
+                href="/dashboard/super-admin/plans"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                  pathname.startsWith('/dashboard/super-admin/plans') && 'bg-accent text-accent-foreground'
+                )}
+              >
+                <Tags className="h-4 w-4" />
+                Gestión de Planes
+              </Link>
               <Accordion type="multiple" className="w-full" defaultValue={
                 [
                   isAnalyticsActive ? 'analytics' : '',
@@ -137,7 +147,6 @@ export function SuperAdminSidebar() {
                 <AccordionContent className="pl-8 pt-1">
                   <nav className="grid gap-1">
                     <Link href="/dashboard/super-admin/settings" className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary', pathname === '/dashboard/super-admin/settings' && 'bg-accent text-accent-foreground')}>Ajustes Generales</Link>
-                    <Link href="/dashboard/super-admin/settings/plans" className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary', pathname.includes('/settings/plans') && 'bg-accent text-accent-foreground')}><Tags className="h-4 w-4"/>Gestión de Planes</Link>
                   </nav>
                 </AccordionContent>
               </AccordionItem>

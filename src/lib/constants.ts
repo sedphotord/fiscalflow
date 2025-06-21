@@ -27,3 +27,24 @@ export const TEAM_ROLES = [
     { id: 'Contable', name: 'Contable', description: 'Puede crear y editar reportes para los clientes asignados.'},
     { id: 'Solo Lectura', name: 'Solo Lectura', description: 'Solo puede ver reportes, no puede editar ni crear.'},
 ];
+
+export const ALL_PLAN_FEATURES = [
+    "Hasta 50 facturas/mes",
+    "Hasta 500 facturas/mes",
+    "Facturas Ilimitadas",
+    "Formularios 606 y 607",
+    "Validación RNC/NCF",
+    "Exportación a Excel",
+    "Dashboard Analítico",
+    "Gestión Multi-Empresa",
+    "Escaneo en Lote",
+    "Alertas y Recordatorios",
+    "1 Usuario por Cuenta",
+    "Hasta 5 Usuarios",
+    "Usuarios Ilimitados",
+    "API para Integración",
+    "Soporte por Email",
+    "Soporte Prioritario",
+    "Soporte Telefónico 24/7",
+    "Consultoría y Capacitación",
+];

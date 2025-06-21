@@ -166,7 +166,7 @@ export const PlanSchema = z.object({
   invoiceLimit: z.number().int().min(0, "El límite debe ser 0 o mayor."),
   teamMemberLimit: z.number().int().min(0, "El límite debe ser 0 o mayor."),
   description: z.string().optional(),
-  features: z.string().optional(),
+  features: z.array(z.string()).optional(),
 });
 
 export const InvoicePackSchema = z.object({
