@@ -26,8 +26,8 @@ const calculators = [
     title: 'Constitución de Compañías',
     description: 'Estime el impuesto por constitución de su empresa.',
     icon: Building2,
-    href: '#',
-    isImplemented: false,
+    href: '/dashboard/calculators/constitucion-companias',
+    isImplemented: true,
   },
   {
     title: 'Variación Capital Social',
