@@ -413,7 +413,7 @@ export default function NewCompraPage() {
                         ) : (
                             <Upload className="mr-2 h-4 w-4" />
                         )}
-                        Subir PDF
+                        Subir Archivo
                     </Button>
                     <Button
                         type="button"
@@ -513,7 +513,7 @@ export default function NewCompraPage() {
                                                 </span>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>NCF válido (simulado)</p>
+                                                <p>NCF válido</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     )}
@@ -525,7 +525,7 @@ export default function NewCompraPage() {
                                                 </span>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>Formato de NCF inválido (simulado)</p>
+                                                <p>NCF inválido</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     )}

@@ -159,7 +159,7 @@ export function ReportTable({ data }: ReportTableProps) {
                           <Edit className="mr-2 h-4 w-4" />
                           Ver / Editar
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleExport(report)}>
+                        <DropdownMenuItem onClick={() => handleExport(report)} disabled={report.estado !== 'Completado'}>
                           <FileDown className="mr-2 h-4 w-4" />
                           Exportar .txt
                         </DropdownMenuItem>
@@ -177,12 +177,14 @@ export function ReportTable({ data }: ReportTableProps) {
                           Guardar en Drive
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                           <AlertDialogTrigger className="w-full text-destructive focus:text-destructive focus:bg-destructive/10">
-                             <Trash2 className="mr-2 h-4 w-4" />
-                             Eliminar
+                        
+                           <AlertDialogTrigger asChild>
+                             <DropdownMenuItem className="w-full text-destructive focus:text-destructive focus:bg-destructive/10" onSelect={(e) => e.preventDefault()}>
+                               <Trash2 className="mr-2 h-4 w-4" />
+                               Eliminar
+                             </DropdownMenuItem>
                            </AlertDialogTrigger>
-                        </DropdownMenuItem>
+                        
                       </DropdownMenuContent>
                     </DropdownMenu>
                     <AlertDialogContent>
