@@ -1,17 +1,17 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { ReportTable } from '@/components/dashboard/report-table';
 import { FilePlus2 } from 'lucide-react';
-
-const mockReports = [
-    { id: 'REP001', periodo: '202305', fechaCreacion: '2023-06-10', estado: 'Completado', url: '#' },
-    { id: 'REP002', periodo: '202304', fechaCreacion: '2023-05-11', estado: 'Completado', url: '#' },
-    { id: 'REP003', periodo: '202303', fechaCreacion: '2023-04-09', estado: 'Completado', url: '#' },
-    { id: 'REP004', periodo: '202306', fechaCreacion: '2023-07-01', estado: 'Borrador', url: '#' },
-];
+import { useAppContext } from '@/context/app-provider';
+import { useMemo } from 'react';
 
 export default function ComprasPage() {
+  const { reports } = useAppContext();
+  const reportes606 = useMemo(() => reports.filter(r => r.type === '606'), [reports]);
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -25,7 +25,7 @@ export default function ComprasPage() {
           </Button>
         </Link>
       </PageHeader>
-      <ReportTable data={mockReports} />
+      <ReportTable data={reportes606} />
     </div>
   );
 }

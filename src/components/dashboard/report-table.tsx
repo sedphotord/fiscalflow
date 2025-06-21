@@ -24,33 +24,62 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, FileDown, Eye, Trash2 } from 'lucide-react';
-
-type Report = {
-  id: string;
-  periodo: string;
-  fechaCreacion: string;
-  estado: 'Completado' | 'Borrador' | 'Error';
-  url: string;
-};
+import { MoreHorizontal, FileDown, Edit, Trash2 } from 'lucide-react';
+import type { Report } from '@/lib/types';
+import { useAppContext } from '@/context/app-provider';
+import { formatReportToTxt } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface ReportTableProps {
   data: Report[];
 }
 
 export function ReportTable({ data }: ReportTableProps) {
+    const { deleteReport, showToast } = useAppContext();
+    const router = useRouter();
+
     const getBadgeVariant = (estado: Report['estado']) => {
         switch (estado) {
           case 'Completado':
             return 'default';
           case 'Borrador':
             return 'secondary';
-          case 'Error':
-            return 'destructive';
           default:
             return 'outline';
         }
       };
+    
+    const handleExport = (report: Report) => {
+        try {
+            formatReportToTxt(report);
+            showToast({ title: 'Exportación Exitosa', description: 'El archivo .txt ha sido descargado.' });
+        } catch(e) {
+            const error = e as Error;
+            showToast({ title: 'Error de Exportación', description: error.message, variant: 'destructive' });
+        }
+    };
+    
+    const handleEdit = (report: Report) => {
+      const path = report.type === '606' ? '/dashboard/compras/new' : '/dashboard/ventas/new';
+      router.push(`${path}?id=${report.id}`);
+    }
+
+    const handleDelete = (reportId: string) => {
+        deleteReport(reportId);
+        showToast({ title: 'Reporte Eliminado', description: 'El reporte ha sido eliminado permanentemente.' });
+    };
+
 
   return (
     <Card>
@@ -64,6 +93,7 @@ export function ReportTable({ data }: ReportTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>ID Reporte</TableHead>
               <TableHead>Período</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="hidden md:table-cell">
@@ -75,39 +105,64 @@ export function ReportTable({ data }: ReportTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((report) => (
+            {data.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center">
+                  No hay reportes.
+                </TableCell>
+              </TableRow>
+            ) : data.map((report) => (
               <TableRow key={report.id}>
+                <TableCell className="font-medium hidden sm:table-cell">{report.id.substring(0,8)}...</TableCell>
                 <TableCell className="font-medium">{report.periodo}</TableCell>
                 <TableCell>
                   <Badge variant={getBadgeVariant(report.estado)}>{report.estado}</Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  {report.fechaCreacion}
+                  {new Date(report.fechaCreacion).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                      <DropdownMenuItem>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Ver
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Exportar
+                <AlertDialog>
+                  <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleEdit(report)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Ver / Editar
                         </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Eliminar
+                        <DropdownMenuItem onClick={() => handleExport(report)}>
+                          <FileDown className="mr-2 h-4 w-4" />
+                          Exportar .txt
                         </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <DropdownMenuItem asChild>
+                           <AlertDialogTrigger className="w-full text-destructive focus:text-destructive focus:bg-destructive/10">
+                             <Trash2 className="mr-2 h-4 w-4" />
+                             Eliminar
+                           </AlertDialogTrigger>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>¿Está seguro?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta acción no se puede deshacer. Esto eliminará permanentemente el reporte.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(report.id)} className="bg-destructive hover:bg-destructive/90">
+                            Sí, eliminar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                 </TableCell>
               </TableRow>
             ))}

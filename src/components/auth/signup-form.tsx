@@ -12,10 +12,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SignUpSchema } from '@/lib/schemas';
 import { useToast } from '@/hooks/use-toast';
+import { useAppContext } from '@/context/app-provider';
 
 export function SignUpForm() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { showToast, updateSettings } = useAppContext();
   
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
@@ -29,7 +30,8 @@ export function SignUpForm() {
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
     // Mock signup logic
     console.log(values);
-    toast({
+    updateSettings({ name: values.name, rnc: '' });
+    showToast({
         title: "Registro Exitoso",
         description: "Su cuenta ha sido creada.",
       });
@@ -93,7 +95,7 @@ export function SignUpForm() {
         </Form>
         <div className="mt-4 text-center text-sm">
           ¿Ya tiene una cuenta?{' '}
-          <Link href="/" className="underline text-primary">
+          <Link href="/login" className="underline text-primary">
             Inicie Sesión
           </Link>
         </div>

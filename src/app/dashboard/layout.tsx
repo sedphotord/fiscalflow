@@ -1,5 +1,6 @@
 import { AppSidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
+import { BottomNav } from '@/components/dashboard/bottom-nav';
 
 export default function DashboardLayout({
   children,
@@ -11,10 +12,11 @@ export default function DashboardLayout({
       <AppSidebar />
       <div className="flex flex-col">
         <Header />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-secondary/30">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-secondary/30 pb-20 md:pb-6">
           {children}
         </main>
       </div>
+      <BottomNav />
     </div>
   );
 }

@@ -1,9 +1,17 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FilePlus2, ShoppingCart, DollarSign, Package } from 'lucide-react';
+import { useAppContext } from '@/context/app-provider';
 
 export default function DashboardPage() {
+  const { reports } = useAppContext();
+
+  const count606 = reports.filter(r => r.type === '606').length;
+  const count607 = reports.filter(r => r.type === '607').length;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -17,7 +25,7 @@ export default function DashboardPage() {
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">5</div>
+            <div className="text-2xl font-bold">{count606}</div>
             <p className="text-xs text-muted-foreground">Reportes de compras creados</p>
           </CardContent>
         </Card>
@@ -27,7 +35,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">{count607}</div>
             <p className="text-xs text-muted-foreground">Reportes de ventas creados</p>
           </CardContent>
         </Card>
@@ -37,7 +45,7 @@ export default function DashboardPage() {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
+            <div className="text-2xl font-bold">0</div>
             <p className="text-xs text-muted-foreground">Otros formatos generados</p>
           </CardContent>
         </Card>
