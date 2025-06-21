@@ -25,7 +25,7 @@ import { TEAM_ROLES } from '@/lib/constants';
 type FormValues = z.infer<typeof InviteTeamMemberSchema>;
 
 export default function ManageTeamPage() {
-  const { teamMembers, inviteTeamMember, currentUser } = useAppContext();
+  const { teamMembers, inviteTeamMember, currentUser, deleteTeamMember } = useAppContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const planLimits = {
