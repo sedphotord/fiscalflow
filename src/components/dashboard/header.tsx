@@ -2,11 +2,23 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CircleUser, Menu, Search, Bell, PlusCircle } from 'lucide-react';
+import {
+  CircleUser,
+  Menu,
+  Search,
+  Bell,
+  PlusCircle,
+  User,
+  Settings,
+  Shield,
+  LifeBuoy,
+  LogOut,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -18,10 +30,12 @@ import { AppSidebar } from './sidebar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-
+import { useAppContext } from '@/context/app-provider';
+import { Progress } from '@/components/ui/progress';
 
 export function Header() {
   const router = useRouter();
+  const { settings } = useAppContext();
 
   const handleLogout = () => {
     // In a real app, you would clear the user's session here.
@@ -29,60 +43,61 @@ export function Header() {
   };
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
-        <Sheet>
-            <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="shrink-0 md:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
-            </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col p-0">
-                <AppSidebar />
-            </SheetContent>
-        </Sheet>
-      <div className="w-full flex-1 flex justify-center items-center gap-2">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle navigation menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="flex flex-col p-0">
+          <AppSidebar />
+        </SheetContent>
+      </Sheet>
+      <div className="flex w-full flex-1 items-center justify-center gap-2">
         <Popover>
-            <PopoverTrigger asChild>
-                <div className="relative w-full max-w-sm cursor-pointer">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Buscar reportes, RNC, NCF..."
-                        className="pl-10"
-                        readOnly
-                    />
+          <PopoverTrigger asChild>
+            <div className="relative w-full max-w-sm cursor-pointer">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Buscar reportes, RNC, NCF..."
+                className="pl-10"
+                readOnly
+              />
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <div className="grid gap-4">
+              <div>
+                <h4 className="mb-2 font-medium leading-none">
+                  Búsqueda Global
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Escribe para buscar y aplica filtros.
+                </p>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input placeholder="Buscar..." className="pl-10" />
+              </div>
+              <div className="grid gap-3">
+                <h4 className="font-medium leading-none">Filtros</h4>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="filter-reports" />
+                  <Label htmlFor="filter-reports">Reportes</Label>
                 </div>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-                <div className="grid gap-4">
-                    <div>
-                        <h4 className="font-medium leading-none mb-2">Búsqueda Global</h4>
-                        <p className="text-sm text-muted-foreground">Escribe para buscar y aplica filtros.</p>
-                    </div>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Buscar..."
-                            className="pl-10"
-                        />
-                    </div>
-                    <div className="grid gap-3">
-                        <h4 className="font-medium leading-none">Filtros</h4>
-                        <div className="flex items-center space-x-2">
-                            <Checkbox id="filter-reports" />
-                            <Label htmlFor="filter-reports">Reportes</Label>
-                        </div>
-                         <div className="flex items-center space-x-2">
-                            <Checkbox id="filter-contribuyentes" />
-                            <Label htmlFor="filter-contribuyentes">Contribuyentes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Checkbox id="filter-ncf" />
-                            <Label htmlFor="filter-ncf">NCF</Label>
-                        </div>
-                    </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="filter-contribuyentes" />
+                  <Label htmlFor="filter-contribuyentes">Contribuyentes</Label>
                 </div>
-            </PopoverContent>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="filter-ncf" />
+                  <Label htmlFor="filter-ncf">NCF</Label>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
         </Popover>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -117,13 +132,50 @@ export function Header() {
             <span className="sr-only">Toggle user menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+        <DropdownMenuContent align="end" className="w-64">
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">
+                {settings.name}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {settings.email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>Ajustes</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/dashboard/support')}>Soporte</DropdownMenuItem>
+          <div className="p-2">
+            <div className="mb-1 flex justify-between text-xs text-muted-foreground">
+              <span>Consumo del Plan</span>
+              <span>40/100 Facturas</span>
+            </div>
+            <Progress value={40} className="h-2" />
+          </div>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>Cerrar Sesión</DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+              <User className="mr-2 h-4 w-4" />
+              <span>Mi Perfil</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Configuración</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+              <Shield className="mr-2 h-4 w-4" />
+              <span>Seguridad</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => router.push('/dashboard/support')}>
+            <LifeBuoy className="mr-2 h-4 w-4" />
+            <span>Soporte</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Cerrar Sesión</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

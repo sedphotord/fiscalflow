@@ -11,7 +11,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Loader2 } from 'lucide-react';
 
 // --- DEFAULT STATES ---
-const defaultSettings: UserSettings = { name: 'Nuevo Usuario', rnc: '', theme: 'system' };
+const defaultSettings: UserSettings = { name: 'Nuevo Usuario', rnc: '', email: '', theme: 'system' };
 const defaultInitialState = {
     reports: [] as Report[],
     settings: defaultSettings,
@@ -19,7 +19,7 @@ const defaultInitialState = {
 };
 
 // --- MOCK DATA FOR OFFLINE/DEBUG MODE ---
-const mockSettings: UserSettings = { name: 'Usuario (Modo Sin Conexión)', rnc: '987654321', theme: 'system' };
+const mockSettings: UserSettings = { name: 'Usuario (Modo Sin Conexión)', rnc: '987654321', email: 'usuario.demo@fiscalflow.app', theme: 'system' };
 const mockCompanies: Company[] = [
     { id: 'comp-1', name: 'Cliente de Ejemplo', rnc: '101000001', email: 'cliente@ejemplo.com', whatsapp: '+18095551234' },
 ];

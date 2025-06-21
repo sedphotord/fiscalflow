@@ -35,9 +35,10 @@ export function SignUpForm() {
 
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
     console.log(values);
-    updateSettings({ 
-      name: values.name, 
-      rnc: values.accountType === 'empresa' ? values.rnc || '' : '' 
+    updateSettings({
+      name: values.accountType === 'empresa' ? values.companyName! : values.name,
+      rnc: values.accountType === 'empresa' ? values.rnc || '' : '',
+      email: values.email,
     });
     showToast({
         title: "Registro Exitoso",

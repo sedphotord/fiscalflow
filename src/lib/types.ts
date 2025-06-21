@@ -21,6 +21,7 @@ export type Report = Report606 | Report607;
 export type UserSettings = {
     name: string;
     rnc: string;
+    email?: string;
     theme: 'light' | 'dark' | 'system';
 };
 
