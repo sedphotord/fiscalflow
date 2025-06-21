@@ -5,7 +5,7 @@
  * Data is not persisted between server restarts.
  */
 
-import type { User, Company, TeamMember, Report, Plan, InvoicePack } from './types';
+import type { User, Company, TeamMember, Report, Plan, InvoicePack, Report606, Report607, Report608, Report609 } from './types';
 
 export const MOCK_USERS: User[] = [
     { id: 'user-1', name: 'Usuario Principal', rnc: '987654321', email: 'usuario.demo@fiscalflow.app', theme: 'system', plan: 'Pro', status: 'Activo', invoiceUsage: { current: 120, limit: 500 }, teamMemberLimit: 5, registeredAt: new Date('2023-01-15').toISOString() },
@@ -27,15 +27,91 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
     { id: 'team-3', ownerId: 'user-2', name: 'Socio Principal', email: 'socio@empresa-abc.com', role: 'Admin', status: 'Activo', invoiceUsage: { current: 200, limit: 1000 } },
 ];
 
+const mockReport1: Report606 = {
+  id: 'rep-1',
+  type: '606',
+  rnc: '987654321',
+  periodo: '202312',
+  estado: 'Completado',
+  fechaCreacion: new Date('2023-12-28').toISOString(),
+  compras: [{
+    rncCedula: '111222333',
+    razonSocial: 'FERRETERIA DON JOSE INTERNACIONAL',
+    tipoId: '1',
+    tipoBienesServicios: '09',
+    ncf: 'B0100000001',
+    ncfModificado: '',
+    fechaComprobante: '2023-12-15',
+    fechaPago: '2023-12-15',
+    montoFacturado: 5000,
+    itbisFacturado: 900,
+    itbisRetenido: 0,
+    itbisSujetoProporcionalidad: 0,
+    itbisLlevadoCosto: 0,
+    itbisPorAdelantar: 0,
+    itbisPercibidoCompras: 0,
+    retencionRenta: 0,
+    isc: 0,
+    impuestoSelectivoConsumo: 0,
+    otrosImpuestos: 0,
+    montoPropinaLegal: 0,
+    formaPago: 'credito'
+  }]
+};
+
+const mockReport2: Report607 = {
+  id: 'rep-2',
+  type: '607',
+  rnc: '987654321',
+  periodo: '202312',
+  estado: 'Borrador',
+  fechaCreacion: new Date('2023-12-27').toISOString(),
+  ventas: [{
+    rncCedula: '444555666',
+    tipoId: '1',
+    ncf: 'B0100000002',
+    ncfModificado: '',
+    fechaComprobante: '2023-12-20',
+    montoFacturado: 12000,
+    itbisFacturado: 2160
+  }]
+};
+
+const mockReport3: Report608 = {
+  id: 'rep-3',
+  type: '608',
+  rnc: '987654321',
+  periodo: '202401',
+  estado: 'Completado',
+  fechaCreacion: new Date('2024-01-30').toISOString(),
+  anulados: [{
+    ncfAnulado: 'B0100000003',
+    fechaAnulacion: '2024-01-25',
+    motivoAnulacion: '01'
+  }]
+};
+
+const mockReport4: Report609 = {
+  id: 'rep-4',
+  type: '609',
+  rnc: '987654321',
+  periodo: '202402',
+  estado: 'Borrador',
+  fechaCreacion: new Date('2024-02-28').toISOString(),
+  pagos: [{
+    razonSocialBeneficiario: 'International Software Co.',
+    tipoRenta: '01',
+    fechaPago: '2024-02-15',
+    montoPagado: 500,
+    isrRetenido: 50
+  }]
+};
+
 export const MOCK_REPORTS: Report[] = [
-    // @ts-ignore
-    { id: 'rep-1', type: '606', rnc: '987654321', periodo: '202312', estado: 'Completado', fechaCreacion: new Date('2023-12-28').toISOString(), compras: [{ rncCedula: '111222333', tipoId: '1', tipoBienesServicios: '09', ncf: 'B0100000001', fechaComprobante: '2023-12-15', fechaPago: '2023-12-15', montoFacturado: 5000, itbisFacturado: 900, formaPago: 'credito' }] },
-    // @ts-ignore
-    { id: 'rep-2', type: '607', rnc: '987654321', periodo: '202312', estado: 'Borrador', fechaCreacion: new Date('2023-12-27').toISOString(), ventas: [{ rncCedula: '444555666', tipoId: '1', ncf: 'B0100000002', fechaComprobante: '2023-12-20', montoFacturado: 12000, itbisFacturado: 2160 }] },
-    // @ts-ignore
-    { id: 'rep-3', type: '608', rnc: '987654321', periodo: '202401', estado: 'Completado', fechaCreacion: new Date('2024-01-30').toISOString(), anulados: [{ ncfAnulado: 'B0100000003', fechaAnulacion: '2024-01-25', motivoAnulacion: '01' }] },
-    // @ts-ignore
-    { id: 'rep-4', type: '609', rnc: '987654321', periodo: '202402', estado: 'Borrador', fechaCreacion: new Date('2024-02-28').toISOString(), pagos: [{ razonSocialBeneficiario: 'International Software Co.', tipoRenta: '01', fechaPago: '2024-02-15', montoPagado: 500, isrRetenido: 50 }] },
+  mockReport1,
+  mockReport2,
+  mockReport3,
+  mockReport4
 ];
 
 export const MOCK_PLANS: Plan[] = [
