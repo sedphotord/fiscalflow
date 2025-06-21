@@ -21,8 +21,14 @@ const RetencionesCalculatorSchema = z.object({
 
 type FormValues = z.infer<typeof RetencionesCalculatorSchema>;
 
+// Define a type for a single year's scale
+type IsrScale = {
+  exempt: number;
+  rates: { limit: number; percentage: number; fixed: number }[];
+};
+
 // ISR Scales - Using data for 2023 onwards as an example
-const isrScales: { [key: string]: { exempt: number; rates: { limit: number; percentage: number; fixed: number }[] } } = {
+const isrScales: { [key: string]: IsrScale } = {
   "2024": {
     exempt: 416220.00,
     rates: [
@@ -83,7 +89,7 @@ export default function RetencionesCalculatorPage() {
     },
   });
   
-  const calculateISR = (ingresoAnual: number, scale: typeof isrScales.2024) => {
+  const calculateISR = (ingresoAnual: number, scale: IsrScale) => {
     if (ingresoAnual <= scale.exempt) {
       return 0;
     }
