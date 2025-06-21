@@ -144,21 +144,21 @@ export function Header() {
         <DropdownMenuContent align="end" className="w-80">
             <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="flex items-start gap-3">
+            <DropdownMenuItem className="flex items-start gap-3 cursor-pointer" onClick={() => router.push('/dashboard/reports')}>
               <CheckCircle className="mt-1 h-4 w-4 text-green-500" />
               <div>
                 <p className="font-medium">Reporte 606 Generado</p>
                 <p className="text-xs text-muted-foreground">Período 202312 completado exitosamente.</p>
               </div>
             </DropdownMenuItem>
-             <DropdownMenuItem className="flex items-start gap-3">
+             <DropdownMenuItem className="flex items-start gap-3 cursor-pointer" onClick={() => router.push('/dashboard/subscriptions/usage')}>
               <FileWarning className="mt-1 h-4 w-4 text-yellow-500" />
               <div>
                 <p className="font-medium">Límite de Consumo Cerca</p>
                 <p className="text-xs text-muted-foreground">Has usado el 85% de tu cuota de facturas.</p>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-start gap-3">
+            <DropdownMenuItem className="flex items-start gap-3 cursor-pointer" onClick={() => router.push('/dashboard/declaraciones')}>
               <CalendarClock className="mt-1 h-4 w-4 text-blue-500" />
               <div>
                 <p className="font-medium">Recordatorio de Fecha Límite</p>
