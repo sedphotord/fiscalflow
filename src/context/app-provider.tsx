@@ -10,11 +10,11 @@ import { Loader2 } from 'lucide-react';
 
 // --- MOCK DATA ---
 const MOCK_USERS: User[] = [
-    { id: 'user-1', name: 'Usuario Principal', rnc: '987654321', email: 'usuario.demo@fiscalflow.app', theme: 'system', plan: 'Pro', status: 'Activo', invoiceUsage: { current: 120, limit: 500 }, registeredAt: new Date('2023-01-15').toISOString() },
-    { id: 'user-2', name: 'Empresa ABC', rnc: '131223344', email: 'contacto@empresa-abc.com', theme: 'light', plan: 'Despacho', status: 'Activo', invoiceUsage: { current: 1500, limit: 10000 }, registeredAt: new Date('2022-11-20').toISOString() },
-    { id: 'user-3', name: 'Juan Perez', rnc: '40212345678', email: 'juan.perez@email.com', theme: 'dark', plan: 'Gratis', status: 'Activo', invoiceUsage: { current: 25, limit: 50 }, registeredAt: new Date('2024-03-10').toISOString() },
-    { id: 'user-4', name: 'Consultores RD', rnc: '101000001', email: 'info@consultores.do', theme: 'system', plan: 'Pro', status: 'Pago pendiente', invoiceUsage: { current: 501, limit: 500 }, registeredAt: new Date('2023-08-01').toISOString() },
-    { id: 'user-5', name: 'Ex-Cliente S.A.', rnc: '111222333', email: 'baja@excliente.com', theme: 'light', plan: 'Pro', status: 'Cancelado', invoiceUsage: { current: 0, limit: 500 }, registeredAt: new Date('2023-05-05').toISOString() },
+    { id: 'user-1', name: 'Usuario Principal', rnc: '987654321', email: 'usuario.demo@fiscalflow.app', theme: 'system', plan: 'Pro', status: 'Activo', invoiceUsage: { current: 120, limit: 500 }, teamMemberLimit: 5, registeredAt: new Date('2023-01-15').toISOString() },
+    { id: 'user-2', name: 'Empresa ABC', rnc: '131223344', email: 'contacto@empresa-abc.com', theme: 'light', plan: 'Despacho', status: 'Activo', invoiceUsage: { current: 1500, limit: 10000 }, teamMemberLimit: 50, registeredAt: new Date('2022-11-20').toISOString() },
+    { id: 'user-3', name: 'Juan Perez', rnc: '40212345678', email: 'juan.perez@email.com', theme: 'dark', plan: 'Gratis', status: 'Activo', invoiceUsage: { current: 25, limit: 50 }, teamMemberLimit: 1, registeredAt: new Date('2024-03-10').toISOString() },
+    { id: 'user-4', name: 'Consultores RD', rnc: '101000001', email: 'info@consultores.do', theme: 'system', plan: 'Pro', status: 'Pago pendiente', invoiceUsage: { current: 501, limit: 500 }, teamMemberLimit: 5, registeredAt: new Date('2023-08-01').toISOString() },
+    { id: 'user-5', name: 'Ex-Cliente S.A.', rnc: '111222333', email: 'baja@excliente.com', theme: 'light', plan: 'Pro', status: 'Cancelado', invoiceUsage: { current: 0, limit: 500 }, teamMemberLimit: 5, registeredAt: new Date('2023-05-05').toISOString() },
 ];
 const MOCK_COMPANIES: Company[] = [
     { id: 'comp-1', ownerId: 'user-1', name: 'Mi Propia Empresa', rnc: '987654321', email: 'usuario.demo@fiscalflow.app' },
@@ -145,6 +145,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // --- Super Admin Functions ---
   const createUserByAdmin = useCallback((data: CreateUserByAdminData) => {
+    const selectedPlan = plans.find(p => p.name === data.plan);
+    if (!selectedPlan) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Plan seleccionado no válido.' });
+      return;
+    }
     const newUser: User = {
       id: `user-${Date.now()}`,
       name: data.name,
@@ -155,13 +160,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       status: 'Activo',
       invoiceUsage: {
         current: 0,
-        limit: data.invoiceLimit
+        limit: selectedPlan.invoiceLimit + (data.additionalInvoices || 0),
       },
+      teamMemberLimit: data.teamMemberLimit,
       registeredAt: new Date().toISOString()
     };
     setUsers(prev => [...prev, newUser]);
     toast({ title: 'Usuario Creado', description: `Se ha creado el usuario ${data.name}.` });
-  }, [toast]);
+  }, [toast, plans]);
 
   const updateUserPlan = useCallback((userId: string, planName: UserPlan) => {
     const planDetails = plans.find(p => p.name === planName);

@@ -34,6 +34,7 @@ export type User = {
         current: number;
         limit: number;
     };
+    teamMemberLimit: number;
     registeredAt: string;
 };
 

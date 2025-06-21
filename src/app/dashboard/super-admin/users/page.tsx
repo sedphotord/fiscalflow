@@ -45,7 +45,7 @@ export default function AdminUsersPage() {
   }, []);
 
   
-  const createUserForm = useForm<CreateUserFormValues>({ resolver: zodResolver(AdminCreateUserSchema), defaultValues: { name: '', email: '', password: '', plan: 'Gratis', invoiceLimit: 50 }});
+  const createUserForm = useForm<CreateUserFormValues>({ resolver: zodResolver(AdminCreateUserSchema), defaultValues: { name: '', email: '', password: '', plan: 'Gratis', teamMemberLimit: 1, additionalInvoices: 0 }});
   const inviteMemberForm = useForm<InviteMemberFormValues>({ resolver: zodResolver(AdminInviteTeamMemberSchema), defaultValues: { email: '', role: 'Editor' }});
 
 
@@ -284,7 +284,30 @@ export default function AdminUsersPage() {
                       </Select>
                   <FormMessage />
                 </FormItem>)} />
-               <FormField control={createUserForm.control} name="invoiceLimit" render={({ field }) => (<FormItem><FormLabel>Límite de Facturas</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={createUserForm.control} name="teamMemberLimit" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Límite de Miembros de Equipo</FormLabel>
+                        <FormControl><Input type="number" placeholder="Ej: 5" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+                <div className="grid grid-cols-2 gap-4">
+                    <FormItem>
+                        <FormLabel>Límite Facturas (Plan)</FormLabel>
+                        <Input
+                            type="number"
+                            disabled
+                            value={plans.find(p => p.name === createUserForm.watch('plan'))?.invoiceLimit || 0}
+                        />
+                    </FormItem>
+                    <FormField control={createUserForm.control} name="additionalInvoices" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Facturas Adicionales</FormLabel>
+                            <FormControl><Input type="number" placeholder="Ej: 100" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                </div>
               <DialogFooter><Button type="button" variant="ghost" onClick={() => setIsCreateUserOpen(false)}>Cancelar</Button><Button type="submit">Crear Usuario</Button></DialogFooter>
             </form>
           </Form>
@@ -304,7 +327,12 @@ export default function AdminUsersPage() {
       
       <Dialog open={isInviteMemberOpen} onOpenChange={setIsInviteMemberOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Invitar Miembro a Equipo de {selectedUser?.name}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Invitar Miembro a Equipo de {selectedUser?.name}</DialogTitle>
+             <DialogDescription>
+                {selectedUser && `El usuario ha usado ${getTeamMembersForUser(selectedUser.id).length} de ${selectedUser.teamMemberLimit} puestos de equipo.`}
+             </DialogDescription>
+          </DialogHeader>
           <Form {...inviteMemberForm}>
             <form onSubmit={inviteMemberForm.handleSubmit(onInviteMemberSubmit)} className="space-y-4 py-4">
               <FormField control={inviteMemberForm.control} name="email" render={({ field }) => (<FormItem><FormLabel>Correo del Miembro</FormLabel><FormControl><Input type="email" placeholder="miembro@ejemplo.com" {...field} /></FormControl><FormMessage /></FormItem>)} />

@@ -140,7 +140,8 @@ export const AdminCreateUserSchema = z.object({
     email: z.string().email({ message: 'Correo inválido.' }),
     password: z.string().min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
     plan: z.custom<UserPlan>(),
-    invoiceLimit: z.number().min(0, 'Debe ser un número positivo.'),
+    teamMemberLimit: z.number().int().min(0, "Debe ser 0 o mayor."),
+    additionalInvoices: z.number().int().min(0, "Debe ser 0 o mayor.").optional(),
 });
 
 export const AdminInviteTeamMemberSchema = z.object({
