@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Logo } from '@/components/logo';
-import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook, BarChartHorizontal, Users, Bell } from 'lucide-react';
+import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook, BarChartHorizontal, Users, Bell, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -136,6 +136,34 @@ export default function LandingPage() {
     }
   ];
 
+  const features = [
+    { name: "Facturas por Mes", gratis: "Hasta 50", pro: "Hasta 500", despacho: "Ilimitadas" },
+    { name: "Formularios (606, 607)", gratis: true, pro: true, despacho: true },
+    { name: "Validación RNC/NCF", gratis: true, pro: true, despacho: true },
+    { name: "Exportación a Excel", gratis: true, pro: true, despacho: true },
+    { name: "Dashboard Analítico", gratis: true, pro: true, despacho: true },
+    { name: "Gestión Multi-Empresa", gratis: false, pro: "Hasta 10 clientes", despacho: "Ilimitados" },
+    { name: "Escaneo en Lote", gratis: false, pro: true, despacho: true },
+    { name: "Alertas y Recordatorios", gratis: false, pro: true, despacho: true },
+    { name: "API para Integración", gratis: false, pro: true, despacho: true },
+    { name: "Usuarios por Cuenta", gratis: "1", pro: "Hasta 5", despacho: "Ilimitados" },
+    { name: "Panel Administrativo", gratis: false, pro: false, despacho: true },
+    { name: "Soporte", gratis: "Email", pro: "Email Prioritario", despacho: "Telefónico 24/7" },
+    { name: "Consultoría y Capacitación", gratis: false, pro: false, despacho: true },
+  ];
+  
+  const invoicePacks = [
+      { amount: 50, price: 250, description: "Ideal para un pequeño empujón." },
+      { amount: 100, price: 450, description: "La mejor relación calidad-precio." },
+      { amount: 200, price: 800, description: "Para meses de alta actividad." },
+  ];
+
+  const renderFeature = (value: string | boolean) => {
+    if (typeof value === 'boolean') {
+      return value ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <XCircle className="h-6 w-6 text-destructive mx-auto" />;
+    }
+    return <span className="text-sm">{value}</span>;
+  };
 
   return (
     <>
@@ -312,85 +340,85 @@ export default function LandingPage() {
                       </div>
                   </div>
                   <motion.div 
-                      className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
-                      variants={staggeredContainer}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.2 }}
+                      className="mx-auto max-w-7xl overflow-x-auto"
+                      variants={itemVariants}
                   >
-                      <motion.div variants={itemVariants}>
-                        <Card className="flex flex-col h-full">
-                            <CardHeader>
-                                <CardTitle className="text-2xl">Gratis</CardTitle>
-                                <CardDescription>Perfecto para contadores independientes</CardDescription>
-                                <div className="text-4xl font-bold pt-2">RD$ 0<span className="text-xl font-normal text-muted-foreground">/mes</span></div>
-                            </CardHeader>
-                            <CardContent className="flex-1 space-y-4">
-                              <ul className="space-y-3">
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Hasta 50 facturas por mes</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Formularios básicos (606, 607)</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Validación RNC/NCF</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Soporte por email</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Exportación a Excel</span></li>
-                              </ul>
-                            </CardContent>
-                            <CardFooter>
+                      <div className="grid grid-cols-[minmax(200px,_1fr)_repeat(3,_minmax(150px,_1fr))] gap-x-4 gap-y-6">
+                          {/* Headers */}
+                          <div className="font-bold text-lg sticky top-0">Características</div>
+                          <div className="text-center sticky top-0">
+                              <h3 className="font-bold text-lg">Gratis</h3>
+                              <p className="text-2xl font-bold">RD$ 0</p>
+                              <p className="text-sm text-muted-foreground">/mes</p>
+                          </div>
+                          <div className="text-center sticky top-0 rounded-lg p-2 border-2 border-primary relative">
+                              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Más Popular</Badge>
+                              <h3 className="font-bold text-lg text-primary">Pro</h3>
+                              <p className="text-2xl font-bold">RD$ 2,500</p>
+                              <p className="text-sm text-muted-foreground">/mes</p>
+                          </div>
+                          <div className="text-center sticky top-0">
+                              <h3 className="font-bold text-lg">Despacho</h3>
+                              <p className="text-2xl font-bold">RD$ 6,500</p>
+                              <p className="text-sm text-muted-foreground">/mes</p>
+                          </div>
+
+                           {/* Divider */}
+                          <div className="col-span-4 border-b"></div>
+
+                          {/* Features */}
+                          {features.map((feature) => (
+                              <React.Fragment key={feature.name}>
+                                  <div className="py-4 font-medium flex items-center">{feature.name}</div>
+                                  <div className="py-4 text-center flex items-center justify-center">{renderFeature(feature.gratis)}</div>
+                                  <div className="py-4 text-center flex items-center justify-center bg-primary/5 rounded-lg">{renderFeature(feature.pro)}</div>
+                                  <div className="py-4 text-center flex items-center justify-center">{renderFeature(feature.despacho)}</div>
+                              </React.Fragment>
+                          ))}
+                          
+                           {/* Divider */}
+                           <div className="col-span-4 border-b"></div>
+
+                           {/* Action Buttons */}
+                           <div></div>
+                            <div className="p-4 text-center">
                                 <Link href="/signup" className="w-full"><Button variant="outline" className="w-full">Comenzar Gratis</Button></Link>
-                            </CardFooter>
-                        </Card>
-                      </motion.div>
-
-                      <motion.div variants={itemVariants}>
-                        <Card className="flex flex-col border-primary shadow-lg relative h-full">
-                            <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Más Popular</Badge>
-                            <CardHeader>
-                                <CardTitle className="text-2xl">Pro</CardTitle>
-                                <CardDescription>Ideal para contadores con múltiples clientes</CardDescription>
-                                <div className="text-4xl font-bold pt-2">RD$ 2,500<span className="text-xl font-normal text-muted-foreground">/mes</span></div>
-                            </CardHeader>
-                            <CardContent className="flex-1 space-y-4">
-                              <ul className="space-y-3">
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Hasta 500 facturas por mes</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Todos los formularios DGII</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Escaneo en lote avanzado</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>API para integración</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Respaldo automático</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Soporte prioritario</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Reportes personalizados</span></li>
-                              </ul>
-                            </CardContent>
-                            <CardFooter>
+                            </div>
+                            <div className="p-4 text-center">
                                 <Link href="/signup" className="w-full"><Button className="w-full">Elegir Pro</Button></Link>
-                            </CardFooter>
-                        </Card>
-                      </motion.div>
-
-                       <motion.div variants={itemVariants}>
-                        <Card className="flex flex-col h-full">
-                            <CardHeader>
-                                <CardTitle className="text-2xl">Despacho</CardTitle>
-                                <CardDescription>Para despachos contables y empresas grandes</CardDescription>
-                                <div className="text-4xl font-bold pt-2">RD$ 6,500<span className="text-xl font-normal text-muted-foreground">/mes</span></div>
-                            </CardHeader>
-                            <CardContent className="flex-1 space-y-4">
-                              <ul className="space-y-3">
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Facturas ilimitadas</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Múltiples empresas</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Panel administrativo</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Usuarios ilimitados</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Integraciones personalizadas</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Soporte telefónico 24/7</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Consultoría incluida</span></li>
-                                    <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-primary" /><span>Capacitación del equipo</span></li>
-                              </ul>
-                            </CardContent>
-                            <CardFooter>
+                            </div>
+                            <div className="p-4 text-center">
                                 <Link href="#" className="w-full"><Button variant="outline" className="w-full">Contactar Ventas</Button></Link>
-                            </CardFooter>
-                        </Card>
-                       </motion.div>
+                            </div>
+                      </div>
                   </motion.div>
-                   <div className="mt-12 text-center">
+                  
+                  <div className="mt-20">
+                      <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+                          <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">¿Te quedaste sin facturas?</h3>
+                          <p className="max-w-[700px] text-muted-foreground">
+                          No esperes a que tu ciclo se renueve. Compra un paquete de facturas adicionales y sigue trabajando sin interrupciones.
+                          </p>
+                      </div>
+                      <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                          {invoicePacks.map((pack) => (
+                              <Card key={pack.amount} className="text-center">
+                                  <CardHeader>
+                                      <CardTitle>{pack.amount} Facturas Adicionales</CardTitle>
+                                      <CardDescription>{pack.description}</CardDescription>
+                                  </CardHeader>
+                                  <CardContent>
+                                      <p className="text-3xl font-bold">RD$ {pack.price}</p>
+                                  </CardContent>
+                                  <CardFooter>
+                                      <Button className="w-full">Comprar Paquete</Button>
+                                  </CardFooter>
+                              </Card>
+                          ))}
+                      </div>
+                  </div>
+
+                   <div className="mt-16 text-center">
                       <h3 className="text-xl font-semibold">¿Necesitas un plan personalizado? ¿Tienes más de 10 empresas?</h3>
                       <Button asChild variant="link" className="text-lg mt-2">
                           <Link href="#">Contactar para Plan Empresarial <ArrowRight className="ml-2 h-5 w-5" /></Link>
@@ -476,8 +504,7 @@ export default function LandingPage() {
                   <DialogTitle className="text-2xl">{selectedFeature.title}</DialogTitle>
                 </div>
               </DialogHeader>
-              <DialogDescription className="text-base text-foreground whitespace-pre-wrap">
-                {selectedFeature.detailedDescription}
+              <DialogDescription className="text-base text-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: selectedFeature.detailedDescription.replace(/\n/g, '<br />') }}>
               </DialogDescription>
             </>
           )}
