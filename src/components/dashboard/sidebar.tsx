@@ -13,6 +13,8 @@ import {
   Users,
   BookMarked,
   LifeBuoy,
+  FileX,
+  Plane,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -27,7 +29,7 @@ import {
 export function AppSidebar() {
   const pathname = usePathname();
 
-  const isEnvioActive = ['/compras', '/ventas', '/otros'].some(p => pathname.startsWith(`/dashboard${p}`));
+  const isEnvioActive = ['/compras', '/ventas', '/ncf-anulados', '/pagos-exterior', '/otros'].some(p => pathname.startsWith(`/dashboard${p}`));
   const isDeclaracionesActive = pathname.startsWith('/dashboard/declaraciones');
 
   return (
@@ -86,6 +88,26 @@ export function AppSidebar() {
                     >
                       <DollarSign className="h-4 w-4" />
                       607 - Ventas
+                    </Link>
+                    <Link
+                      href="/dashboard/ncf-anulados"
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        pathname.startsWith('/dashboard/ncf-anulados') && 'bg-muted text-primary'
+                      )}
+                    >
+                      <FileX className="h-4 w-4" />
+                      608 - NCF Anulados
+                    </Link>
+                    <Link
+                      href="/dashboard/pagos-exterior"
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        pathname.startsWith('/dashboard/pagos-exterior') && 'bg-muted text-primary'
+                      )}
+                    >
+                      <Plane className="h-4 w-4" />
+                      609 - Pagos al Exterior
                     </Link>
                      <Link
                       href="/dashboard/otros"
