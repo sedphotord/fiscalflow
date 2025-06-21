@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Users,
   BookMarked,
+  LifeBuoy,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -142,6 +143,16 @@ export function AppSidebar() {
             >
               <Settings className="h-4 w-4" />
               Ajustes
+            </Link>
+             <Link
+              href="/dashboard/support"
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                pathname.startsWith('/dashboard/support') && 'bg-muted text-primary'
+              )}
+            >
+              <LifeBuoy className="h-4 w-4" />
+              Soporte
             </Link>
           </nav>
         </div>

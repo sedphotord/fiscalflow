@@ -56,7 +56,7 @@ export function Header() {
           <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>Ajustes</DropdownMenuItem>
-          <DropdownMenuItem>Soporte</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('/dashboard/support')}>Soporte</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>Cerrar Sesión</DropdownMenuItem>
         </DropdownMenuContent>
