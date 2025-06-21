@@ -12,7 +12,7 @@ interface AnalyticsChartsProps {
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--secondary))'];
 
-export function AnalyticsCharts({ reports }: AnalyticsChartsProps) {
+function AnalyticsCharts({ reports }: AnalyticsChartsProps) {
   const formDistribution = useMemo(() => {
     const counts = reports.reduce((acc, report) => {
       const key = `Formato ${report.type}`;
@@ -121,3 +121,5 @@ export function AnalyticsCharts({ reports }: AnalyticsChartsProps) {
     </div>
   );
 }
+
+export default AnalyticsCharts;

@@ -17,7 +17,7 @@ function AnalyticsChartsSkeleton() {
 }
 
 const AnalyticsCharts = dynamic(
-  () => import('@/components/dashboard/analytics-charts').then(mod => mod.AnalyticsCharts), 
+  () => import('@/components/dashboard/analytics-charts'), 
   { 
     ssr: false,
     loading: () => <AnalyticsChartsSkeleton />
