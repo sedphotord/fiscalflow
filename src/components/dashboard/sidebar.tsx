@@ -11,6 +11,7 @@ import {
   Package,
   ShieldCheck,
   Users,
+  BookMarked,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -25,8 +26,8 @@ import {
 export function AppSidebar() {
   const pathname = usePathname();
 
-  // Determine if the accordion should be open by default
   const isEnvioActive = ['/compras', '/ventas', '/otros'].some(p => pathname.startsWith(`/dashboard${p}`));
+  const isDeclaracionesActive = pathname.startsWith('/dashboard/declaraciones');
 
   return (
     <div className="hidden border-r bg-background md:block">
@@ -49,7 +50,12 @@ export function AppSidebar() {
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
               </Link>
-              <Accordion type="multiple" className="w-full" defaultValue={isEnvioActive ? ['formatos-envio'] : []}>
+              <Accordion type="multiple" className="w-full" defaultValue={
+                [
+                  isEnvioActive ? 'formatos-envio' : '',
+                  isDeclaracionesActive ? 'declaraciones-anuales' : ''
+                ].filter(Boolean)
+                }>
               <AccordionItem value="formatos-envio" className="border-none">
                 <AccordionTrigger className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
@@ -89,6 +95,29 @@ export function AppSidebar() {
                     >
                       <Package className="h-4 w-4" />
                       Otros Formatos
+                    </Link>
+                  </nav>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="declaraciones-anuales" className="border-none">
+                <AccordionTrigger className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
+                  isDeclaracionesActive && 'text-primary'
+                  )}>
+                  <BookMarked className="h-4 w-4" />
+                  Declaraciones Anuales
+                </AccordionTrigger>
+                <AccordionContent className="pl-8 pt-1">
+                   <nav className="grid gap-1">
+                    <Link
+                      href="/dashboard/declaraciones"
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        pathname.startsWith('/dashboard/declaraciones') && 'bg-muted text-primary'
+                      )}
+                    >
+                      <FileText className="h-4 w-4" />
+                      IR-2 / Declaración Anual
                     </Link>
                   </nav>
                 </AccordionContent>

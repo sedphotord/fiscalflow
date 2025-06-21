@@ -1,33 +1,33 @@
 'use client';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ScanLine, FolderSearch, History, Upload } from 'lucide-react';
+import { ScanLine, FolderSearch, History, Upload, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const actions = [
     {
         href: '/dashboard/compras/new',
         icon: ScanLine,
-        title: 'Escanear Facturas',
-        description: 'Sube nuevas facturas o escanea con la cámara'
+        title: 'Escanear Factura',
+        description: 'Sube una factura y extrae los datos con IA.'
+    },
+    {
+        href: '/dashboard/compras/new',
+        icon: Copy,
+        title: 'Escanear en Lote',
+        description: 'Procesa múltiples facturas de forma simultánea.'
     },
     {
         href: '/dashboard/compras',
         icon: FolderSearch,
-        title: 'Ver Formularios',
-        description: 'Revisa y descarga formularios DGII'
+        title: 'Ver Reportes',
+        description: 'Revisa y descarga tus reportes 606 y 607.'
     },
     {
-        href: '/dashboard/compras',
+        href: '/dashboard/contribuyentes',
         icon: History,
-        title: 'Historial',
-        description: 'Consulta facturas procesadas anteriormente'
-    },
-    {
-        href: '/dashboard/compras/new',
-        icon: Upload,
-        title: 'Subir Archivo',
-        description: 'Importa PDFs o imágenes desde tu dispositivo'
+        title: 'Historial por Cliente',
+        description: 'Consulta la actividad de cada contribuyente.'
     }
 ];
 
