@@ -49,7 +49,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const offlineToast = {
             variant: "destructive",
             title: "Modo Sin Conexión Activado",
-            description: "No se pudo conectar a Firebase. La aplicación está usando datos de muestra para que puedas seguir trabajando.",
+            description: "No se pudo conectar a Firebase. Revisa tus credenciales en el archivo .env o tu conexión a internet.",
             duration: 9000,
         };
 
