@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Report } from '@/lib/types';
@@ -19,51 +19,55 @@ type Activity = {
     icon: React.ElementType;
 };
 
-
 export function RecentActivity({ reports }: RecentActivityProps) {
-  const [isClient, setIsClient] = useState(false);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // This hook ensures the component is mounted on the client, preventing hydration errors.
-    setIsClient(true);
-  }, []);
-
-  const recentActivities = useMemo(() => {
-    // We only generate dynamic/random data on the client side.
-    if (!isClient) {
-      return [];
-    }
-
-    const activities: Activity[] = reports.slice(0, 5).map(report => ({
+    // This logic now runs only on the client, after the initial render.
+    // This prevents any mismatch between server and client rendering.
+    
+    const getReportTypeLabel = (type: Report['type']) => {
+        switch (type) {
+            case '606': return 'Compra (606)';
+            case '607': return 'Venta (607)';
+            case '608': return 'Anulado (608)';
+            case '609': return 'Pago Exterior (609)';
+            default: return 'Reporte';
+        }
+    };
+    
+    const generatedActivities: Activity[] = reports.slice(0, 5).map(report => ({
       id: report.id,
-      type: report.type === '606' ? 'Compra (606)' : 'Venta (607)',
+      type: getReportTypeLabel(report.type),
       description: `Generado Formulario ${report.periodo}`,
       date: report.fechaCreacion,
       icon: FileText
     }));
 
-    // Add some mock "scanned" activities for visual variety using client-side specific APIs
+    // Mock some dynamic activities for visual variety
     if (reports.length > 0) {
-        activities.push({
-            id: crypto.randomUUID(),
+        generatedActivities.push({
+            id: crypto.randomUUID(), // Safe to use here inside useEffect
             type: 'Escaneo',
             description: `Factura de "Ferretería Don José"`,
-            date: new Date().toISOString(),
+            date: new Date().toISOString(), // Safe to use here
             icon: ScanLine
         });
     }
      if (reports.length > 1) {
-        activities.push({
+        generatedActivities.push({
             id: crypto.randomUUID(),
             type: 'Subida de archivo',
             description: `factura-2024-05.pdf`,
-            date: new Date(new Date().getTime() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+            date: new Date(new Date().getTime() - 1000 * 60 * 60 * 2).toISOString(),
             icon: FileUp
         });
     }
 
-    return activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
-  }, [reports, isClient]);
+    setActivities(generatedActivities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5));
+    setIsLoading(false);
+  }, [reports]);
 
   return (
     <Card>
@@ -82,7 +86,7 @@ export function RecentActivity({ reports }: RecentActivityProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {!isClient ? (
+              {isLoading ? (
                  <TableRow>
                   <TableCell colSpan={3} className="h-24 text-center">
                      <div className="flex items-center justify-center gap-2 text-muted-foreground">
@@ -91,13 +95,13 @@ export function RecentActivity({ reports }: RecentActivityProps) {
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : recentActivities.length === 0 ? (
+              ) : activities.length === 0 ? (
                  <TableRow>
                   <TableCell colSpan={3} className="h-24 text-center">
                     No hay actividad reciente.
                   </TableCell>
                 </TableRow>
-              ) : recentActivities.map(activity => (
+              ) : activities.map(activity => (
                 <TableRow key={activity.id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
