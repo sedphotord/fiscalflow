@@ -1,9 +1,28 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useAppContext } from '@/context/app-provider';
-import { AnalyticsCharts } from '@/components/dashboard/analytics-charts';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function AnalyticsChartsSkeleton() {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <Skeleton className="h-[380px] lg:col-span-1" />
+      <Skeleton className="h-[380px] lg:col-span-2" />
+      <Skeleton className="h-[380px] lg:col-span-3" />
+    </div>
+  );
+}
+
+const AnalyticsCharts = dynamic(
+  () => import('@/components/dashboard/analytics-charts').then(mod => mod.AnalyticsCharts), 
+  { 
+    ssr: false,
+    loading: () => <AnalyticsChartsSkeleton />
+  }
+);
 
 export default function DashboardPage() {
   const { reports } = useAppContext();

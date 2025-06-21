@@ -97,11 +97,10 @@ export default function LandingPage() {
               </motion.div>
               <motion.img
                 variants={itemVariants}
-                data-ai-hint="accounting taxes"
-                src="https://placehold.co/600x400.png"
+                src="https://umecit.edu.pa/wp-content/uploads/2022/09/mejores-trabajos-en-contabilidad-en-Panama%CC%81.jpg"
                 width="600"
                 height="400"
-                alt="Hero"
+                alt="Equipo de contabilidad trabajando"
                 className="mx-auto aspect-[3/2] overflow-hidden rounded-xl object-cover sm:w-full"
               />
             </div>
