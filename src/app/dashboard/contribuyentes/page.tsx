@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +12,16 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { Report } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ContribuyentesPage() {
   const { settings, companies, reports } = useAppContext();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const allCompanies = useMemo(() => [
     { ...settings, id: 'main', type: 'Principal' },
@@ -88,7 +95,7 @@ export default function ContribuyentesPage() {
                         <div className="flex items-center gap-2 text-sm">
                           <FileText className="h-4 w-4 text-muted-foreground"/>
                           <span>
-                            Reporte {lastActivity.type} - {format(new Date(lastActivity.fechaCreacion), "dd MMM, yyyy", { locale: es })}
+                            Reporte {lastActivity.type} - {isClient ? format(new Date(lastActivity.fechaCreacion), "dd MMM, yyyy", { locale: es }) : <Skeleton className="h-4 w-24 inline-block" />}
                           </span>
                         </div>
                       ) : (

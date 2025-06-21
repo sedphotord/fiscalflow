@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -42,6 +43,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { format } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ReportTableProps {
   data: Report[];
@@ -50,6 +52,11 @@ interface ReportTableProps {
 export function ReportTable({ data }: ReportTableProps) {
     const { deleteReport, showToast } = useAppContext();
     const router = useRouter();
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+      setIsClient(true);
+    }, []);
 
     const getBadgeVariant = (estado: Report['estado']) => {
         switch (estado) {
@@ -135,7 +142,7 @@ export function ReportTable({ data }: ReportTableProps) {
                   <Badge variant={getBadgeVariant(report.estado)}>{report.estado}</Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  {format(new Date(report.fechaCreacion), 'dd/MM/yyyy')}
+                  {isClient ? format(new Date(report.fechaCreacion), 'dd/MM/yyyy') : <Skeleton className="h-4 w-20" />}
                 </TableCell>
                 <TableCell>
                 <AlertDialog>
