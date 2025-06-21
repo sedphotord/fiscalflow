@@ -16,6 +16,10 @@ import {
   FileX,
   Plane,
   ShieldCheck,
+  CreditCard,
+  BarChart3,
+  Gauge,
+  Wallet,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -32,6 +36,7 @@ export function AppSidebar() {
 
   const isEnvioActive = ['/compras', '/ventas', '/ncf-anulados', '/pagos-exterior', '/otros'].some(p => pathname.startsWith(`/dashboard${p}`));
   const isDeclaracionesActive = pathname.startsWith('/dashboard/declaraciones');
+  const isSuscripcionesActive = pathname.startsWith('/dashboard/subscriptions');
 
   return (
     <div className="hidden border-r bg-background md:block">
@@ -57,7 +62,8 @@ export function AppSidebar() {
               <Accordion type="multiple" className="w-full" defaultValue={
                 [
                   isEnvioActive ? 'formatos-envio' : '',
-                  isDeclaracionesActive ? 'declaraciones-anuales' : ''
+                  isDeclaracionesActive ? 'declaraciones-anuales' : '',
+                  isSuscripcionesActive ? 'suscripciones' : ''
                 ].filter(Boolean)
                 }>
               <AccordionItem value="formatos-envio" className="border-none">
@@ -142,6 +148,69 @@ export function AppSidebar() {
                     >
                       <FileText className="h-4 w-4" />
                       IR-2 / Declaración Anual
+                    </Link>
+                  </nav>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="suscripciones" className="border-none">
+                <AccordionTrigger className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
+                  isSuscripcionesActive && 'text-primary'
+                  )}>
+                  <CreditCard className="h-4 w-4" />
+                  Suscripciones
+                </AccordionTrigger>
+                <AccordionContent className="pl-8 pt-1">
+                   <nav className="grid gap-1">
+                    <Link
+                      href="/dashboard/subscriptions"
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        pathname === '/dashboard/subscriptions' && 'bg-muted text-primary'
+                      )}
+                    >
+                      <BarChart3 className="h-4 w-4" />
+                      Resumen
+                    </Link>
+                     <Link
+                      href="/dashboard/subscriptions/usage"
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        pathname.startsWith('/dashboard/subscriptions/usage') && 'bg-muted text-primary'
+                      )}
+                    >
+                      <Gauge className="h-4 w-4" />
+                      Consumo
+                    </Link>
+                    <Link
+                      href="/dashboard/subscriptions/payment-methods"
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        pathname.startsWith('/dashboard/subscriptions/payment-methods') && 'bg-muted text-primary'
+                      )}
+                    >
+                      <Wallet className="h-4 w-4" />
+                      Métodos de Pago
+                    </Link>
+                    <Link
+                      href="/dashboard/subscriptions/billing"
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        pathname.startsWith('/dashboard/subscriptions/billing') && 'bg-muted text-primary'
+                      )}
+                    >
+                      <FileText className="h-4 w-4" />
+                      Datos de Facturación
+                    </Link>
+                    <Link
+                      href="/dashboard/subscriptions/buy"
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        pathname.startsWith('/dashboard/subscriptions/buy') && 'bg-muted text-primary'
+                      )}
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      Comprar Facturas
                     </Link>
                   </nav>
                 </AccordionContent>
