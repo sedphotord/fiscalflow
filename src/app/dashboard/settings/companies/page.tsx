@@ -46,11 +46,11 @@ export default function ManageCompaniesPage() {
     setIsDialogOpen(true);
   };
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     if (editingCompany) {
-      updateCompany(editingCompany.id, data);
+      await updateCompany(editingCompany.id, data);
     } else {
-      addCompany(data);
+      await addCompany(data);
     }
     setIsDialogOpen(false);
   };

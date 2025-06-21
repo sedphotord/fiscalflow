@@ -2,10 +2,14 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { Report, UserSettings, Company, AppContextType } from '@/lib/types';
-import { toast, useToast } from "@/hooks/use-toast"
+import { toast, useToast } from "@/hooks/use-toast";
 import { Toaster } from '@/components/ui/toaster';
+import { db } from '@/lib/firebase';
+import { collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { Loader2 } from 'lucide-react';
 
-const APP_STATE_KEY = 'fiscalFlowAppState';
+// Mock user ID until authentication is added
+const MOCK_USER_ID = 'default-user';
 
 type AppState = {
   reports: Report[];
@@ -15,54 +19,70 @@ type AppState = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const useLocalStorage = <T,>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] => {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === 'undefined') {
-      return initialValue;
-    }
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error(error);
-      return initialValue;
-    }
-  });
-
-  const setValue = (value: T | ((val: T) => T)) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return [storedValue, setValue];
+const defaultInitialState: AppState = {
+    reports: [],
+    settings: { name: 'Usuario Demo', rnc: '131999999', theme: 'system' },
+    companies: [],
 };
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isMounted, setIsMounted] = useState(false);
-  const [appState, setAppState] = useLocalStorage<AppState>(APP_STATE_KEY, {
-    reports: [],
-    settings: { name: 'Usuario Demo', rnc: '131999999', theme: 'system' },
-    companies: [
-      { id: 'mock-1', name: 'Ferretería Don José', rnc: '130876543', email: 'contacto@ferreteriajose.com', whatsapp: '8091234567' },
-      { id: 'mock-2', name: 'Colmado El Vecino', rnc: '131123456', email: 'colmadoelvecino@example.com' },
-    ],
-  });
-  
+  const [appState, setAppState] = useState<AppState>(defaultInitialState);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
+  // Fetch initial data from Firestore
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    const fetchData = async () => {
+      if (!db) {
+        console.error("Firestore is not initialized. Check your .env file.");
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const userRef = doc(db, 'users', MOCK_USER_ID);
+        const companiesRef = collection(userRef, 'companies');
+        const reportsRef = collection(userRef, 'reports');
+
+        // Fetch settings
+        const userDoc = await getDoc(userRef);
+        let settings = defaultInitialState.settings;
+        if (userDoc.exists()) {
+            settings = userDoc.data() as UserSettings;
+        } else {
+            // If settings don't exist for the user, create them
+            await setDoc(userRef, settings);
+        }
+
+        // Fetch companies
+        const companiesSnapshot = await getDocs(companiesRef);
+        const companies = companiesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Company));
+        
+        // Fetch reports, ordered by creation date
+        const reportsQuery = query(reportsRef, orderBy('fechaCreacion', 'desc'));
+        const reportsSnapshot = await getDocs(reportsQuery);
+        const reports = reportsSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Report));
+
+        setAppState({ settings, companies, reports });
+
+      } catch (error) {
+        console.error("Error fetching data from Firestore:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Error de Conexión',
+          description: 'No se pudieron cargar los datos. Revisa la configuración de Firebase en tu archivo .env.',
+        });
+        // Fallback to default state on error
+        setAppState(defaultInitialState);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [toast]);
 
   useEffect(() => {
-    if (!isMounted) return;
+    if (isLoading) return;
     const root = window.document.documentElement;
     const theme = appState.settings.theme;
     root.classList.remove('light', 'dark');
@@ -73,63 +93,119 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     } else {
       root.classList.add(theme);
     }
-  }, [appState.settings.theme, isMounted]);
+  }, [appState.settings.theme, isLoading]);
 
-
-  const addReport = useCallback((reportData: Omit<Report, 'id' | 'fechaCreacion'>) => {
-    const newReport: Report = {
+  const addReport = useCallback(async (reportData: Omit<Report, 'id' | 'fechaCreacion'>) => {
+    if (!db) return;
+    const newReportData = {
         ...reportData,
-        id: crypto.randomUUID(),
         fechaCreacion: new Date().toISOString(),
-    } as Report;
-    setAppState(prev => ({ ...prev, reports: [newReport, ...prev.reports] }));
-  }, [setAppState]);
+    };
+    try {
+        const userRef = doc(db, 'users', MOCK_USER_ID);
+        const reportsRef = collection(userRef, 'reports');
+        const docRef = await addDoc(reportsRef, newReportData);
+        const newReport = { ...newReportData, id: docRef.id } as Report;
+        setAppState(prev => ({ ...prev, reports: [newReport, ...prev.reports] }));
+    } catch (error) {
+        console.error("Error adding report to Firestore:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo guardar el reporte.' });
+    }
+  }, [toast]);
 
-  const updateReport = useCallback((id: string, reportData: Partial<Report>) => {
-    setAppState(prev => ({
-      ...prev,
-      reports: prev.reports.map(r => r.id === id ? { ...r, ...reportData } : r),
-    }));
-  }, [setAppState]);
+  const updateReport = useCallback(async (id: string, reportData: Partial<Report>) => {
+    if (!db) return;
+     try {
+        const reportRef = doc(db, 'users', MOCK_USER_ID, 'reports', id);
+        await updateDoc(reportRef, reportData);
+        setAppState(prev => ({
+            ...prev,
+            reports: prev.reports.map(r => r.id === id ? { ...r, ...reportData } as Report : r),
+        }));
+    } catch (error) {
+        console.error("Error updating report in Firestore:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo actualizar el reporte.' });
+    }
+  }, [toast]);
 
-  const deleteReport = useCallback((id: string) => {
-    setAppState(prev => ({ ...prev, reports: prev.reports.filter(r => r.id !== id) }));
-  }, [setAppState]);
+  const deleteReport = useCallback(async (id: string) => {
+    if (!db) return;
+    try {
+        const reportRef = doc(db, 'users', MOCK_USER_ID, 'reports', id);
+        await deleteDoc(reportRef);
+        setAppState(prev => ({ ...prev, reports: prev.reports.filter(r => r.id !== id) }));
+    } catch (error) {
+        console.error("Error deleting report from Firestore:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar el reporte.' });
+    }
+  }, [toast]);
 
   const getReport = useCallback((id: string) => {
     return appState.reports.find(r => r.id === id);
   }, [appState.reports]);
 
-  const updateSettings = useCallback((newSettings: Partial<UserSettings>) => {
-    setAppState(prev => ({ ...prev, settings: { ...prev.settings, ...newSettings } }));
-  }, [setAppState]);
+  const updateSettings = useCallback(async (newSettings: Partial<UserSettings>) => {
+    if (!db) return;
+    const updatedSettings = { ...appState.settings, ...newSettings };
+     try {
+        const userRef = doc(db, 'users', MOCK_USER_ID);
+        await setDoc(userRef, updatedSettings, { merge: true });
+        setAppState(prev => ({ ...prev, settings: updatedSettings }));
+    } catch (error) {
+        console.error("Error updating settings in Firestore:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudieron guardar los ajustes.' });
+    }
+  }, [appState.settings, toast]);
   
   const setTheme = useCallback((theme: UserSettings['theme']) => {
     updateSettings({ theme });
   }, [updateSettings]);
 
-  const addCompany = useCallback((companyData: Omit<Company, 'id'>): Company => {
-    const newCompany: Company = {
-        ...companyData,
-        id: crypto.randomUUID(),
-    };
-    setAppState(prev => ({ ...prev, companies: [...prev.companies, newCompany] }));
-    toast({ title: 'Empresa Agregada', description: `La empresa ${newCompany.name} ha sido agregada.` });
-    return newCompany;
-  }, [setAppState, toast]);
+  const addCompany = useCallback(async (companyData: Omit<Company, 'id'>): Promise<Company | undefined> => {
+    if (!db) return undefined;
+    try {
+        const userRef = doc(db, 'users', MOCK_USER_ID);
+        const companiesRef = collection(userRef, 'companies');
+        const docRef = await addDoc(companiesRef, companyData);
+        const newCompany: Company = { ...companyData, id: docRef.id };
+        setAppState(prev => ({ ...prev, companies: [...prev.companies, newCompany] }));
+        toast({ title: 'Empresa Agregada', description: `La empresa ${newCompany.name} ha sido agregada.` });
+        return newCompany;
+    } catch (error) {
+        console.error("Error adding company to Firestore:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo agregar la empresa.' });
+        return undefined;
+    }
+  }, [toast]);
 
-  const updateCompany = useCallback((id: string, companyData: Partial<Omit<Company, 'id'>>) => {
-    setAppState(prev => ({
-        ...prev,
-        companies: prev.companies.map(c => c.id === id ? { ...c, ...companyData } : c),
-    }));
-    toast({ title: 'Empresa Actualizada', description: 'Los datos de la empresa han sido actualizados.' });
-  }, [setAppState, toast]);
+  const updateCompany = useCallback(async (id: string, companyData: Partial<Omit<Company, 'id'>>) => {
+    if (!db) return;
+     try {
+        const companyRef = doc(db, 'users', MOCK_USER_ID, 'companies', id);
+        await updateDoc(companyRef, companyData);
+        setAppState(prev => ({
+            ...prev,
+            companies: prev.companies.map(c => c.id === id ? { ...c, ...companyData } as Company : c),
+        }));
+        toast({ title: 'Empresa Actualizada', description: 'Los datos de la empresa han sido actualizados.' });
+    } catch (error) {
+        console.error("Error updating company in Firestore:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo actualizar la empresa.' });
+    }
+  }, [toast]);
 
-  const deleteCompany = useCallback((id: string) => {
-    setAppState(prev => ({ ...prev, companies: prev.companies.filter(c => c.id !== id) }));
-    toast({ title: 'Empresa Eliminada', description: 'La empresa ha sido eliminada.' });
-  }, [setAppState, toast]);
+  const deleteCompany = useCallback(async (id: string) => {
+    if (!db) return;
+     try {
+        const companyRef = doc(db, 'users', MOCK_USER_ID, 'companies', id);
+        await deleteDoc(companyRef);
+        setAppState(prev => ({ ...prev, companies: prev.companies.filter(c => c.id !== id) }));
+        toast({ title: 'Empresa Eliminada', description: 'La empresa ha sido eliminada.' });
+    } catch (error) {
+        console.error("Error deleting company from Firestore:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo eliminar la empresa.' });
+    }
+  }, [toast]);
   
   const value: AppContextType = {
     reports: appState.reports,
@@ -148,8 +224,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     showToast: toast,
   };
 
-  if (!isMounted) {
-    return null; // or a loading spinner
+  if (isLoading) {
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-background">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+    );
   }
 
   return (

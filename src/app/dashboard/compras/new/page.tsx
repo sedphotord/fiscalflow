@@ -289,8 +289,8 @@ export default function NewCompraPage() {
     setValidatingRnc(prev => ({ ...prev, [index]: false }));
   }, [form]);
   
-  const handleAddNewCompany = (data: CompanyFormValues) => {
-    const newCompany = addCompany(data);
+  const handleAddNewCompany = async (data: CompanyFormValues) => {
+    const newCompany = await addCompany(data);
     if (newCompany) {
       form.setValue('rnc', newCompany.rnc, { shouldValidate: true });
       setIsAddCompanyDialogOpen(false);

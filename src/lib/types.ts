@@ -43,7 +43,7 @@ export type AppContextType = {
   deleteReport: (id: string) => void;
   getReport: (id: string) => Report | undefined;
   updateSettings: (newSettings: Partial<UserSettings>) => void;
-  addCompany: (companyData: Omit<Company, 'id'>) => Company;
+  addCompany: (companyData: Omit<Company, 'id'>) => Promise<Company | undefined>;
   updateCompany: (id: string, companyData: Partial<Omit<Company, 'id'>>) => void;
   deleteCompany: (id: string) => void;
   showToast: typeof toast;
