@@ -95,3 +95,9 @@ export const CompanySchema = z.object({
     message: 'El RNC debe tener 9 u 11 dígitos.',
   }),
 });
+
+// Schema for the support contact form
+export const SupportSchema = z.object({
+  subject: z.string().min(5, { message: 'El asunto debe tener al menos 5 caracteres.' }),
+  message: z.string().min(20, { message: 'El mensaje debe tener al menos 20 caracteres.' }),
+});
