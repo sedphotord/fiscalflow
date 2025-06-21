@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PageHeader } from '@/components/dashboard/page-header';
@@ -7,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, FileText, Server, MoreHorizontal, TrendingUp, Wallet, DollarSign, UserPlus, LineChart } from 'lucide-react';
 import { ChartContainer, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts';
 import { format } from 'date-fns';
 
 const salesData = [
