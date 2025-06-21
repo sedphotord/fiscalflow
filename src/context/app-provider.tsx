@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 // Mock user ID until authentication is added
 const MOCK_USER_ID = 'default-user';
 
-// Mock data to use as a fallback if Firestore connection fails
+// Mock data to use as a fallback if Firestore connection fails or for initial creation
 const MOCK_REPORTS: Report[] = [
     // @ts-ignore
     { id: 'mock-606-1', type: '606', rnc: '131999999', periodo: '202404', estado: 'Completado', fechaCreacion: new Date().toISOString(), compras: [] },
@@ -48,11 +48,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchData = async () => {
       if (!db) {
         console.warn("Firestore is not initialized. Running in offline mode.");
-        toast({
-          variant: 'destructive',
-          title: 'Modo sin Conexión Activado',
-          description: 'No se pudo inicializar Firebase. La app se ejecutará con datos de muestra.',
-        });
         setAppState({
             settings: defaultInitialState.settings,
             companies: MOCK_COMPANIES,
@@ -63,29 +58,52 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
       try {
         const userRef = doc(db, 'users', MOCK_USER_ID);
-        const companiesRef = collection(userRef, 'companies');
-        const reportsRef = collection(userRef, 'reports');
-
-        // Fetch settings
         const userDoc = await getDoc(userRef);
-        let settings = defaultInitialState.settings;
+
         if (userDoc.exists()) {
-            settings = { ...settings, ...userDoc.data() };
+            // User exists, fetch their data
+            const settings = { ...defaultInitialState.settings, ...userDoc.data() };
+            
+            const companiesRef = collection(userRef, 'companies');
+            const reportsRef = collection(userRef, 'reports');
+
+            const companiesSnapshot = await getDocs(companiesRef);
+            const companies = companiesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Company));
+            
+            const reportsQuery = query(reportsRef, orderBy('fechaCreacion', 'desc'));
+            const reportsSnapshot = await getDocs(reportsQuery);
+            const reports = reportsSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Report));
+
+            setAppState({ settings, companies, reports });
         } else {
+            // User does not exist, it's the first run. Let's create everything.
+            toast({
+              title: 'Bienvenido a FiscalFlow',
+              description: 'Creando su perfil y datos de ejemplo en Firestore...',
+            });
+            
+            const settings = defaultInitialState.settings;
             await setDoc(userRef, settings);
+
+            // Create a sample company
+            const companiesRef = collection(userRef, 'companies');
+            const { id: mockCompanyId, ...sampleCompanyData } = MOCK_COMPANIES[0];
+            const companyDocRef = await addDoc(companiesRef, sampleCompanyData);
+            const createdCompany = { ...sampleCompanyData, id: companyDocRef.id };
+            
+            // Create a sample report
+            const reportsRef = collection(userRef, 'reports');
+            // @ts-ignore
+            const { id: mockReportId, ...sampleReportData } = MOCK_REPORTS[0];
+            const reportDocRef = await addDoc(reportsRef, sampleReportData);
+            const createdReport = { ...sampleReportData, id: reportDocRef.id } as Report;
+
+            setAppState({
+                settings,
+                companies: [createdCompany],
+                reports: [createdReport]
+            });
         }
-
-        // Fetch companies
-        const companiesSnapshot = await getDocs(companiesRef);
-        const companies = companiesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Company));
-        
-        // Fetch reports, ordered by creation date
-        const reportsQuery = query(reportsRef, orderBy('fechaCreacion', 'desc'));
-        const reportsSnapshot = await getDocs(reportsQuery);
-        const reports = reportsSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Report));
-
-        setAppState({ settings, companies, reports });
-
       } catch (error: any) {
         const errorCode = error.code || 'desconocido';
         console.error(`Código de error de Firebase: ${errorCode}`);
