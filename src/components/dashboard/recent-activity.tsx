@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -37,20 +38,39 @@ export function RecentActivity({ reports }: RecentActivityProps) {
         }
     };
     
-    const generatedActivities: Activity[] = reports.slice(0, 5).map(report => ({
-      id: report.id,
-      type: getReportTypeLabel(report.type),
-      description: `Generado Formulario ${report.periodo}`,
-      date: report.fechaCreacion,
-      icon: FileText
-    }));
+    const generatedActivities: Activity[] = reports.slice(0, 5).map(report => {
+      let count = 0;
+      switch (report.type) {
+        case '606':
+          count = report.compras.length;
+          break;
+        case '607':
+          count = report.ventas.length;
+          break;
+        case '608':
+          count = report.anulados.length;
+          break;
+        case '609':
+          count = report.pagos.length;
+          break;
+      }
+      const plural = count === 1 ? 'factura procesada' : 'facturas procesadas';
+
+      return {
+        id: report.id,
+        type: getReportTypeLabel(report.type),
+        description: `${count} ${plural} para el período ${report.periodo}`,
+        date: report.fechaCreacion,
+        icon: FileText
+      }
+    });
 
     // Mock some dynamic activities for visual variety
     if (reports.length > 0) {
         generatedActivities.push({
             id: crypto.randomUUID(), // Safe to use here inside useEffect
             type: 'Escaneo',
-            description: `Factura de "Ferretería Don José"`,
+            description: `1 factura procesada ("Ferretería Don José")`,
             date: new Date().toISOString(), // Safe to use here
             icon: ScanLine
         });
@@ -59,7 +79,7 @@ export function RecentActivity({ reports }: RecentActivityProps) {
         generatedActivities.push({
             id: crypto.randomUUID(),
             type: 'Subida de archivo',
-            description: `factura-2024-05.pdf`,
+            description: `1 factura procesada (factura-2024-05.pdf)`,
             date: new Date(new Date().getTime() - 1000 * 60 * 60 * 2).toISOString(),
             icon: FileUp
         });
