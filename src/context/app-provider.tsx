@@ -7,7 +7,7 @@ import { type toast } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from '@/components/ui/toaster';
 import { db } from '@/lib/firebase';
-import { collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
 // Mock user ID until authentication is added
@@ -21,7 +21,7 @@ const MOCK_REPORTS: Report[] = [
     { id: 'mock-607-1', type: '607', rnc: '131999999', periodo: '202404', estado: 'Borrador', fechaCreacion: new Date(Date.now() - 86400000).toISOString(), ventas: [] },
 ];
 const MOCK_COMPANIES: Company[] = [
-    { id: 'mock-comp-1', name: 'Cliente de Muestra', rnc: '101000001' }
+    { id: 'mock-comp-1', name: 'Cliente de Muestra', rnc: '101000001', email: 'cliente@muestra.com', whatsapp: '+18095551234' }
 ];
 
 type AppState = {
@@ -50,8 +50,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         console.warn("Firestore is not initialized. Running in offline mode.");
         toast({
           variant: 'destructive',
-          title: 'Modo sin Conexión',
-          description: 'No se pudo conectar a Firebase. La app se ejecutará con datos de muestra.',
+          title: 'Modo sin Conexión Activado',
+          description: 'No se pudo inicializar Firebase. La app se ejecutará con datos de muestra.',
         });
         setAppState({
             settings: defaultInitialState.settings,
@@ -72,8 +72,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         if (userDoc.exists()) {
             settings = { ...settings, ...userDoc.data() };
         } else {
-            // If settings don't exist for the user, create them
-            toast({ title: 'Creando perfil de usuario por primera vez...' });
             await setDoc(userRef, settings);
         }
 
@@ -90,15 +88,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       } catch (error: any) {
         const errorCode = error.code || 'desconocido';
-        
         console.error(`Código de error de Firebase: ${errorCode}`);
         
         toast({
           variant: 'destructive',
-          title: `Error de Carga (Código: ${errorCode})`,
-          description: 'No se pudo conectar a Firestore. Verifique su conexión y las reglas de seguridad de la base de datos.',
+          title: 'Modo sin Conexión Activado',
+          description: 'No se pudo conectar a Firestore. La aplicación funcionará con datos de muestra.',
         });
-        // Fallback to mock data on error
+
         setAppState({
             settings: defaultInitialState.settings,
             companies: MOCK_COMPANIES,
