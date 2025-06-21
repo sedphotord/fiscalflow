@@ -97,6 +97,19 @@ export type CreateUserByAdminData = z.infer<typeof AdminCreateUserSchema>;
 export type PlanData = Omit<Plan, 'id'>;
 export type InvoicePackData = z.infer<typeof InvoicePackSchema>;
 
+export type SupportTicketStatus = 'Abierto' | 'En progreso' | 'Cerrado';
+
+export type SupportTicket = {
+    id: string; // This will be the ticketId from the flow
+    userId: string;
+    userName: string;
+    subject: string;
+    message: string;
+    status: SupportTicketStatus;
+    createdAt: string;
+    response: string; // The initial AI response
+};
+
 
 export type AppContextType = {
   reports: Report[];
@@ -106,6 +119,7 @@ export type AppContextType = {
   teamMembers: TeamMember[]; // All team members for all users
   plans: Plan[];
   invoicePacks: InvoicePack[];
+  supportTickets: SupportTicket[];
   theme: User['theme'];
   setTheme: (theme: User['theme']) => void;
   addReport: (reportData: Omit<Report, 'id' | 'fechaCreacion'>) => void;
@@ -117,6 +131,7 @@ export type AppContextType = {
   updateCompany: (id: string, companyData: Partial<Omit<Company, 'id'>>) => void;
   deleteCompany: (id: string) => void;
   showToast: typeof toast;
+  addSupportTicket: (ticketData: { id: string; subject: string; message: string; response: string; }) => void;
   // User functions
   addTeamMember: (memberData: TeamMemberData) => void;
   updateTeamMember: (id: string, memberData: Partial<TeamMemberData>) => void;

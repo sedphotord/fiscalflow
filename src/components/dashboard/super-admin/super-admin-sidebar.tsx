@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -17,6 +18,7 @@ import {
   ShoppingBag,
   Users,
   Tags,
+  LifeBuoy,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -73,6 +75,16 @@ export function SuperAdminSidebar() {
               >
                 <Tags className="h-4 w-4" />
                 Gestión de Planes
+              </Link>
+              <Link
+                href="/dashboard/super-admin/support"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                  pathname.startsWith('/dashboard/super-admin/support') && 'bg-accent text-accent-foreground'
+                )}
+              >
+                <LifeBuoy className="h-4 w-4" />
+                Soporte
               </Link>
               <Accordion type="multiple" className="w-full" defaultValue={
                 [

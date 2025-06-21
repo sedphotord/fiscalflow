@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -42,7 +43,7 @@ const faqItems = [
 ];
 
 export default function SupportPage() {
-  const { showToast } = useAppContext();
+  const { showToast, addSupportTicket } = useAppContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SupportFormValues>({
@@ -56,7 +57,18 @@ export default function SupportPage() {
   const onSubmit = async (values: SupportFormValues) => {
     setIsSubmitting(true);
     try {
+      // 1. Let the AI generate a ticket ID and initial response
       const result = await createSupportTicket(values);
+
+      // 2. Persist the complete ticket in our "database"
+      addSupportTicket({
+        id: result.ticketId,
+        subject: values.subject,
+        message: values.message,
+        response: result.response,
+      });
+
+      // 3. Notify the user
       showToast({
         title: "Ticket Creado: " + result.ticketId,
         description: result.response,

@@ -2,12 +2,12 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import type { Report, User, Company, TeamMember, AppContextType, UserPlan, TeamMemberRole, Plan, InvoicePack, CreateUserByAdminData, PlanData, InvoicePackData, TeamMemberData } from '@/lib/types';
+import type { Report, User, Company, TeamMember, AppContextType, UserPlan, TeamMemberRole, Plan, InvoicePack, CreateUserByAdminData, PlanData, InvoicePackData, TeamMemberData, SupportTicket } from '@/lib/types';
 import { type toast as toastFn } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from '@/components/ui/toaster';
 import { Loader2 } from 'lucide-react';
-import { MOCK_USERS, MOCK_COMPANIES, MOCK_TEAM_MEMBERS, MOCK_REPORTS, MOCK_PLANS, MOCK_INVOICE_PACKS } from '@/lib/mock-db';
+import { MOCK_USERS, MOCK_COMPANIES, MOCK_TEAM_MEMBERS, MOCK_REPORTS, MOCK_PLANS, MOCK_INVOICE_PACKS, MOCK_SUPPORT_TICKETS } from '@/lib/mock-db';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -19,6 +19,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [reports, setReports] = useState<Report[]>(MOCK_REPORTS);
   const [plans, setPlans] = useState<Plan[]>(MOCK_PLANS);
   const [invoicePacks, setInvoicePacks] = useState<InvoicePack[]>(MOCK_INVOICE_PACKS);
+  const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(MOCK_SUPPORT_TICKETS);
   
   const [isLoading, setIsLoading] = useState(false); // Simplified loading
   const { toast } = useToast();
@@ -89,6 +90,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
      setCompanies(prev => prev.filter(c => c.id !== id));
      toast({ title: 'Empresa Eliminada' });
   }, [toast]);
+
+  // --- Support Ticket Management ---
+  const addSupportTicket = useCallback((ticketData: { id: string; subject: string; message: string; response: string; }) => {
+    const newTicket: SupportTicket = {
+      ...ticketData,
+      userId: currentUser.id,
+      userName: currentUser.name,
+      status: 'Abierto',
+      createdAt: new Date().toISOString(),
+    };
+    setSupportTickets(prev => [newTicket, ...prev]);
+  }, [currentUser]);
   
   // --- Team Management ---
     const addTeamMember = useCallback((memberData: TeamMemberData) => {
@@ -272,6 +285,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     teamMembers: teamMembers,
     plans,
     invoicePacks,
+    supportTickets,
     theme: currentUser.theme,
     setTheme,
     addReport,
@@ -283,6 +297,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     updateCompany,
     deleteCompany,
     showToast: toast,
+    addSupportTicket,
     // User functions
     addTeamMember,
     updateTeamMember,

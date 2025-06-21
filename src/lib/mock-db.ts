@@ -5,7 +5,7 @@
  * Data is not persisted between server restarts.
  */
 
-import type { User, Company, TeamMember, Report, Plan, InvoicePack, Report606, Report607, Report608, Report609 } from './types';
+import type { User, Company, TeamMember, Report, Plan, InvoicePack, Report606, Report607, Report608, Report609, SupportTicket } from './types';
 
 export const MOCK_USERS: User[] = [
     { id: 'user-1', name: 'Usuario Principal', rnc: '987654321', email: 'usuario.demo@fiscalflow.app', theme: 'system', plan: 'Pro', status: 'Activo', invoiceUsage: { current: 120, limit: 500 }, teamMemberLimit: 5, registeredAt: new Date('2023-01-15').toISOString() },
@@ -124,4 +124,9 @@ export const MOCK_INVOICE_PACKS: InvoicePack[] = [
     { id: 'pack-1', amount: 50, price: 1000 },
     { id: 'pack-2', amount: 100, price: 1500 },
     { id: 'pack-3', amount: 200, price: 2500 },
+];
+
+export const MOCK_SUPPORT_TICKETS: SupportTicket[] = [
+    { id: 'TICKET-58291', userId: 'user-1', userName: 'Usuario Principal', subject: 'Problema con escaneo', message: 'La factura del proveedor XYZ no se escanea correctamente, los montos salen en cero.', status: 'Abierto', createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), response: 'Hemos recibido tu solicitud sobre el escaneo. Tu ID de ticket es TICKET-58291. Lo revisaremos pronto.' },
+    { id: 'TICKET-92104', userId: 'user-4', userName: 'Consultores RD', subject: 'Duda sobre NCF', message: '¿Cómo debo registrar un NCF de consumidor final en el 607?', status: 'Cerrado', createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), response: '¡Hola! Gracias por tu consulta sobre NCF de consumidor final. Tu ticket es el TICKET-92104.' },
 ];
