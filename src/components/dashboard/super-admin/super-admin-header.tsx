@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -56,7 +57,7 @@ export function SuperAdminHeader() {
              <div className="relative w-full max-w-sm cursor-pointer">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Buscar usuarios, planes, pagos..."
+                placeholder="Buscar usuarios, RNC, email, planes..."
                 className="pl-10"
                 readOnly
               />
@@ -74,7 +75,7 @@ export function SuperAdminHeader() {
               </div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Buscar por email, RNC, plan..." className="pl-10" />
+                <Input placeholder="Buscar por email, RNC, Cédula, plan..." className="pl-10" />
               </div>
                <div className="grid gap-3">
                 <h4 className="font-medium leading-none">Filtros Avanzados</h4>
@@ -83,13 +84,17 @@ export function SuperAdminHeader() {
                   <Label htmlFor="filter-admin-users">Usuarios</Label>
                 </div>
                 <div className="flex items-center space-x-2">
+                  <Checkbox id="filter-admin-teams" />
+                  <Label htmlFor="filter-admin-teams">Equipos</Label>
+                </div>
+                <div className="flex items-center space-x-2">
                   <Checkbox id="filter-admin-plans" />
                   <Label htmlFor="filter-admin-plans">Planes</Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                 <div className="flex items-center space-x-2">
                   <Checkbox id="filter-admin-payments" />
-                  <Label htmlFor="filter-admin-payments">Pagos</Label>
-                </div>
+                  <Label htmlFor="filter-admin-payments">Facturas de Pago</Label>
+                 </div>
                  <div className="flex items-center space-x-2">
                   <Checkbox id="filter-admin-errors" />
                   <Label htmlFor="filter-admin-errors">Errores del Sistema</Label>
