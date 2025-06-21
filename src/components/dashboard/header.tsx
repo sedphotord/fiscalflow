@@ -35,7 +35,7 @@ import { Progress } from '@/components/ui/progress';
 
 export function Header() {
   const router = useRouter();
-  const { settings } = useAppContext();
+  const { settings, showToast } = useAppContext();
 
   const handleLogout = () => {
     // In a real app, you would clear the user's session here.
@@ -121,7 +121,17 @@ export function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Button variant="ghost" size="icon" className="rounded-full">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="rounded-full"
+        onClick={() =>
+          showToast({
+            title: 'Próximamente',
+            description: 'El panel de notificaciones estará disponible pronto.',
+          })
+        }
+      >
         <Bell className="h-5 w-5" />
         <span className="sr-only">Ver notificaciones</span>
       </Button>
