@@ -20,6 +20,7 @@ import {
   BarChart3,
   Gauge,
   Wallet,
+  Plug,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -236,6 +237,16 @@ export function AppSidebar() {
                 <ShieldCheck className="h-4 w-4" />
                 Validador DGII
               </Link>
+            <Link
+              href="/dashboard/integrations"
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                pathname.startsWith('/dashboard/integrations') && 'bg-muted text-primary'
+              )}
+            >
+              <Plug className="h-4 w-4" />
+              Integraciones
+            </Link>
              <Link
               href="/dashboard/settings"
               className={cn(
