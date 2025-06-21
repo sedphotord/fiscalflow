@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, CheckCircle2, XCircle, ShieldCheck } from 'lucide-react';
-import { validateTaxInfo } from '@/ai/tools/dgii-validator-tool';
+import { validateTaxInformation } from '@/ai/flows/validate-tax-info-flow';
 import { useAppContext } from '@/context/app-provider';
 
 const ValidatorSchema = z.object({
@@ -47,7 +47,7 @@ export default function ValidatorPage() {
         rncCedula: data.rncCedula,
         ncf: data.ncf || '', 
       };
-      const validationResult = await validateTaxInfo(validationData);
+      const validationResult = await validateTaxInformation(validationData);
       setResult(validationResult);
     } catch (error) {
       console.error("Validation error:", error);
