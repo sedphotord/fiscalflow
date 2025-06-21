@@ -104,3 +104,23 @@ export const SupportSchema = z.object({
   subject: z.string().min(5, { message: 'El asunto debe tener al menos 5 caracteres.' }),
   message: z.string().min(20, { message: 'El mensaje debe tener al menos 20 caracteres.' }),
 });
+
+// Schema for Payment Method Form
+export const PaymentMethodSchema = z.object({
+  cardholderName: z.string().min(3, "Nombre en la tarjeta es requerido."),
+  cardNumber: z.string().refine((val) => /^\d{16}$/.test(val.replace(/\s/g, '')), "Número de tarjeta inválido. Deben ser 16 dígitos."),
+  expiryDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "El formato debe ser MM/AA."),
+  cvc: z.string().regex(/^\d{3,4}$/, "El CVC debe tener 3 o 4 dígitos."),
+});
+
+// Schema for Billing Information
+export const BillingSchema = z.object({
+  name: z.string().min(2, "El nombre o razón social es requerido."),
+  rnc: z.string().refine(rnc => (rnc.length === 9 || rnc.length === 11) && /^\d+$/.test(rnc), {
+    message: 'El RNC/Cédula debe ser numérico y tener 9 u 11 dígitos.',
+  }),
+  address: z.string().min(5, "La dirección es requerida."),
+  city: z.string().min(2, "La ciudad es requerida."),
+  province: z.string().min(2, "La provincia es requerida."),
+  zip: z.string().min(3, "El código postal es requerido."),
+});
