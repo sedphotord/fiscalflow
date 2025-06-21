@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Logo } from '@/components/logo';
-import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook, BarChartHorizontal, Users, Bell, XCircle } from 'lucide-react';
+import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook, BarChartHorizontal, Users, Bell, XCircle, Cloud, Headset, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -59,6 +59,24 @@ export default function LandingPage() {
       title: 'Generación de Formularios DGII',
       shortDescription: 'Genera automáticamente los archivos de envío de datos requeridos por la DGII, listos para declarar.',
       detailedDescription: `El corazón de FiscalFlow. Convierte tus registros de compras y ventas en los archivos de texto (\`.txt\`) listos para ser subidos a la Oficina Virtual de la DGII. Olvídate de los formatos complicados y las especificaciones técnicas.\n\nActualmente, la plataforma te permite generar:\n• **Formato 606:** Reporte de Compras de Bienes y Servicios.\n• **Formato 607:** Reporte de Ventas de Bienes y Servicios.\n\nEstamos trabajando para ampliar nuestro catálogo de formularios para incluir el **Formato 608 (NCF Anulados)**, el **Formato 609 (Pagos al Exterior)** y las declaraciones juradas anuales como el **IR-1** para personas físicas y el **IR-2** para sociedades. Con FiscalFlow, el cumplimiento fiscal está a solo un clic de distancia.`
+    },
+    {
+      icon: Cloud,
+      title: '100% en la Nube',
+      shortDescription: 'Empieza fácilmente y sin necesidad de descargas, actualizaciones ni servidores.',
+      detailedDescription: 'Dile adiós a las instalaciones complicadas y al mantenimiento de software. FiscalFlow opera completamente en la nube, lo que significa que puedes acceder a tu información desde cualquier dispositivo con conexión a internet.\n\nNo necesitas preocuparte por descargas, instalaciones ni actualizaciones. Nosotros nos encargamos de todo para que siempre tengas la última versión de la aplicación, con las funcionalidades más recientes y las últimas regulaciones fiscales. Tu información se guarda de forma segura y está disponible para ti 24/7, donde sea que estés.'
+    },
+    {
+      icon: Headset,
+      title: 'Soporte 24/7 Ilimitado',
+      shortDescription: 'Cuenta con asesoría contable experta cuando la necesites, sin costos adicionales.',
+      detailedDescription: 'Tu tranquilidad es nuestra prioridad. Por eso, ofrecemos soporte ilimitado 24/7 con expertos contables. Ya sea que tengas una duda sobre cómo registrar una factura complicada o necesites entender una nueva regulación, nuestro equipo está aquí para ayudarte.\n\nEl soporte está incluido en tu plan, sin costos ocultos. Puedes contactarnos por chat, correo electrónico o teléfono en cualquier momento. No estás solo en tu gestión fiscal; tienes un equipo de profesionales respaldándote.'
+    },
+    {
+      icon: Sparkles,
+      title: 'Gestiona tu Contabilidad con IA',
+      shortDescription: 'Optimiza procesos con IA que sugiere categorizaciones y automatiza tareas repetitivas.',
+      detailedDescription: 'Deja que la Inteligencia Artificial trabaje por ti. FiscalFlow utiliza IA no solo para escanear facturas, sino también para optimizar tu flujo de trabajo. El sistema aprende de tus operaciones y comienza a sugerir automáticamente la categorización de tus gastos según el tipo de bien o servicio.\n\nEsta automatización reduce drásticamente el tiempo que dedicas a tareas repetitivas y minimiza el riesgo de errores. Con el tiempo, la IA se vuelve más inteligente, haciendo que tu gestión contable sea cada vez más rápida y precisa.'
     }
   ];
 
