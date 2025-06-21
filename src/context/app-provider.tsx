@@ -71,12 +71,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         setAppState({ settings, companies, reports });
 
-      } catch (error) {
-        console.error("Error fetching data from Firestore:", error);
+      } catch (error: any) {
+        console.error("Error completo de Firestore:", error);
+        const errorCode = error.code || 'desconocido';
+        
+        console.error(`Código de error de Firebase: ${errorCode}`);
+        
         toast({
           variant: 'destructive',
-          title: 'Error de Carga',
-          description: 'No se pudieron cargar los datos de Firestore. Verifique las reglas de seguridad de su base de datos.',
+          title: `Error de Carga (Código: ${errorCode})`,
+          description: 'No se pudieron cargar los datos de Firestore. Verifique las reglas de seguridad y la consola del navegador para más detalles.',
           duration: Infinity,
         });
         // Fallback to default state on error
