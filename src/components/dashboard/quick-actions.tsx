@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -53,21 +54,21 @@ export function QuickActions() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-72">
                             <DropdownMenuLabel>Escanear Factura Individual</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => router.push('/dashboard/compras/new?action=scan')}>
+                            <DropdownMenuItem onSelect={() => router.push('/dashboard/compras/new?action=scan')}>
                                 <ShoppingCart className="mr-2 h-4 w-4" />
                                 <span>Compra (Formato 606)</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push('/dashboard/ventas/new?action=scan')}>
+                            <DropdownMenuItem onSelect={() => router.push('/dashboard/ventas/new?action=scan')}>
                                  <DollarSign className="mr-2 h-4 w-4" />
                                 <span>Venta (Formato 607)</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuLabel>Cargar en Lote</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => showToast({ title: 'Función en desarrollo', description: 'La carga desde plantillas (Excel, CSV) estará disponible próximamente.' })}>
+                            <DropdownMenuItem onSelect={() => router.push('/dashboard/batch-upload')}>
                                 <FileUp className="mr-2 h-4 w-4" />
                                 <span>Cargar desde Plantilla (Excel, CSV)</span>
                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => showToast({ title: 'Función en desarrollo', description: 'El escaneo en lote de imágenes y PDFs estará disponible próximamente.' })}>
+                             <DropdownMenuItem onSelect={() => router.push('/dashboard/batch-upload')}>
                                 <Copy className="mr-2 h-4 w-4" />
                                 <span>Cargar Lote de Imágenes/PDFs</span>
                             </DropdownMenuItem>

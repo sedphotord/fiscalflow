@@ -29,6 +29,7 @@ import {
   Landmark,
   AlertTriangle,
   Archive,
+  UploadCloud,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -43,7 +44,7 @@ import {
 export function AppSidebar() {
   const pathname = usePathname();
 
-  const isEnvioActive = ['/compras', '/ventas', '/ncf-anulados', '/pagos-exterior', '/otros'].some(p => pathname.startsWith(`/dashboard${p}`));
+  const isEnvioActive = ['/compras', '/ventas', '/ncf-anulados', '/pagos-exterior', '/otros', '/batch-upload'].some(p => pathname.startsWith(`/dashboard${p}`));
   const isDeclaracionesActive = pathname.startsWith('/dashboard/declaraciones');
   const isSuscripcionesActive = pathname.startsWith('/dashboard/subscriptions');
   const isCalculatorsActive = pathname.startsWith('/dashboard/calculators');
@@ -159,6 +160,16 @@ export function AppSidebar() {
                     >
                       <Package className="h-4 w-4" />
                       Otros Formatos
+                    </Link>
+                    <Link
+                      href="/dashboard/batch-upload"
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        pathname.startsWith('/dashboard/batch-upload') && 'bg-muted text-primary'
+                      )}
+                    >
+                      <UploadCloud className="h-4 w-4" />
+                      Cargas en Lote
                     </Link>
                   </nav>
                 </AccordionContent>

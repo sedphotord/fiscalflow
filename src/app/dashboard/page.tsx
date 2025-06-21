@@ -1,3 +1,4 @@
+
 'use client';
 
 import dynamic from 'next/dynamic';
@@ -5,6 +6,10 @@ import { useAppContext } from '@/context/app-provider';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CtaBanner } from '@/components/dashboard/cta-banner';
+import { Button } from '@/components/ui/button';
+import { LifeBuoy, Zap } from 'lucide-react';
+import Link from 'next/link';
 
 function AnalyticsChartsSkeleton() {
   return (
@@ -34,6 +39,19 @@ export default function DashboardPage() {
       </div>
       
       <QuickActions />
+
+      <CtaBanner
+        title={<span>Contabilidad Inteligente es <span className="font-bold">trabajo en equipo.</span></span>}
+        description="Descubre cómo nuestra plataforma facilita la colaboración entre clientes y contadores, permitiendo trabajar en tiempo real desde cualquier lugar."
+        imageUrl="https://placehold.co/1200x200.png"
+      >
+        <Button asChild size="lg" variant="secondary">
+          <Link href="/dashboard/settings/team"><Zap className="mr-2"/>Invitar al Equipo</Link>
+        </Button>
+        <Button asChild size="lg" variant="outline">
+          <Link href="/dashboard/support"><LifeBuoy className="mr-2"/>Contactar Soporte</Link>
+        </Button>
+      </CtaBanner>
       
       <AnalyticsCharts reports={reports} />
       
