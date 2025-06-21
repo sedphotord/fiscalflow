@@ -38,6 +38,7 @@ export const SignUpSchema = z.object({
 // Schema for a single row in the 606 form
 export const Form606RowSchema = z.object({
   rncCedula: z.string().min(1, "Campo requerido"),
+  razonSocial: z.string().optional(),
   tipoId: z.enum(["1", "2"], { errorMap: () => ({ message: "Seleccione un tipo" }) }),
   tipoBienesServicios: z.enum(TIPO_BIENES_SERVICIOS.map(item => item.value) as [string, ...string[]], { errorMap: () => ({ message: "Seleccione un tipo" }) }),
   ncf: z.string().length(11, "NCF debe tener 11 caracteres"),

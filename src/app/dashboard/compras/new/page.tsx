@@ -17,6 +17,7 @@ import { useAppContext } from '@/context/app-provider';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from '@/lib/constants';
 import { extractInvoiceData } from '@/ai/flows/extract-invoice-flow';
+import { lookupRnc } from '@/ai/flows/lookup-rnc-flow';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
@@ -28,6 +29,7 @@ type CompanyFormValues = z.infer<typeof CompanySchema>;
 
 const defaultRow = {
   rncCedula: '',
+  razonSocial: '',
   tipoId: '1' as const,
   tipoBienesServicios: '09' as const,
   ncf: '',
@@ -178,15 +180,21 @@ export default function NewCompraPage() {
 
       if (firstEmptyIndex !== -1) {
         form.setValue(`compras.${firstEmptyIndex}`, newRow, { shouldValidate: true });
+        if(extractedData.isRncValid) {
+          handleRncBlur(firstEmptyIndex, extractedData.rncCedula);
+        }
       } else {
         append(newRow, { shouldFocus: false });
+         if(extractedData.isRncValid) {
+          handleRncBlur(fields.length, extractedData.rncCedula);
+        }
       }
 
       showToast({
         title: '¡Datos Extraídos y Validados!',
         description: extractedData.validationMessage || 'La información de la factura se ha agregado al formulario.',
       });
-  }, [form, append, showToast]);
+  }, [form, append, showToast, fields.length]);
 
   const handleCaptureAndProcess = async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -258,7 +266,7 @@ export default function NewCompraPage() {
       showToast({
         variant: 'destructive',
         title: 'Error en el Escaneo',
-        description: 'No se pudieron extraer los datos. Intente de nuevo o ingréselos manualmente.',
+        description: 'No se pudieron extraer los datos. Intente de nuevo o ingréselos manually.',
       });
     } finally {
       if (fileInputRef.current) {
@@ -269,23 +277,42 @@ export default function NewCompraPage() {
   };
 
   const handleRncBlur = useCallback(async (index: number, rnc: string) => {
+    // Reset if RNC is cleared
     if (!rnc) {
       form.setValue(`compras.${index}.isRncValid`, undefined);
+      form.setValue(`compras.${index}.razonSocial`, '');
       return;
     }
+
     setValidatingRnc(prev => ({ ...prev, [index]: true }));
     
+    // Auto-set Tipo ID based on length
     if (rnc.length === 9) {
       form.setValue(`compras.${index}.tipoId`, '1', { shouldValidate: true });
     } else if (rnc.length === 11) {
       form.setValue(`compras.${index}.tipoId`, '2', { shouldValidate: true });
     }
     
-    await new Promise(resolve => setTimeout(resolve, 500)); 
-
+    // Validate format
     const rncValid = (rnc.length === 9 || rnc.length === 11) && /^\d+$/.test(rnc);
     form.setValue(`compras.${index}.isRncValid`, rncValid, { shouldValidate: true });
     
+    if (rncValid) {
+        // If format is valid, try to lookup name
+        try {
+            const result = await lookupRnc({ rnc });
+            if (result && result.razonSocial) {
+                form.setValue(`compras.${index}.razonSocial`, result.razonSocial, { shouldValidate: false });
+            }
+        } catch (error) {
+            console.error('Error looking up RNC:', error);
+            form.setValue(`compras.${index}.razonSocial`, 'Error al buscar nombre', { shouldValidate: false });
+        }
+    } else {
+        // Clear name if RNC format is invalid
+        form.setValue(`compras.${index}.razonSocial`, '', { shouldValidate: false });
+    }
+
     setValidatingRnc(prev => ({ ...prev, [index]: false }));
   }, [form]);
   
@@ -436,6 +463,7 @@ export default function NewCompraPage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>RNC/Cédula Prov.</TableHead>
+                        <TableHead>Nombre / Razón Social</TableHead>
                         <TableHead>Tipo ID</TableHead>
                         <TableHead>Tipo Bien/Servicio</TableHead>
                         <TableHead>NCF</TableHead>
@@ -458,7 +486,7 @@ export default function NewCompraPage() {
                                             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                                         </span>
                                     )}
-                                    {item.isRncValid === true && !validatingRnc[index] && (
+                                    {form.getValues(`compras.${index}.isRncValid`) === true && !validatingRnc[index] && (
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
@@ -470,7 +498,7 @@ export default function NewCompraPage() {
                                             </TooltipContent>
                                         </Tooltip>
                                     )}
-                                    {item.isRncValid === false && !validatingRnc[index] &&(
+                                    {form.getValues(`compras.${index}.isRncValid`) === false && !validatingRnc[index] &&(
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
@@ -483,6 +511,11 @@ export default function NewCompraPage() {
                                         </Tooltip>
                                     )}
                                 </div>
+                            )} />
+                          </TableCell>
+                          <TableCell className="min-w-[250px]">
+                            <FormField control={form.control} name={`compras.${index}.razonSocial`} render={({ field }) => (
+                                <Input {...field} placeholder="Nombre del proveedor" />
                             )} />
                           </TableCell>
                           <TableCell className="min-w-[120px]">
@@ -505,7 +538,7 @@ export default function NewCompraPage() {
                              <FormField control={form.control} name={`compras.${index}.ncf`} render={({ field }) => (
                                 <div className="relative">
                                     <Input {...field} placeholder="B01000..." className="pr-8" />
-                                    {item.isNcfValid === true && (
+                                    {form.getValues(`compras.${index}.isNcfValid`) === true && (
                                          <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
@@ -517,7 +550,7 @@ export default function NewCompraPage() {
                                             </TooltipContent>
                                         </Tooltip>
                                     )}
-                                    {item.isNcfValid === false && (
+                                    {form.getValues(`compras.${index}.isNcfValid`) === false && (
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
