@@ -50,9 +50,9 @@ export default function SettingsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Perfil del Contribuyente</CardTitle>
+            <CardTitle>Perfil del Contribuyente Principal</CardTitle>
             <CardDescription>
-              Esta información se usará para autocompletar los campos en los reportes.
+              Esta información se usará como su perfil por defecto en los reportes.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -136,8 +136,8 @@ export default function SettingsPage() {
         </Card>
         <Card className="lg:col-span-2">
             <CardHeader>
-                <CardTitle>Gestión Avanzada</CardTitle>
-                <CardDescription>Administre múltiples perfiles de empresa y otras configuraciones avanzadas.</CardDescription>
+                <CardTitle>Gestión de Empresas</CardTitle>
+                <CardDescription>Administre múltiples perfiles de empresa para sus clientes.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Link href="/dashboard/settings/companies" passHref>
@@ -145,8 +145,8 @@ export default function SettingsPage() {
                         <div className="flex items-center gap-4">
                             <Building className="h-6 w-6 text-primary" />
                             <div>
-                                <h3 className="font-semibold">Gestionar Empresas</h3>
-                                <p className="text-sm text-muted-foreground">Añada y edite los perfiles de las empresas que gestiona.</p>
+                                <h3 className="font-semibold">Gestionar Perfiles de Empresas</h3>
+                                <p className="text-sm text-muted-foreground">Añada, edite y elimine los perfiles de las empresas que gestiona.</p>
                             </div>
                         </div>
                         <ArrowRight className="h-5 w-5 text-muted-foreground" />

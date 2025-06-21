@@ -10,6 +10,7 @@ import {
   Settings,
   Package,
   ShieldCheck,
+  Users,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -37,7 +38,7 @@ export function AppSidebar() {
         </div>
         <div className="flex-1 overflow-y-auto py-2">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-            <Accordion type="multiple" className="w-full" defaultValue={isEnvioActive ? ['formatos-envio'] : []}>
+            
               <Link
                 href="/dashboard"
                 className={cn(
@@ -48,6 +49,7 @@ export function AppSidebar() {
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
               </Link>
+              <Accordion type="multiple" className="w-full" defaultValue={isEnvioActive ? ['formatos-envio'] : []}>
               <AccordionItem value="formatos-envio" className="border-none">
                 <AccordionTrigger className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
@@ -91,17 +93,27 @@ export function AppSidebar() {
                   </nav>
                 </AccordionContent>
               </AccordionItem>
-               <Link
-                href="/dashboard/settings"
+            </Accordion>
+            <Link
+                href="/dashboard/contribuyentes"
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                  pathname === '/dashboard/settings' && 'bg-muted text-primary'
+                  pathname.startsWith('/dashboard/contribuyentes') && 'bg-muted text-primary'
                 )}
               >
-                <Settings className="h-4 w-4" />
-                Ajustes
+                <Users className="h-4 w-4" />
+                Contribuyentes
               </Link>
-            </Accordion>
+             <Link
+              href="/dashboard/settings"
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                pathname.startsWith('/dashboard/settings') && 'bg-muted text-primary'
+              )}
+            >
+              <Settings className="h-4 w-4" />
+              Ajustes
+            </Link>
           </nav>
         </div>
         <div className="mt-auto border-t">
