@@ -1,4 +1,3 @@
-'use server';
 /**
  * @fileOverview A tool for validating Dominican Republic tax information (RNC/NCF).
  * - validateTaxInfo - A Genkit tool to check the validity of RNC/Cédula and NCF.
@@ -6,12 +5,12 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
-export const DgiiValidationInputSchema = z.object({
+const DgiiValidationInputSchema = z.object({
   rncCedula: z.string().describe('The RNC or Cédula to validate.'),
   ncf: z.string().describe('The NCF to validate.'),
 });
 
-export const DgiiValidationOutputSchema = z.object({
+const DgiiValidationOutputSchema = z.object({
   isRncValid: z.boolean().describe('Whether the RNC or Cédula is considered valid.'),
   isNcfValid: z.boolean().describe('Whether the NCF is considered valid.'),
   validationMessage: z.string().describe('A summary message of the validation results.'),

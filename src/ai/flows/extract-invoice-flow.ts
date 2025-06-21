@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { validateTaxInfo } from '../tools/dgii-validator-tool';
 
-export const ExtractInvoiceInputSchema = z.object({
+const ExtractInvoiceInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
@@ -20,7 +20,7 @@ export const ExtractInvoiceInputSchema = z.object({
 });
 export type ExtractInvoiceInput = z.infer<typeof ExtractInvoiceInputSchema>;
 
-export const ExtractInvoiceOutputSchema = z.object({
+const ExtractInvoiceOutputSchema = z.object({
   rncCedula: z.string().describe("El RNC o Cédula del proveedor de la factura."),
   ncf: z.string().describe("El Número de Comprobante Fiscal (NCF) de la factura. Debe ser un string de 11 caracteres."),
   fechaComprobante: z.string().describe("La fecha de emisión del comprobante en formato AAAA-MM-DD."),
