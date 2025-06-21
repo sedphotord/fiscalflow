@@ -18,10 +18,12 @@ import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from '@/lib/constants';
 import { extractInvoiceData } from '@/ai/flows/extract-invoice-flow';
 import { lookupRnc } from '@/ai/flows/lookup-rnc-flow';
+import { searchCompanies } from '@/ai/flows/search-companies-flow';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 
 type FormValues = z.infer<typeof Form606Schema>;
@@ -69,6 +71,31 @@ export default function NewCompraPage() {
   const [isCapturing, setIsCapturing] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [companySearchQuery, setCompanySearchQuery] = useState('');
+  const [companySearchResults, setCompanySearchResults] = useState<{name: string, rnc: string}[]>([]);
+  const [isCompanySearching, setIsCompanySearching] = useState(false);
+  const [isSearchPopoverOpen, setIsSearchPopoverOpen] = useState(false);
+
+  useEffect(() => {
+    if (companySearchQuery.length < 2) {
+      setCompanySearchResults([]);
+      setIsSearchPopoverOpen(false);
+      return;
+    }
+
+    const handler = setTimeout(async () => {
+      setIsCompanySearching(true);
+      const results = await searchCompanies({ query: companySearchQuery });
+      setCompanySearchResults(results);
+      setIsCompanySearching(false);
+      if(results.length > 0) {
+        setIsSearchPopoverOpen(true);
+      }
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [companySearchQuery]);
   
   const allCompanies = useMemo(() => [
     { ...settings, id: 'main', name: `${settings.name} (Principal)` }, 
@@ -195,7 +222,7 @@ export default function NewCompraPage() {
         title: '¡Datos Extraídos y Validados!',
         description: extractedData.validationMessage || 'La información de la factura se ha agregado al formulario.',
       });
-  }, [form, append, showToast, fields.length, handleRncBlur]);
+  }, [form, append, showToast, fields.length]);
 
   const handleCaptureAndProcess = async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -323,6 +350,7 @@ export default function NewCompraPage() {
       form.setValue('rnc', newCompany.rnc, { shouldValidate: true });
       setIsAddCompanyDialogOpen(false);
       addCompanyForm.reset();
+      setCompanySearchQuery('');
     }
   };
 
@@ -686,17 +714,52 @@ export default function NewCompraPage() {
             <Form {...addCompanyForm}>
               <form onSubmit={addCompanyForm.handleSubmit(handleAddNewCompany)} className="space-y-4">
                 <FormField
-                    control={addCompanyForm.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nombre / Razón Social</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Nombre de la nueva empresa" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
+                  control={addCompanyForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre / Razón Social</FormLabel>
+                       <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
+                        <PopoverTrigger asChild>
+                           <FormControl>
+                            <Input
+                              placeholder="Buscar o escribir nombre de empresa..."
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                setCompanySearchQuery(e.target.value);
+                              }}
+                            />
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                           {isCompanySearching ? (
+                            <div className="p-4 text-sm text-center">Buscando...</div>
+                          ) : companySearchResults.length > 0 ? (
+                            <ul className="max-h-60 overflow-y-auto">
+                              {companySearchResults.map((company) => (
+                                <li
+                                  key={company.rnc}
+                                  className="p-2 text-sm hover:bg-accent cursor-pointer"
+                                  onMouseDown={() => { // onMouseDown to prevent input blur before click
+                                    addCompanyForm.setValue('name', company.name, { shouldValidate: true });
+                                    addCompanyForm.setValue('rnc', company.rnc, { shouldValidate: true });
+                                    setCompanySearchResults([]);
+                                    setIsSearchPopoverOpen(false);
+                                  }}
+                                >
+                                  {company.name}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : companySearchQuery.length > 2 && (
+                            <div className="p-4 text-sm text-center">No se encontraron resultados.</div>
+                          )}
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
                 <FormField
                     control={addCompanyForm.control}

@@ -11,6 +11,7 @@
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { MOCK_COMPANY_DB } from '@/lib/mock-data';
 
 export const RncLookupInputSchema = z.object({
   rnc: z.string().describe('The RNC to look up.'),
@@ -27,26 +28,6 @@ export async function lookupRnc(input: RncLookupInput): Promise<RncLookupOutput>
   return lookupRncFlow(input);
 }
 
-// Mock database of RNCs for simulation purposes
-const MOCK_RNC_DB: Record<string, RncLookupOutput> = {
-  '131223344': { razonSocial: 'EMPRESA ABC SRL' },
-  '101000001': { razonSocial: 'CLIENTE DE EJEMPLO SA' },
-  '987654321': { razonSocial: 'FISCALFLOW DEMO SRL' },
-  '111222333': { razonSocial: 'FERRETERIA DON JOSE INTERNACIONAL' },
-  '40212345678': { razonSocial: 'JUAN PEREZ' },
-  '130000001': { razonSocial: 'CENTRO CUESTA NACIONAL, S.A.S. (SUPERMERCADO NACIONAL)' },
-  '130000002': { razonSocial: 'BANCO POPULAR DOMINICANO, S.A.- BANCO MULTIPLE' },
-  '130000003': { razonSocial: 'COMPAÑIA DOMINICANA DE TELEFONOS, C. POR A. (CLARO)' },
-  '130000004': { razonSocial: 'EDESUR DOMINICANA S.A.' },
-  '40287654321': { razonSocial: 'MARIA RODRIGUEZ' },
-  '101002571': { razonSocial: 'CERVECERIA NACIONAL DOMINICANA, S.A.' },
-  '101515715': { razonSocial: 'GRUPO RAMOS, S.A.' },
-  '101732731': { razonSocial: 'AEROPUERTOS DOMINICANOS SIGLO XXI, S.A. (AERODOM)' },
-  '130005232': { razonSocial: 'REFINERIA DOMINICANA DE PETROLEO PDV, S.A.' },
-  '101505537': { razonSocial: 'ALTICE DOMINICANA, S.A.' },
-};
-
-
 const lookupRncFlow = ai.defineFlow(
   {
     name: 'lookupRncFlow',
@@ -58,10 +39,10 @@ const lookupRncFlow = ai.defineFlow(
     // It introduces a delay to feel like a network request.
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const foundData = MOCK_RNC_DB[input.rnc];
+    const foundData = MOCK_COMPANY_DB.find(c => c.rnc === input.rnc);
 
     if (foundData) {
-      return foundData;
+      return { razonSocial: foundData.razonSocial };
     }
 
     // Fallback for unknown RNCs in this simulation

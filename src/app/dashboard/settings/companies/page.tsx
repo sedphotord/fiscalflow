@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +19,8 @@ import { Input } from '@/components/ui/input';
 import { CompanySchema } from '@/lib/schemas';
 import type { Company } from '@/lib/types';
 import { lookupRnc } from '@/ai/flows/lookup-rnc-flow';
+import { searchCompanies } from '@/ai/flows/search-companies-flow';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 type FormValues = z.infer<typeof CompanySchema>;
 
@@ -27,6 +29,11 @@ export default function ManageCompaniesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isLookingUp, setIsLookingUp] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<{name: string, rnc: string}[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSearchPopoverOpen, setIsSearchPopoverOpen] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(CompanySchema),
@@ -38,6 +45,27 @@ export default function ManageCompaniesPage() {
     },
   });
 
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      setSearchResults([]);
+      setIsSearchPopoverOpen(false);
+      return;
+    }
+
+    const handler = setTimeout(async () => {
+      setIsSearching(true);
+      const results = await searchCompanies({ query: searchQuery });
+      setSearchResults(results);
+      setIsSearching(false);
+      if(results.length > 0) {
+        setIsSearchPopoverOpen(true);
+      }
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+
   const handleOpenDialog = (company: Company | null = null) => {
     setEditingCompany(company);
     if (company) {
@@ -45,6 +73,8 @@ export default function ManageCompaniesPage() {
     } else {
       form.reset({ name: '', rnc: '', email: '', whatsapp: '' });
     }
+    setSearchQuery('');
+    setSearchResults([]);
     setIsDialogOpen(true);
   };
 
@@ -190,15 +220,50 @@ export default function ManageCompaniesPage() {
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
+                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nombre / Razón Social</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nombre de la empresa cliente" {...field} />
-                      </FormControl>
+                       <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
+                        <PopoverTrigger asChild>
+                           <FormControl>
+                            <Input
+                              placeholder="Buscar o escribir nombre de empresa..."
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                setSearchQuery(e.target.value);
+                              }}
+                            />
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                           {isSearching ? (
+                            <div className="p-4 text-sm text-center">Buscando...</div>
+                          ) : searchResults.length > 0 ? (
+                            <ul className="max-h-60 overflow-y-auto">
+                              {searchResults.map((company) => (
+                                <li
+                                  key={company.rnc}
+                                  className="p-2 text-sm hover:bg-accent cursor-pointer"
+                                  onMouseDown={() => {
+                                    form.setValue('name', company.name, { shouldValidate: true });
+                                    form.setValue('rnc', company.rnc, { shouldValidate: true });
+                                    setSearchResults([]);
+                                    setIsSearchPopoverOpen(false);
+                                  }}
+                                >
+                                  {company.name}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : searchQuery.length > 2 && (
+                            <div className="p-4 text-sm text-center">No se encontraron resultados.</div>
+                          )}
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
