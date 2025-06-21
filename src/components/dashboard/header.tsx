@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CircleUser, Menu, Search } from 'lucide-react';
+import { CircleUser, Menu, Search, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -41,6 +41,10 @@ export function Header() {
       <div className="w-full flex-1">
         {/* You can add a global search here if needed */}
       </div>
+      <Button variant="ghost" size="icon" className="rounded-full">
+        <Bell className="h-5 w-5" />
+        <span className="sr-only">Ver notificaciones</span>
+      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full">

@@ -86,3 +86,12 @@ export const Form607Schema = z.object({
   periodo: z.string().regex(/^\d{6}$/, "Formato de período debe ser AAAAMM"),
   ventas: z.array(Form607RowSchema).min(1, "Debe agregar al menos una venta."),
 });
+
+// Schema for adding/editing a company
+export const CompanySchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
+  rnc: z.string().refine(rnc => rnc.length === 9 || rnc.length === 11, {
+    message: 'El RNC debe tener 9 u 11 dígitos.',
+  }),
+});

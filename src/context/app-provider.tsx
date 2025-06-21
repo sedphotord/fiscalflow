@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import type { Report, UserSettings, Report606, Report607 } from '@/lib/types';
+import type { Report, UserSettings, Company } from '@/lib/types';
 import { toast, useToast } from "@/hooks/use-toast"
 import { Toaster } from '@/components/ui/toaster';
 
@@ -10,11 +10,13 @@ const APP_STATE_KEY = 'fiscalFlowAppState';
 type AppState = {
   reports: Report[];
   settings: UserSettings;
+  companies: Company[];
 };
 
 type AppContextType = {
   reports: Report[];
   settings: UserSettings;
+  companies: Company[];
   theme: UserSettings['theme'];
   setTheme: (theme: UserSettings['theme']) => void;
   addReport: (reportData: Omit<Report, 'id' | 'fechaCreacion'>) => void;
@@ -22,12 +24,15 @@ type AppContextType = {
   deleteReport: (id: string) => void;
   getReport: (id: string) => Report | undefined;
   updateSettings: (newSettings: Partial<UserSettings>) => void;
+  addCompany: (companyData: Omit<Company, 'id'>) => void;
+  updateCompany: (id: string, companyData: Partial<Omit<Company, 'id'>>) => void;
+  deleteCompany: (id: string) => void;
   showToast: typeof toast;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const useLocalStorage = <T,>(key: string, initialValue: T): [T, (value: T) => void] => {
+const useLocalStorage = <T,>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] => {
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
       return initialValue;
@@ -41,11 +46,12 @@ const useLocalStorage = <T,>(key: string, initialValue: T): [T, (value: T) => vo
     }
   });
 
-  const setValue = (value: T) => {
+  const setValue = (value: T | ((val: T) => T)) => {
     try {
-      setStoredValue(value);
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(value));
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }
     } catch (error) {
       console.error(error);
@@ -60,6 +66,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [appState, setAppState] = useLocalStorage<AppState>(APP_STATE_KEY, {
     reports: [],
     settings: { name: 'Usuario Demo', rnc: '131999999', theme: 'system' },
+    companies: [
+      { id: 'mock-1', name: 'Ferretería Don José', rnc: '130876543' },
+      { id: 'mock-2', name: 'Colmado El Vecino', rnc: '131123456' },
+    ],
   });
   
   const { toast } = useToast();
@@ -69,6 +79,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    if (!isMounted) return;
     const root = window.document.documentElement;
     const theme = appState.settings.theme;
     root.classList.remove('light', 'dark');
@@ -76,11 +87,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (theme === 'system') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       root.classList.add(systemTheme);
-      return;
+    } else {
+      root.classList.add(theme);
     }
-
-    root.classList.add(theme);
-  }, [appState.settings.theme]);
+  }, [appState.settings.theme, isMounted]);
 
 
   const addReport = useCallback((reportData: Omit<Report, 'id' | 'fechaCreacion'>) => {
@@ -89,35 +99,58 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         id: crypto.randomUUID(),
         fechaCreacion: new Date().toISOString(),
     } as Report;
-    setAppState({ ...appState, reports: [newReport, ...appState.reports] });
-  }, [appState, setAppState]);
+    setAppState(prev => ({ ...prev, reports: [newReport, ...prev.reports] }));
+  }, [setAppState]);
 
   const updateReport = useCallback((id: string, reportData: Partial<Report>) => {
-    setAppState({
-      ...appState,
-      reports: appState.reports.map(r => r.id === id ? { ...r, ...reportData } : r),
-    });
-  }, [appState, setAppState]);
+    setAppState(prev => ({
+      ...prev,
+      reports: prev.reports.map(r => r.id === id ? { ...r, ...reportData } : r),
+    }));
+  }, [setAppState]);
 
   const deleteReport = useCallback((id: string) => {
-    setAppState({ ...appState, reports: appState.reports.filter(r => r.id !== id) });
-  }, [appState, setAppState]);
+    setAppState(prev => ({ ...prev, reports: prev.reports.filter(r => r.id !== id) }));
+  }, [setAppState]);
 
   const getReport = useCallback((id: string) => {
     return appState.reports.find(r => r.id === id);
   }, [appState.reports]);
 
   const updateSettings = useCallback((newSettings: Partial<UserSettings>) => {
-    setAppState({ ...appState, settings: { ...appState.settings, ...newSettings } });
-  }, [appState, setAppState]);
+    setAppState(prev => ({ ...prev, settings: { ...prev.settings, ...newSettings } }));
+  }, [setAppState]);
   
   const setTheme = useCallback((theme: UserSettings['theme']) => {
     updateSettings({ theme });
   }, [updateSettings]);
+
+  const addCompany = useCallback((companyData: Omit<Company, 'id'>) => {
+    const newCompany: Company = {
+        ...companyData,
+        id: crypto.randomUUID(),
+    };
+    setAppState(prev => ({ ...prev, companies: [...prev.companies, newCompany] }));
+    toast({ title: 'Empresa Agregada', description: `La empresa ${newCompany.name} ha sido agregada.` });
+  }, [setAppState, toast]);
+
+  const updateCompany = useCallback((id: string, companyData: Partial<Omit<Company, 'id'>>) => {
+    setAppState(prev => ({
+        ...prev,
+        companies: prev.companies.map(c => c.id === id ? { ...c, ...companyData } : c),
+    }));
+    toast({ title: 'Empresa Actualizada', description: 'Los datos de la empresa han sido actualizados.' });
+  }, [setAppState, toast]);
+
+  const deleteCompany = useCallback((id: string) => {
+    setAppState(prev => ({ ...prev, companies: prev.companies.filter(c => c.id !== id) }));
+    toast({ title: 'Empresa Eliminada', description: 'La empresa ha sido eliminada.' });
+  }, [setAppState, toast]);
   
   const value = {
     reports: appState.reports,
     settings: appState.settings,
+    companies: appState.companies,
     theme: appState.settings.theme,
     setTheme,
     addReport,
@@ -125,6 +158,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     deleteReport,
     getReport,
     updateSettings,
+    addCompany,
+    updateCompany,
+    deleteCompany,
     showToast: toast,
   };
 

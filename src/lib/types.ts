@@ -22,3 +22,9 @@ export type UserSettings = {
     rnc: string;
     theme: 'light' | 'dark' | 'system';
 };
+
+export type Company = {
+    id: string;
+    name: string;
+    rnc: string;
+};

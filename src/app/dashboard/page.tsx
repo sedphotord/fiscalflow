@@ -3,14 +3,15 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FilePlus2, ShoppingCart, DollarSign, Package } from 'lucide-react';
+import { FilePlus2, ShoppingCart, DollarSign, Package, Bell, Building } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 
 export default function DashboardPage() {
-  const { reports } = useAppContext();
+  const { reports, companies, settings } = useAppContext();
 
   const count606 = reports.filter(r => r.type === '606').length;
   const count607 = reports.filter(r => r.type === '607').length;
+  const companyCount = companies.length + 1; // +1 for the main company in settings
 
   return (
     <div className="flex flex-col gap-6">
@@ -39,14 +40,24 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">Reportes de ventas creados</p>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Empresas Gestionadas</CardTitle>
+            <Building className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{companyCount}</div>
+            <p className="text-xs text-muted-foreground">Incluyendo su empresa principal</p>
+          </CardContent>
+        </Card>
          <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Otros Reportes</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Notificaciones</CardTitle>
+            <Bell className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Otros formatos generados</p>
+            <p className="text-xs text-muted-foreground">No tiene alertas nuevas</p>
           </CardContent>
         </Card>
       </div>
