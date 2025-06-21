@@ -13,6 +13,18 @@ import { Loader2 } from 'lucide-react';
 // Mock user ID until authentication is added
 const MOCK_USER_ID = 'default-user';
 
+// --- MOCK DATA FOR OFFLINE MODE ---
+const mockSettings: UserSettings = { name: 'Usuario (Offline)', rnc: '987654321', theme: 'system' };
+const mockCompanies: Company[] = [
+    { id: 'comp-1', name: 'Cliente de Ejemplo (Offline)', rnc: '101000001', email: 'cliente@ejemplo.com', whatsapp: '+18095551234' },
+];
+const mockReports: Report[] = [
+    // @ts-ignore
+    { id: 'rep-1', type: '606', rnc: '987654321', periodo: '202312', estado: 'Completado', fechaCreacion: new Date('2023-12-28').toISOString(), compras: [{ rncCedula: '111222333', tipoId: '1', tipoBienesServicios: '09', ncf: 'B0100000001', fechaComprobante: '2023-12-15', fechaPago: '2023-12-15', montoFacturado: 5000, itbisFacturado: 900, formaPago: 'credito' }] },
+    // @ts-ignore
+    { id: 'rep-2', type: '607', rnc: '987654321', periodo: '202312', estado: 'Borrador', fechaCreacion: new Date('2023-12-27').toISOString(), ventas: [{ rncCedula: '444555666', tipoId: '1', ncf: 'B0100000002', fechaComprobante: '2023-12-20', montoFacturado: 12000, itbisFacturado: 2160 }] },
+];
+
 const defaultInitialState = {
     reports: [] as Report[],
     settings: { name: 'Usuario', rnc: '', theme: 'system' } as UserSettings,
@@ -76,11 +88,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error: any) {
         console.error(`Error al conectar con Firestore:`, error);
+        
         toast({
           variant: 'destructive',
-          title: 'Error de Conexión',
-          description: `No se pudo conectar a la base de datos (Error: ${error.code}). Por favor, revise las reglas de seguridad y la conexión.`,
+          title: 'Modo sin Conexión Activado',
+          description: `No se pudo conectar a la base de datos (Error: ${error.code}). Se han cargado datos de ejemplo.`,
           duration: 9000,
+        });
+
+        // Load mock data for offline development
+        setAppState({
+          settings: mockSettings,
+          companies: mockCompanies,
+          reports: mockReports,
         });
       } finally {
         setIsLoading(false);
