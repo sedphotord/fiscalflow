@@ -242,26 +242,6 @@ export default function SettingsPage() {
                 </RadioGroup>
             </CardContent>
             </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle>Gestión de Empresas</CardTitle>
-                    <CardDescription>Administre los perfiles de sus empresas y clientes.</CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-4">
-                    <Link href="/dashboard/settings/companies" passHref>
-                        <div className="flex justify-between items-center p-4 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-4">
-                                <Building className="h-6 w-6 text-primary" />
-                                <div>
-                                    <h3 className="font-semibold">Empresas</h3>
-                                    <p className="text-sm text-muted-foreground">Gestione sus perfiles.</p>
-                                </div>
-                            </div>
-                            <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                    </Link>
-                </CardContent>
-            </Card>
         </div>
       </div>
     </div>
