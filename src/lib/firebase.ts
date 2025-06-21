@@ -1,11 +1,11 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getFirestore, type Firestore, enableNetwork } from 'firebase/firestore';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: "fiscalflow-j6b89.appspot.com",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
@@ -16,16 +16,8 @@ let db: Firestore | null = null;
 if (firebaseConfig.projectId && firebaseConfig.apiKey) {
     try {
         app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-        const firestoreDb = getFirestore(app);
-        
-        // Explicitly enable network and log the outcome, as requested.
-        enableNetwork(firestoreDb)
-          .then(() => console.log("Conexión a Firestore reactivada"))
-          .catch((err) => console.error("Error al activar red:", err));
-        
-        db = firestoreDb;
-        console.log("Firebase initialized. Attempting to enable network.");
-
+        db = getFirestore(app);
+        console.log(`Firebase config found for project: ${firebaseConfig.projectId}. Initializing...`);
     } catch (error) {
         console.error("Firebase initialization failed:", error);
         app = null;
