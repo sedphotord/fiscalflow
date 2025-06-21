@@ -160,65 +160,63 @@ export default function LandingPage() {
             viewport={{ once: true, amount: 0.2 }}
         >
           <div className="container px-4 md:px-6">
-            <div className="grid gap-10 lg:grid-cols-2">
-                <div className="space-y-4">
-                    <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Servicios Detallados</div>
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Potencia tu gestión contable</h2>
-                    <p className="text-muted-foreground md:text-lg">
-                        Cada una de nuestras herramientas está diseñada para ahorrarte tiempo y darte tranquilidad.
-                    </p>
-                </div>
-                <motion.div 
-                    className="grid gap-6"
-                    variants={staggeredContainer}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
-                >
-                    <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                        <Copy className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-                        <div>
-                            <h3 className="text-lg font-semibold">Escaneo en Lote</h3>
-                            <p className="text-muted-foreground">Procesa múltiples facturas simultáneamente con repetición automática si hay errores.</p>
-                        </div>
-                    </motion.div>
-                    <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                        <FileText className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-                        <div>
-                            <h3 className="text-lg font-semibold">Formularios Automáticos</h3>
-                            <p className="text-muted-foreground">Genera formularios 606, 607, 608, 609, 612, 615, 987 de la DGII automáticamente.</p>
-                        </div>
-                    </motion.div>
-                     <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                        <ShieldCheck className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-                        <div>
-                            <h3 className="text-lg font-semibold">Validación RNC/NCF</h3>
-                            <p className="text-muted-foreground">Verifica RNC y NCF en tiempo real con la base de datos oficial de la DGII.</p>
-                        </div>
-                    </motion.div>
-                     <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                        <CalendarDays className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-                        <div>
-                            <h3 className="text-lg font-semibold">Organización por Mes</h3>
-                            <p className="text-muted-foreground">Organiza automáticamente facturas por empresa y mes, ordenadas cronológicamente.</p>
-                        </div>
-                    </motion.div>
-                     <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                        <FileEdit className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-                        <div>
-                            <h3 className="text-lg font-semibold">Edición Manual</h3>
-                            <p className="text-muted-foreground">Revisa y edita cada factura individualmente antes de generar los formularios.</p>
-                        </div>
-                    </motion.div>
-                     <motion.div className="flex items-start gap-4" variants={itemVariants}>
-                        <Lock className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
-                        <div>
-                            <h3 className="text-lg font-semibold">Respaldo Seguro</h3>
-                            <p className="text-muted-foreground">Respaldo automático en la nube con encriptación y acceso desde cualquier dispositivo.</p>
-                        </div>
-                    </motion.div>
-                </motion.div>
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Servicios Detallados</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Potencia tu gestión contable</h2>
+                <p className="max-w-[900px] text-muted-foreground md:text-lg">
+                    Cada una de nuestras herramientas está diseñada para ahorrarte tiempo y darte tranquilidad.
+                </p>
             </div>
+            <motion.div 
+                className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-12"
+                variants={staggeredContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+            >
+                <motion.div className="flex items-start gap-4" variants={itemVariants}>
+                    <Copy className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
+                    <div>
+                        <h3 className="text-lg font-semibold">Escaneo en Lote</h3>
+                        <p className="text-muted-foreground">Procesa múltiples facturas simultáneamente con repetición automática si hay errores.</p>
+                    </div>
+                </motion.div>
+                <motion.div className="flex items-start gap-4" variants={itemVariants}>
+                    <FileText className="h-8 w-8 text-accent flex-shrink-0 mt-1" />
+                    <div>
+                        <h3 className="text-lg font-semibold">Formularios Automáticos</h3>
+                        <p className="text-muted-foreground">Genera formularios 606, 607, 608, 609, 612, 615, 987 de la DGII automáticamente.</p>
+                    </div>
+                </motion.div>
+                 <motion.div className="flex items-start gap-4" variants={itemVariants}>
+                    <ShieldCheck className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
+                    <div>
+                        <h3 className="text-lg font-semibold">Validación RNC/NCF</h3>
+                        <p className="text-muted-foreground">Verifica RNC y NCF en tiempo real con la base de datos oficial de la DGII.</p>
+                    </div>
+                </motion.div>
+                 <motion.div className="flex items-start gap-4" variants={itemVariants}>
+                    <CalendarDays className="h-8 w-8 text-accent flex-shrink-0 mt-1" />
+                    <div>
+                        <h3 className="text-lg font-semibold">Organización por Mes</h3>
+                        <p className="text-muted-foreground">Organiza automáticamente facturas por empresa y mes, ordenadas cronológicamente.</p>
+                    </div>
+                </motion.div>
+                 <motion.div className="flex items-start gap-4" variants={itemVariants}>
+                    <FileEdit className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
+                    <div>
+                        <h3 className="text-lg font-semibold">Edición Manual</h3>
+                        <p className="text-muted-foreground">Revisa y edita cada factura individualmente antes de generar los formularios.</p>
+                    </div>
+                </motion.div>
+                 <motion.div className="flex items-start gap-4" variants={itemVariants}>
+                    <Lock className="h-8 w-8 text-accent flex-shrink-0 mt-1" />
+                    <div>
+                        <h3 className="text-lg font-semibold">Respaldo Seguro</h3>
+                        <p className="text-muted-foreground">Respaldo automático en la nube con encriptación y acceso desde cualquier dispositivo.</p>
+                    </div>
+                </motion.div>
+            </motion.div>
           </div>
         </motion.section>
 

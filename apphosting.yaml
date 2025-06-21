@@ -1,10 +1,29 @@
-# Settings to manage and configure a Firebase App Hosting backend.
-# https://firebase.google.com/docs/app-hosting/configure
-
-# Specifies the Node.js version to use. Recommended to use a supported LTS version.
-runtime: nodejs20
-
+# Settings for Cloud Run
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
-  maxInstances: 1
+  minInstances: 2             # Mantiene al menos 2 instancias siempre activas
+  maxInstances: 100           # Permite escalar hasta 100 instancias según demanda
+  concurrency: 100            # Cada instancia puede manejar hasta 100 peticiones concurrentes
+  cpu: 2                      # 2 vCPU por instancia
+  memoryMiB: 1024             # 1 GB de RAM por instancia
+
+# Environment variables and secrets
+env:
+  - variable: STORAGE_BUCKET
+    value: mybucket.firebasestorage.app
+    availability:
+      - BUILD                 # Disponible durante el proceso de construcción
+      - RUNTIME              # Disponible en tiempo de ejecución
+
+  - variable: API_KEY
+    secret: myApiKeySecret   # Se refiere al nombre del secreto en Secret Manager
+
+  - variable: PINNED_API_KEY
+    secret: myApiKeySecret@5 # Se refiere a la versión 5 del secreto
+
+  - variable: VERBOSE_API_KEY
+    secret: projects/test-project/secrets/secretID
+    # Forma larga del secreto (útil para referencias cruzadas de proyectos o claridad)
+
+  - variable: PINNED_VERBOSE_API_KEY
+    secret: projects/test-project/secrets/secretID/versions/5
+    # Forma larga del secreto con versión fija para mayor control
