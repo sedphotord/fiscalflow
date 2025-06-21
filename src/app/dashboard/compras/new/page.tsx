@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Form606Schema, CompanySchema } from '@/lib/schemas';
-import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2, CheckCircle2, XCircle, Copy } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from '@/lib/constants';
@@ -288,10 +288,11 @@ export default function NewCompraPage() {
             <Card>
               <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <CardTitle>Detalle de Compras</CardTitle>
-                        <CardDescription>Agregue sus compras manualmente o use el escaneo inteligente.</CardDescription>
-                    </div>
+                  <div>
+                    <CardTitle>Detalle de Compras</CardTitle>
+                    <CardDescription>Agregue sus compras manualmente o use el escaneo inteligente.</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <input
                         type="file"
                         ref={fileInputRef}
@@ -301,6 +302,7 @@ export default function NewCompraPage() {
                     />
                     <Button
                         type="button"
+                        variant="outline"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isScanning}
                     >
@@ -309,8 +311,21 @@ export default function NewCompraPage() {
                         ) : (
                             <Upload className="mr-2 h-4 w-4" />
                         )}
-                        Escanear Factura
+                        Subir PDF
                     </Button>
+                    <Button
+                        type="button"
+                        onClick={() => {
+                            showToast({
+                                title: 'Función en Desarrollo',
+                                description: 'La carga en lote estará disponible próximamente.',
+                            });
+                        }}
+                    >
+                        <Copy className="mr-2 h-4 w-4" />
+                        Escanear en Lote
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
