@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CircleUser, Menu, Search, Bell } from 'lucide-react';
+import { CircleUser, Menu, Search, Bell, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -40,7 +41,7 @@ export function Header() {
                 <AppSidebar />
             </SheetContent>
         </Sheet>
-      <div className="w-full flex-1 flex justify-center">
+      <div className="w-full flex-1 flex justify-center items-center gap-2">
         <Popover>
             <PopoverTrigger asChild>
                 <div className="relative w-full max-w-sm cursor-pointer">
@@ -83,6 +84,27 @@ export function Header() {
                 </div>
             </PopoverContent>
         </Popover>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Añadir Nuevo
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Crear Nuevo</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/compras/new">Reporte 606 (Compras)</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/ventas/new">Reporte 607 (Ventas)</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/settings/companies">Contribuyente</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <Button variant="ghost" size="icon" className="rounded-full">
         <Bell className="h-5 w-5" />
