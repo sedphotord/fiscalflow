@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PageHeader } from '@/components/dashboard/page-header';
@@ -33,8 +34,8 @@ const calculators = [
     title: 'Variación Capital Social',
     description: 'Calcule el impuesto por aumento de capital social.',
     icon: TrendingUp,
-    href: '#',
-    isImplemented: false,
+    href: '/dashboard/calculators/variacion-capital',
+    isImplemented: true,
   },
   {
     title: 'Transferencia Inmobiliaria',

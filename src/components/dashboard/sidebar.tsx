@@ -50,7 +50,7 @@ export function AppSidebar() {
   const calculators = [
     { title: 'Retenciones', icon: Percent, href: '/dashboard/calculators/retenciones', isImplemented: true },
     { title: 'Constitución de Compañías', icon: Building2, href: '/dashboard/calculators/constitucion-companias', isImplemented: true },
-    { title: 'Variación Capital Social', icon: TrendingUp, href: '#', isImplemented: false },
+    { title: 'Variación Capital Social', icon: TrendingUp, href: '/dashboard/calculators/variacion-capital', isImplemented: true },
     { title: 'Transferencia Inmobiliaria', icon: Landmark, href: '#', isImplemented: false },
     { title: 'Recargos e Intereses', icon: AlertTriangle, href: '#', isImplemented: false },
     { title: 'Régimen Simplificado (RST)', icon: FileText, href: '#', isImplemented: false },
