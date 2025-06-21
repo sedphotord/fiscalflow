@@ -34,6 +34,11 @@ const MOCK_RNC_DB: Record<string, RncLookupOutput> = {
   '987654321': { razonSocial: 'FISCALFLOW DEMO SRL' },
   '111222333': { razonSocial: 'FERRETERIA DON JOSE INTERNACIONAL' },
   '40212345678': { razonSocial: 'JUAN PEREZ' },
+  '130000001': { razonSocial: 'SUPERMERCADO NACIONAL' },
+  '130000002': { razonSocial: 'BANCO POPULAR DOMINICANO' },
+  '130000003': { razonSocial: 'CLARO DOMINICANA' },
+  '130000004': { razonSocial: 'Edesur Dominicana S.A.' },
+  '40287654321': { razonSocial: 'MARIA RODRIGUEZ' },
 };
 
 
