@@ -86,9 +86,9 @@ export function Header() {
         </Popover>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Añadir Nuevo
+            <Button variant="outline" size="icon">
+              <PlusCircle className="h-5 w-5" />
+              <span className="sr-only">Añadir Nuevo</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
