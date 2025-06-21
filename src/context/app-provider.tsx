@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
@@ -6,7 +7,7 @@ import { type toast } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from '@/components/ui/toaster';
 import { db } from '@/lib/firebase';
-import { collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
 // Mock user ID until authentication is added
@@ -51,7 +52,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           variant: 'destructive',
           title: 'Modo sin Conexión',
           description: 'No se pudo conectar a Firebase. La app se ejecutará con datos de muestra.',
-          duration: Infinity,
+          duration: 999999,
         });
         setAppState({
             settings: defaultInitialState.settings,
@@ -62,6 +63,22 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
       try {
+        
+        // ---- DEBUG: Add snapshot listener to test connection ----
+        const debugDocRef = doc(db, 'users', MOCK_USER_ID);
+        console.log("Setting up snapshot listener for debugging...");
+        const unsubscribe = onSnapshot(debugDocRef, 
+          (doc) => {
+            console.log("DEBUG: Snapshot data received:", doc.data());
+            toast({ title: '¡Conexión Exitosa!', description: 'Snapshot de Firestore recibido correctamente.' });
+          }, 
+          (error) => {
+            console.error("DEBUG: Error with snapshot listener:", error);
+            toast({ variant: 'destructive', title: 'Error de Snapshot', description: `No se pudo establecer el listener en tiempo real. Código: ${error.code}` });
+          }
+        );
+        // ---- END DEBUG ----
+
         const userRef = doc(db, 'users', MOCK_USER_ID);
         const companiesRef = collection(userRef, 'companies');
         const reportsRef = collection(userRef, 'reports');
@@ -89,13 +106,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       } catch (error: any) {
         const errorCode = error.code || 'desconocido';
-        console.error(`Código de error de Firebase: ${errorCode}`, error);
+        
+        console.error(`Código de error de Firebase: ${errorCode}`);
         
         toast({
           variant: 'destructive',
-          title: `Error de Conexión (Código: ${errorCode})`,
-          description: 'No se pudo conectar a Firestore. La app se ejecutará en modo offline con datos de muestra.',
-          duration: Infinity,
+          title: `Error de Carga (Código: ${errorCode})`,
+          description: 'No se pudo conectar a Firestore. Verifique su conexión y las reglas de seguridad de la base de datos.',
+          duration: 999999,
         });
         // Fallback to mock data on error
         setAppState({
