@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getFirestore, enableIndexedDbPersistence, type Firestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence, type Firestore, enableNetwork } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -18,6 +18,11 @@ if (firebaseConfig.projectId && firebaseConfig.apiKey) {
         app = getApps().length ? getApp() : initializeApp(firebaseConfig);
         const firestoreDb = getFirestore(app);
         
+        // Attempt to explicitly enable the network as requested.
+        enableNetwork(firestoreDb).catch((err) => {
+            console.error("Error al intentar habilitar la red de Firestore:", err);
+        });
+
         enableIndexedDbPersistence(firestoreDb)
             .then(() => {
                 console.log("Firebase persistence enabled successfully.");
@@ -33,7 +38,7 @@ if (firebaseConfig.projectId && firebaseConfig.apiKey) {
             });
         
         db = firestoreDb;
-        console.log("Firebase initialized. Persistence setup initiated.");
+        console.log("Firebase initialized. Persistence setup initiated, network explicitly enabled.");
 
     } catch (error) {
         console.error("Firebase initialization failed:", error);
