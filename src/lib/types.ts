@@ -1,5 +1,5 @@
 import { type z } from 'zod';
-import { type Form606Schema, type Form607Schema } from './schemas';
+import { type Form606Schema, type Form607Schema, type AdminCreateUserSchema, type PlanSchema, type InvoicePackSchema } from './schemas';
 import { type toast } from '@/hooks/use-toast';
 
 export type Report606 = z.infer<typeof Form606Schema> & {
@@ -54,12 +54,21 @@ export type TeamMember = {
     status: 'Activo' | 'Pendiente';
 };
 
+export type Plan = z.infer<typeof PlanSchema> & { id: string };
+export type InvoicePack = z.infer<typeof InvoicePackSchema> & { id: string };
+export type CreateUserByAdminData = z.infer<typeof AdminCreateUserSchema>;
+export type PlanData = z.infer<typeof PlanSchema>;
+export type InvoicePackData = z.infer<typeof InvoicePackSchema>;
+
+
 export type AppContextType = {
   reports: Report[];
   currentUser: User;
   users: User[]; // For super-admin view
   companies: Company[];
   teamMembers: TeamMember[]; // Team members of the current user
+  plans: Plan[];
+  invoicePacks: InvoicePack[];
   theme: User['theme'];
   setTheme: (theme: User['theme']) => void;
   addReport: (reportData: Omit<Report, 'id' | 'fechaCreacion'>) => void;
@@ -71,12 +80,21 @@ export type AppContextType = {
   updateCompany: (id: string, companyData: Partial<Omit<Company, 'id'>>) => void;
   deleteCompany: (id: string) => void;
   showToast: typeof toast;
-  // New functions for user/team management
+  // User functions
   inviteTeamMember: (email: string, role: TeamMemberRole) => void;
   deleteTeamMember: (id: string) => void;
+  // Super Admin functions
+  createUserByAdmin: (data: CreateUserByAdminData) => void;
   updateUserPlan: (userId: string, plan: UserPlan) => void;
   assignInvoices: (userId: string, amount: number) => void;
   getAllCompaniesForUser: (userId: string) => Company[];
   getTeamMembersForUser: (userId: string) => TeamMember[];
   updateUser: (userId: string, data: Partial<User>) => void;
+  inviteTeamMemberForUser: (userId: string, email: string, role: TeamMemberRole) => void;
+  createPlan: (data: PlanData) => void;
+  updatePlan: (id: string, data: PlanData) => void;
+  deletePlan: (id: string) => void;
+  createInvoicePack: (data: InvoicePackData) => void;
+  updateInvoicePack: (id: string, data: InvoicePackData) => void;
+  deleteInvoicePack: (id: string) => void;
 };

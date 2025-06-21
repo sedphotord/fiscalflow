@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   ShoppingBag,
   Users,
+  Tags,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,8 @@ export function SuperAdminSidebar() {
   const isAnalyticsActive = pathname.startsWith('/dashboard/super-admin/analytics');
   const isContentActive = pathname.startsWith('/dashboard/super-admin/content');
   const isFeaturesActive = pathname.startsWith('/dashboard/super-admin/features');
+  const isSettingsActive = pathname.startsWith('/dashboard/super-admin/settings');
+
 
   return (
     <div className="hidden border-r bg-muted/40 md:block">
@@ -66,6 +69,7 @@ export function SuperAdminSidebar() {
                   isAnalyticsActive ? 'analytics' : '',
                   isContentActive ? 'content' : '',
                   isFeaturesActive ? 'features' : '',
+                  isSettingsActive ? 'settings' : '',
                 ].filter(Boolean)
                 }>
               <AccordionItem value="analytics" className="border-none">
@@ -120,6 +124,23 @@ export function SuperAdminSidebar() {
                   </nav>
                 </AccordionContent>
               </AccordionItem>
+              <AccordionItem value="settings" className="border-none">
+                <AccordionTrigger className={cn(
+                  "flex items-center w-full rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline",
+                  isSettingsActive && 'text-primary'
+                )}>
+                  <div className="flex items-center gap-3">
+                    <Settings className="h-4 w-4" />
+                    <span>Ajustes</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pl-8 pt-1">
+                  <nav className="grid gap-1">
+                    <Link href="/dashboard/super-admin/settings" className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary', pathname === '/dashboard/super-admin/settings' && 'bg-accent text-accent-foreground')}>Ajustes Generales</Link>
+                    <Link href="/dashboard/super-admin/settings/plans" className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary', pathname.includes('/settings/plans') && 'bg-accent text-accent-foreground')}><Tags className="h-4 w-4"/>Gestión de Planes</Link>
+                  </nav>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
              <Link
                 href="/dashboard/super-admin/integrations"
@@ -130,16 +151,6 @@ export function SuperAdminSidebar() {
               >
                 <Plug className="h-4 w-4" />
                 Integraciones
-              </Link>
-              <Link
-                href="/dashboard/super-admin/settings"
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                  pathname.startsWith('/dashboard/super-admin/settings') && 'bg-accent text-accent-foreground'
-                )}
-              >
-                <Settings className="h-4 w-4" />
-                Ajustes
               </Link>
           </nav>
         </div>

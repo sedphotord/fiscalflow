@@ -7,14 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Save } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function AdminSettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Ajustes Globales de la Aplicación"
+        title="Ajustes Generales"
         description="Configure los parámetros globales de la aplicación."
       />
       <div className="grid gap-6 lg:grid-cols-2">
@@ -53,27 +51,7 @@ export default function AdminSettingsPage() {
                 </div>
             </CardContent>
         </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>Configuración de Planes</CardTitle>
-                <CardDescription>Ajuste los límites y precios de los planes de suscripción.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div>
-                    <Label htmlFor="pro-price">Precio Plan Pro (RD$ / mes)</Label>
-                    <Input id="pro-price" defaultValue="2500" />
-                </div>
-                 <div>
-                    <Label htmlFor="pro-limit">Límite de Facturas Plan Pro</Label>
-                    <Input id="pro-limit" defaultValue="500" />
-                </div>
-                 <div>
-                    <Label htmlFor="despacho-price">Precio Plan Despacho (RD$ / mes)</Label>
-                    <Input id="despacho-price" defaultValue="6500" />
-                </div>
-            </CardContent>
-        </Card>
-         <Card className="lg:col-span-2">
+         <Card>
             <CardHeader>
                 <CardTitle>Mantenimiento</CardTitle>
                 <CardDescription>Ponga la aplicación en modo de mantenimiento si es necesario.</CardDescription>

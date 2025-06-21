@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from './constants';
-import type { TeamMemberRole } from './types';
+import type { TeamMemberRole, UserPlan } from './types';
 
 // Schema for Login
 export const LoginSchema = z.object({
@@ -132,4 +132,31 @@ export const InviteTeamMemberSchema = z.object({
   role: z.custom<TeamMemberRole>(val => ['Admin', 'Editor', 'Solo Lectura'].includes(val as string), {
     message: 'Por favor seleccione un rol válido.',
   }),
+});
+
+// Admin Schemas
+export const AdminCreateUserSchema = z.object({
+    name: z.string().min(2, { message: 'El nombre es requerido.' }),
+    email: z.string().email({ message: 'Correo inválido.' }),
+    password: z.string().min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
+    plan: z.custom<UserPlan>(),
+    invoiceLimit: z.number().min(0, 'Debe ser un número positivo.'),
+});
+
+export const AdminInviteTeamMemberSchema = z.object({
+  email: z.string().email({ message: 'Correo inválido.' }),
+  role: z.custom<TeamMemberRole>(),
+});
+
+
+export const PlanSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido."),
+  price: z.number().min(0, "El precio no puede ser negativo."),
+  invoiceLimit: z.number().int().min(0, "El límite debe ser 0 o mayor."),
+  teamMemberLimit: z.number().int().min(0, "El límite debe ser 0 o mayor."),
+});
+
+export const InvoicePackSchema = z.object({
+  amount: z.number().int().positive("La cantidad debe ser mayor a 0."),
+  price: z.number().min(0, "El precio no puede ser negativo."),
 });

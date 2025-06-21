@@ -2,9 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
-import type { Report, User, Company, TeamMember, AppContextType, UserPlan, TeamMemberRole } from '@/lib/types';
+import type { Report, User, Company, TeamMember, AppContextType, UserPlan, TeamMemberRole, Plan, InvoicePack, CreateUserByAdminData, PlanData, InvoicePackData } from '@/lib/types';
 import { type toast as toastFn } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from '@/components/ui/toaster';
@@ -28,12 +26,23 @@ const MOCK_TEAM_MEMBERS: TeamMember[] = [
     { id: 'team-2', ownerId: 'user-1', email: 'nuevo.empleado@email.com', role: 'Solo Lectura', status: 'Pendiente' },
     { id: 'team-3', ownerId: 'user-2', email: 'socio@empresa-abc.com', role: 'Admin', status: 'Activo' },
 ];
-const mockReports: Report[] = [
+const MOCK_REPORTS: Report[] = [
     // @ts-ignore
     { id: 'rep-1', type: '606', rnc: '987654321', periodo: '202312', estado: 'Completado', fechaCreacion: new Date('2023-12-28').toISOString(), compras: [{ rncCedula: '111222333', tipoId: '1', tipoBienesServicios: '09', ncf: 'B0100000001', fechaComprobante: '2023-12-15', fechaPago: '2023-12-15', montoFacturado: 5000, itbisFacturado: 900, formaPago: 'credito' }] },
     // @ts-ignore
     { id: 'rep-2', type: '607', rnc: '987654321', periodo: '202312', estado: 'Borrador', fechaCreacion: new Date('2023-12-27').toISOString(), ventas: [{ rncCedula: '444555666', tipoId: '1', ncf: 'B0100000002', fechaComprobante: '2023-12-20', montoFacturado: 12000, itbisFacturado: 2160 }] },
 ];
+const MOCK_PLANS: Plan[] = [
+    { id: 'plan-1', name: 'Gratis', price: 0, invoiceLimit: 50, teamMemberLimit: 1 },
+    { id: 'plan-2', name: 'Pro', price: 2500, invoiceLimit: 500, teamMemberLimit: 5 },
+    { id: 'plan-3', name: 'Despacho', price: 6500, invoiceLimit: 10000, teamMemberLimit: 50 },
+];
+const MOCK_INVOICE_PACKS: InvoicePack[] = [
+    { id: 'pack-1', amount: 50, price: 1000 },
+    { id: 'pack-2', amount: 100, price: 1500 },
+    { id: 'pack-3', amount: 200, price: 2500 },
+];
+
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -42,7 +51,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [users, setUsers] = useState<User[]>(MOCK_USERS);
   const [companies, setCompanies] = useState<Company[]>(MOCK_COMPANIES);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(MOCK_TEAM_MEMBERS);
-  const [reports, setReports] = useState<Report[]>(mockReports);
+  const [reports, setReports] = useState<Report[]>(MOCK_REPORTS);
+  const [plans, setPlans] = useState<Plan[]>(MOCK_PLANS);
+  const [invoicePacks, setInvoicePacks] = useState<InvoicePack[]>(MOCK_INVOICE_PACKS);
   
   const [isLoading, setIsLoading] = useState(false); // Simplified loading
   const { toast } = useToast();
@@ -133,10 +144,34 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [toast]);
 
   // --- Super Admin Functions ---
-  const updateUserPlan = useCallback((userId: string, plan: UserPlan) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, plan } : u));
-    toast({ title: 'Plan de Usuario Actualizado' });
+  const createUserByAdmin = useCallback((data: CreateUserByAdminData) => {
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      name: data.name,
+      email: data.email,
+      rnc: '', // can be set later
+      theme: 'system',
+      plan: data.plan as UserPlan,
+      status: 'Activo',
+      invoiceUsage: {
+        current: 0,
+        limit: data.invoiceLimit
+      },
+      registeredAt: new Date().toISOString()
+    };
+    setUsers(prev => [...prev, newUser]);
+    toast({ title: 'Usuario Creado', description: `Se ha creado el usuario ${data.name}.` });
   }, [toast]);
+
+  const updateUserPlan = useCallback((userId: string, planName: UserPlan) => {
+    const planDetails = plans.find(p => p.name === planName);
+    if (!planDetails) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Plan no encontrado.' });
+      return;
+    }
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, plan: planName, invoiceUsage: {...u.invoiceUsage, limit: planDetails.invoiceLimit } } : u));
+    toast({ title: 'Plan de Usuario Actualizado' });
+  }, [toast, plans]);
 
   const assignInvoices = useCallback((userId: string, amount: number) => {
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, invoiceUsage: { ...u.invoiceUsage, limit: u.invoiceUsage.limit + amount } } : u));
@@ -154,12 +189,61 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const getAllCompaniesForUser = useCallback((userId: string) => companies.filter(c => c.ownerId === userId), [companies]);
   const getTeamMembersForUser = useCallback((userId: string) => teamMembers.filter(tm => tm.ownerId === userId), [teamMembers]);
 
+  const inviteTeamMemberForUser = useCallback((userId: string, email: string, role: TeamMemberRole) => {
+     const newMember: TeamMember = {
+      id: `team-${Date.now()}`,
+      ownerId: userId,
+      email,
+      role,
+      status: 'Pendiente'
+    };
+    setTeamMembers(prev => [...prev, newMember]);
+    toast({ title: 'Invitación Enviada', description: `Se ha invitado a ${email} al equipo.` });
+  }, [toast]);
+
+  // Plan Management
+  const createPlan = useCallback((data: PlanData) => {
+    const newPlan: Plan = { ...data, id: `plan-${Date.now()}` };
+    setPlans(prev => [...prev, newPlan]);
+    toast({ title: 'Plan Creado' });
+  }, [toast]);
+
+  const updatePlan = useCallback((id: string, data: PlanData) => {
+    setPlans(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+    toast({ title: 'Plan Actualizado' });
+  }, [toast]);
+
+  const deletePlan = useCallback((id: string) => {
+    setPlans(prev => prev.filter(p => p.id !== id));
+    toast({ title: 'Plan Eliminado' });
+  }, [toast]);
+
+  // Invoice Pack Management
+  const createInvoicePack = useCallback((data: InvoicePackData) => {
+    const newPack: InvoicePack = { ...data, id: `pack-${Date.now()}` };
+    setInvoicePacks(prev => [...prev, newPack]);
+    toast({ title: 'Paquete Creado' });
+  }, [toast]);
+
+  const updateInvoicePack = useCallback((id: string, data: InvoicePackData) => {
+    setInvoicePacks(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+    toast({ title: 'Paquete Actualizado' });
+  }, [toast]);
+
+  const deleteInvoicePack = useCallback((id: string) => {
+    setInvoicePacks(prev => prev.filter(p => p.id !== id));
+    toast({ title: 'Paquete Eliminado' });
+  }, [toast]);
+
+
   const value: AppContextType = {
     reports,
     currentUser,
     users,
     companies,
     teamMembers: teamMembers.filter(tm => tm.ownerId === currentUser.id),
+    plans,
+    invoicePacks,
     theme: currentUser.theme,
     setTheme,
     addReport,
@@ -173,11 +257,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     showToast: toast,
     inviteTeamMember,
     deleteTeamMember,
+    // Super admin functions
+    createUserByAdmin,
     updateUserPlan,
     assignInvoices,
     getAllCompaniesForUser,
     getTeamMembersForUser,
     updateUser,
+    inviteTeamMemberForUser,
+    createPlan,
+    updatePlan,
+    deletePlan,
+    createInvoicePack,
+    updateInvoicePack,
+    deleteInvoicePack,
   };
 
   if (isLoading) { 
