@@ -31,7 +31,7 @@ import { Label } from '@/components/ui/label';
 
 export function SuperAdminHeader() {
   const router = useRouter();
-  const { settings } = useAppContext();
+  const { currentUser } = useAppContext();
 
   const handleLogout = () => {
     router.push('/');
@@ -121,10 +121,10 @@ export function SuperAdminHeader() {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
-                {settings.name} (Admin)
+                {currentUser.name} (Admin)
               </p>
               <p className="text-xs leading-none text-muted-foreground">
-                {settings.email}
+                {currentUser.email}
               </p>
             </div>
           </DropdownMenuLabel>
