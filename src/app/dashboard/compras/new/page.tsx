@@ -12,10 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Form606Schema } from '@/lib/schemas';
-import { PlusCircle, Trash2, Save, FileDown } from 'lucide-react';
+import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2 } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from '@/lib/constants';
+import { extractInvoiceData } from '@/ai/flows/extract-invoice-flow';
 
 type FormValues = z.infer<typeof Form606Schema>;
 
@@ -39,7 +40,7 @@ const defaultRow = {
   impuestoSelectivoConsumo: 0,
   otrosImpuestos: 0,
   montoPropinaLegal: 0,
-  formaPago: 'efectivo' as const,
+  formaPago: 'credito' as const,
 };
 
 export default function NewCompraPage() {
@@ -47,6 +48,8 @@ export default function NewCompraPage() {
   const searchParams = useSearchParams();
   const { addReport, getReport, updateReport, showToast, settings } = useAppContext();
   const reportId = searchParams.get('id');
+  const [isScanning, setIsScanning] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(Form606Schema),
@@ -91,6 +94,65 @@ export default function NewCompraPage() {
     }
     showToast({ title: 'Borrador Guardado', description: 'Su progreso ha sido guardado como un borrador.' });
     router.push('/dashboard/compras');
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    showToast({
+      title: 'Procesando Factura...',
+      description: 'El escáner inteligente está extrayendo los datos.',
+    });
+
+    try {
+      const fileReader = new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+      });
+
+      const photoDataUri = await fileReader;
+      const extractedData = await extractInvoiceData({ photoDataUri });
+
+      const firstEmptyIndex = form.getValues('compras').findIndex(c => !c.rncCedula && !c.ncf && c.montoFacturado === 0);
+
+      const newRow = {
+        ...defaultRow,
+        rncCedula: extractedData.rncCedula || '',
+        ncf: extractedData.ncf || '',
+        fechaComprobante: extractedData.fechaComprobante || '',
+        fechaPago: extractedData.fechaComprobante || '', // Default payment date
+        montoFacturado: extractedData.montoFacturado || 0,
+        itbisFacturado: extractedData.itbisFacturado || 0,
+      };
+
+      if (firstEmptyIndex !== -1) {
+        form.setValue(`compras.${firstEmptyIndex}`, newRow, { shouldValidate: true });
+      } else {
+        append(newRow, { shouldFocus: false });
+      }
+
+      showToast({
+        title: '¡Datos Extraídos!',
+        description: 'La información de la factura se ha agregado al formulario.',
+      });
+
+    } catch (error) {
+      console.error('Error scanning invoice:', error);
+      showToast({
+        variant: 'destructive',
+        title: 'Error en el Escaneo',
+        description: 'No se pudieron extraer los datos. Intente de nuevo o ingréselos manualmente.',
+      });
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      setIsScanning(false);
+    }
   };
   
   return (
@@ -146,8 +208,31 @@ export default function NewCompraPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Detalle de Compras</CardTitle>
-            <CardDescription>Agregue cada una de las compras de bienes o servicios. Puede expandir la tabla para ver todos los campos.</CardDescription>
+             <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <CardTitle>Detalle de Compras</CardTitle>
+                    <CardDescription>Agregue sus compras manualmente o use el escaneo inteligente.</CardDescription>
+                </div>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept="image/*,application/pdf"
+                />
+                <Button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isScanning}
+                >
+                    {isScanning ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Upload className="mr-2 h-4 w-4" />
+                    )}
+                    Escanear Factura
+                </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
