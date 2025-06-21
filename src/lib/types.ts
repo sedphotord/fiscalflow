@@ -18,34 +18,65 @@ export type Report607 = z.infer<typeof Form607Schema> & {
 
 export type Report = Report606 | Report607;
 
-export type UserSettings = {
+export type UserPlan = 'Gratis' | 'Pro' | 'Despacho';
+export type UserStatus = 'Activo' | 'Pago pendiente' | 'Cancelado';
+export type TeamMemberRole = 'Admin' | 'Editor' | 'Solo Lectura';
+
+export type User = {
+    id: string;
     name: string;
     rnc: string;
-    email?: string;
+    email: string;
     theme: 'light' | 'dark' | 'system';
+    plan: UserPlan;
+    status: UserStatus;
+    invoiceUsage: {
+        current: number;
+        limit: number;
+    };
+    registeredAt: string;
 };
 
 export type Company = {
     id: string;
+    ownerId: string; // ID of the user who owns/manages this company
     name: string;
     rnc: string;
     email?: string;
     whatsapp?: string;
 };
 
+export type TeamMember = {
+    id: string;
+    ownerId: string; // ID of the user who invited this member
+    email: string;
+    role: TeamMemberRole;
+    status: 'Activo' | 'Pendiente';
+};
+
 export type AppContextType = {
   reports: Report[];
-  settings: UserSettings;
+  currentUser: User;
+  users: User[]; // For super-admin view
   companies: Company[];
-  theme: UserSettings['theme'];
-  setTheme: (theme: UserSettings['theme']) => void;
+  teamMembers: TeamMember[]; // Team members of the current user
+  theme: User['theme'];
+  setTheme: (theme: User['theme']) => void;
   addReport: (reportData: Omit<Report, 'id' | 'fechaCreacion'>) => void;
   updateReport: (id: string, reportData: Partial<Report>) => void;
   deleteReport: (id: string) => void;
   getReport: (id: string) => Report | undefined;
-  updateSettings: (newSettings: Partial<UserSettings>) => void;
-  addCompany: (companyData: Omit<Company, 'id'>) => Promise<Company | undefined>;
+  updateCurrentUser: (newSettings: Partial<User>) => void;
+  addCompany: (companyData: Omit<Company, 'id' | 'ownerId'>) => Promise<Company | undefined>;
   updateCompany: (id: string, companyData: Partial<Omit<Company, 'id'>>) => void;
   deleteCompany: (id: string) => void;
   showToast: typeof toast;
+  // New functions for user/team management
+  inviteTeamMember: (email: string, role: TeamMemberRole) => void;
+  deleteTeamMember: (id: string) => void;
+  updateUserPlan: (userId: string, plan: UserPlan) => void;
+  assignInvoices: (userId: string, amount: number) => void;
+  getAllCompaniesForUser: (userId: string) => Company[];
+  getTeamMembersForUser: (userId: string) => TeamMember[];
+  updateUser: (userId: string, data: Partial<User>) => void;
 };

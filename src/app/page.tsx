@@ -164,9 +164,8 @@ export default function LandingPage() {
     { name: "Gestión Multi-Empresa", gratis: false, pro: "Hasta 10 clientes", despacho: "Ilimitados" },
     { name: "Escaneo en Lote", gratis: false, pro: true, despacho: true },
     { name: "Alertas y Recordatorios", gratis: false, pro: true, despacho: true },
-    { name: "API para Integración", gratis: false, pro: true, despacho: true },
     { name: "Usuarios por Cuenta", gratis: "1", pro: "Hasta 5", despacho: "Ilimitados" },
-    { name: "Panel Administrativo", gratis: false, pro: false, despacho: true },
+    { name: "API para Integración", gratis: false, pro: false, despacho: true },
     { name: "Soporte", gratis: "Email", pro: "Email Prioritario", despacho: "Telefónico 24/7" },
     { name: "Consultoría y Capacitación", gratis: false, pro: false, despacho: true },
   ];

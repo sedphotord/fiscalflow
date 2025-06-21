@@ -15,7 +15,7 @@ import type { Report } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ContribuyentesPage() {
-  const { settings, companies, reports } = useAppContext();
+  const { currentUser, companies, reports } = useAppContext();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -24,9 +24,9 @@ export default function ContribuyentesPage() {
 
 
   const allCompanies = useMemo(() => [
-    { ...settings, id: 'main', type: 'Principal' },
-    ...companies.map(c => ({ ...c, type: 'Cliente' }))
-  ], [settings, companies]);
+    { ...currentUser, id: 'main', type: 'Principal' },
+    ...companies.filter(c => c.ownerId === currentUser.id).map(c => ({ ...c, type: 'Cliente' }))
+  ], [currentUser, companies]);
 
   const lastActivityMap = useMemo(() => {
     const activityMap = new Map<string, Report>();

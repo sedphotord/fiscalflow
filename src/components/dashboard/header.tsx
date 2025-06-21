@@ -35,7 +35,8 @@ import { Progress } from '@/components/ui/progress';
 
 export function Header() {
   const router = useRouter();
-  const { settings, showToast } = useAppContext();
+  const { currentUser, showToast } = useAppContext();
+  const usagePercentage = (currentUser.invoiceUsage.current / currentUser.invoiceUsage.limit) * 100;
 
   const handleLogout = () => {
     // In a real app, you would clear the user's session here.
@@ -146,10 +147,10 @@ export function Header() {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
-                {settings.name}
+                {currentUser.name}
               </p>
               <p className="text-xs leading-none text-muted-foreground">
-                {settings.email}
+                {currentUser.email}
               </p>
             </div>
           </DropdownMenuLabel>
@@ -157,9 +158,9 @@ export function Header() {
           <div className="p-2">
             <div className="mb-1 flex justify-between text-xs text-muted-foreground">
               <span>Consumo del Plan</span>
-              <span>40/100 Facturas</span>
+              <span>{currentUser.invoiceUsage.current}/{currentUser.invoiceUsage.limit} Facturas</span>
             </div>
-            <Progress value={40} className="h-2" />
+            <Progress value={usagePercentage} className="h-2" />
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>

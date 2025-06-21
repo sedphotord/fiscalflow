@@ -37,7 +37,7 @@ const defaultRow = {
 export default function NewVentaPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addReport, getReport, updateReport, showToast, settings, companies, addCompany } = useAppContext();
+  const { addReport, getReport, updateReport, showToast, currentUser, companies, addCompany } = useAppContext();
   const reportId = searchParams.get('id');
   const [isAddCompanyDialogOpen, setIsAddCompanyDialogOpen] = useState(false);
   const [isCompanyLookup, setIsCompanyLookup] = useState(false);
@@ -47,14 +47,14 @@ export default function NewVentaPage() {
   const [isNameInputFocused, setIsNameInputFocused] = useState(false);
 
   const allCompanies = useMemo(() => [
-    { ...settings, id: 'main', name: `${settings.name} (Principal)` }, 
-    ...companies
-  ], [settings, companies]);
+    { id: currentUser.id, name: `${currentUser.name} (Principal)`, rnc: currentUser.rnc }, 
+    ...companies.filter(c => c.ownerId === currentUser.id)
+  ], [currentUser, companies]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(Form607Schema),
     defaultValues: {
-      rnc: settings.rnc || '',
+      rnc: currentUser.rnc || '',
       periodo: '',
       ventas: [defaultRow],
     },

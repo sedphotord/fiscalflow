@@ -57,7 +57,7 @@ const defaultRow = {
 export default function NewCompraPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addReport, getReport, updateReport, showToast, settings, companies, addCompany } = useAppContext();
+  const { addReport, getReport, updateReport, showToast, currentUser, companies, addCompany } = useAppContext();
   const reportId = searchParams.get('id');
   const [isScanning, setIsScanning] = useState(false);
   const [validatingRnc, setValidatingRnc] = useState<Record<number, boolean>>({});
@@ -100,14 +100,14 @@ export default function NewCompraPage() {
   }, [companyNameValue]);
   
   const allCompanies = useMemo(() => [
-    { ...settings, id: 'main', name: `${settings.name} (Principal)` }, 
-    ...companies
-  ], [settings, companies]);
+    { id: currentUser.id, name: `${currentUser.name} (Principal)`, rnc: currentUser.rnc }, 
+    ...companies.filter(c => c.ownerId === currentUser.id)
+  ], [currentUser, companies]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(Form606Schema),
     defaultValues: {
-      rnc: settings.rnc || '',
+      rnc: currentUser.rnc || '',
       periodo: '',
       compras: [defaultRow],
     },
@@ -219,7 +219,7 @@ export default function NewCompraPage() {
         title: '¡Datos Extraídos y Validados!',
         description: extractedData.validationMessage || 'La información de la factura se ha agregado al formulario.',
       });
-  }, [form, append, showToast, fields.length, handleRncBlur]);
+  }, [form, append, showToast, fields.length]);
 
   const handleCaptureAndProcess = async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -339,7 +339,7 @@ export default function NewCompraPage() {
     }
 
     setValidatingRnc(prev => ({ ...prev, [index]: false }));
-  }, [form]);
+  }, [form, processInvoiceData]);
   
   const handleAddNewCompany = async (data: CompanyFormValues) => {
     const newCompany = await addCompany(data);

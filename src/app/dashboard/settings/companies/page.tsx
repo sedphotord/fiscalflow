@@ -24,7 +24,7 @@ import { searchCompanies } from '@/ai/flows/search-companies-flow';
 type FormValues = z.infer<typeof CompanySchema>;
 
 export default function ManageCompaniesPage() {
-  const { settings, companies, addCompany, updateCompany, deleteCompany, showToast } = useAppContext();
+  const { currentUser, companies, addCompany, updateCompany, deleteCompany, showToast } = useAppContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isLookingUp, setIsLookingUp] = useState(false);
@@ -112,8 +112,8 @@ export default function ManageCompaniesPage() {
   };
   
   const allCompanies = [
-    { ...settings, id: 'main', type: 'Principal' },
-    ...companies.map(c => ({ ...c, type: 'Cliente' }))
+    { ...currentUser, id: 'main', type: 'Principal' },
+    ...companies.filter(c => c.ownerId === currentUser.id).map(c => ({ ...c, type: 'Cliente' }))
   ];
 
   return (

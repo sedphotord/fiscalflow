@@ -4,24 +4,29 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
-import type { Report, UserSettings, Company, AppContextType } from '@/lib/types';
+import type { Report, User, Company, TeamMember, AppContextType, UserPlan, TeamMemberRole } from '@/lib/types';
 import { type toast as toastFn } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from '@/components/ui/toaster';
 import { Loader2 } from 'lucide-react';
 
-// --- DEFAULT STATES ---
-const defaultSettings: UserSettings = { name: 'Nuevo Usuario', rnc: '', email: '', theme: 'system' };
-const defaultInitialState = {
-    reports: [] as Report[],
-    settings: defaultSettings,
-    companies: [] as Company[],
-};
-
-// --- MOCK DATA FOR OFFLINE/DEBUG MODE ---
-const mockSettings: UserSettings = { name: 'Usuario (Modo Sin Conexión)', rnc: '987654321', email: 'usuario.demo@fiscalflow.app', theme: 'system' };
-const mockCompanies: Company[] = [
-    { id: 'comp-1', name: 'Cliente de Ejemplo', rnc: '101000001', email: 'cliente@ejemplo.com', whatsapp: '+18095551234' },
+// --- MOCK DATA ---
+const MOCK_USERS: User[] = [
+    { id: 'user-1', name: 'Usuario Principal', rnc: '987654321', email: 'usuario.demo@fiscalflow.app', theme: 'system', plan: 'Pro', status: 'Activo', invoiceUsage: { current: 120, limit: 500 }, registeredAt: new Date('2023-01-15').toISOString() },
+    { id: 'user-2', name: 'Empresa ABC', rnc: '131223344', email: 'contacto@empresa-abc.com', theme: 'light', plan: 'Despacho', status: 'Activo', invoiceUsage: { current: 1500, limit: 10000 }, registeredAt: new Date('2022-11-20').toISOString() },
+    { id: 'user-3', name: 'Juan Perez', rnc: '40212345678', email: 'juan.perez@email.com', theme: 'dark', plan: 'Gratis', status: 'Activo', invoiceUsage: { current: 25, limit: 50 }, registeredAt: new Date('2024-03-10').toISOString() },
+    { id: 'user-4', name: 'Consultores RD', rnc: '101000001', email: 'info@consultores.do', theme: 'system', plan: 'Pro', status: 'Pago pendiente', invoiceUsage: { current: 501, limit: 500 }, registeredAt: new Date('2023-08-01').toISOString() },
+    { id: 'user-5', name: 'Ex-Cliente S.A.', rnc: '111222333', email: 'baja@excliente.com', theme: 'light', plan: 'Pro', status: 'Cancelado', invoiceUsage: { current: 0, limit: 500 }, registeredAt: new Date('2023-05-05').toISOString() },
+];
+const MOCK_COMPANIES: Company[] = [
+    { id: 'comp-1', ownerId: 'user-1', name: 'Mi Propia Empresa', rnc: '987654321', email: 'usuario.demo@fiscalflow.app' },
+    { id: 'comp-2', ownerId: 'user-1', name: 'Cliente de Ejemplo', rnc: '101000001', email: 'cliente@ejemplo.com', whatsapp: '+18095551234' },
+    { id: 'comp-3', ownerId: 'user-2', name: 'Empresa ABC', rnc: '131223344', email: 'contacto@empresa-abc.com' },
+];
+const MOCK_TEAM_MEMBERS: TeamMember[] = [
+    { id: 'team-1', ownerId: 'user-1', email: 'asistente@fiscalflow.app', role: 'Editor', status: 'Activo' },
+    { id: 'team-2', ownerId: 'user-1', email: 'nuevo.empleado@email.com', role: 'Solo Lectura', status: 'Pendiente' },
+    { id: 'team-3', ownerId: 'user-2', email: 'socio@empresa-abc.com', role: 'Admin', status: 'Activo' },
 ];
 const mockReports: Report[] = [
     // @ts-ignore
@@ -29,81 +34,28 @@ const mockReports: Report[] = [
     // @ts-ignore
     { id: 'rep-2', type: '607', rnc: '987654321', periodo: '202312', estado: 'Borrador', fechaCreacion: new Date('2023-12-27').toISOString(), ventas: [{ rncCedula: '444555666', tipoId: '1', ncf: 'B0100000002', fechaComprobante: '2023-12-20', montoFacturado: 12000, itbisFacturado: 2160 }] },
 ];
-const mockInitialState = {
-    reports: mockReports,
-    settings: mockSettings,
-    companies: mockCompanies,
-};
-
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [appState, setAppState] = useState(defaultInitialState);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isOffline, setIsOffline] = useState(!db);
+  const [currentUser, setCurrentUser] = useState<User>(MOCK_USERS[0]);
+  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  const [companies, setCompanies] = useState<Company[]>(MOCK_COMPANIES);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(MOCK_TEAM_MEMBERS);
+  const [reports, setReports] = useState<Report[]>(mockReports);
+  
+  const [isLoading, setIsLoading] = useState(false); // Simplified loading
   const { toast } = useToast();
+  
+  useEffect(() => {
+    // In a real app, you would fetch data here. We are using mock data.
+    setIsLoading(false);
+  }, []);
 
   useEffect(() => {
-    const initApp = async () => {
-      const offlineToast = {
-          variant: "destructive" as const,
-          title: "Modo Sin Conexión Activado",
-          description: "No se pudo conectar a Firebase. La app usará datos de demostración.",
-          duration: 9000,
-      };
-
-      if (!db) {
-        console.warn("Firebase no está disponible. Entrando en modo sin conexión.");
-        setAppState(mockInitialState);
-        setIsOffline(true);
-        setIsLoading(false);
-        toast(offlineToast);
-        return;
-      }
-
-      try {
-        // 1. Fetch critical settings first to unblock UI
-        const settingsDocRef = doc(db, 'settings', 'main-profile');
-        const settingsSnap = await getDoc(settingsDocRef);
-        const settings = settingsSnap.exists() ? (settingsSnap.data() as UserSettings) : defaultSettings;
-        
-        // Set settings and unblock UI rendering
-        setAppState(prev => ({ ...prev, settings }));
-        setIsOffline(false);
-        setIsLoading(false);
-
-        // 2. Fetch non-critical data in the background
-        const companiesQuery = query(collection(db, 'companies'), orderBy('name'));
-        const reportsQuery = query(collection(db, 'reports'), orderBy('fechaCreacion', 'desc'));
-
-        const [companiesSnap, reportsSnap] = await Promise.all([
-          getDocs(companiesQuery),
-          getDocs(reportsQuery),
-        ]);
-
-        const companies = companiesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Company[];
-        const reports = reportsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Report[];
-
-        // Update state with the rest of the data without a loading screen
-        setAppState(prev => ({ ...prev, companies, reports }));
-
-      } catch (error) {
-        console.error("Error al cargar datos de Firebase:", error);
-        setAppState(mockInitialState);
-        setIsOffline(true);
-        setIsLoading(false); // Also unblock UI on error
-        toast(offlineToast);
-      }
-    };
-
-    initApp();
-  }, [toast]);
-
-  useEffect(() => {
-    if (isLoading) return; // Only run after initial settings are loaded
+    if (isLoading) return;
     const root = window.document.documentElement;
-    const theme = appState.settings.theme;
+    const theme = currentUser.theme;
     root.classList.remove('light', 'dark');
 
     if (theme === 'system') {
@@ -112,116 +64,120 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     } else {
       root.classList.add(theme);
     }
-  }, [appState.settings.theme, isLoading]);
+  }, [currentUser.theme, isLoading]);
+  
+  const updateCurrentUser = useCallback(async (newSettings: Partial<User>) => {
+    setCurrentUser(prev => ({ ...prev, ...newSettings }));
+    // Also update the user in the main users list
+    setUsers(prevUsers => prevUsers.map(u => u.id === currentUser.id ? { ...u, ...newSettings } : u));
+    toast({ title: 'Ajustes Guardados' });
+  }, [currentUser.id, toast]);
+  
+  const setTheme = useCallback((theme: User['theme']) => {
+    updateCurrentUser({ theme });
+  }, [updateCurrentUser]);
 
+  // --- Report Management ---
   const addReport = useCallback(async (reportData: Omit<Report, 'id' | 'fechaCreacion'>) => {
-    if (isOffline) {
-        toast({ title: 'Modo sin conexión', description: 'El reporte no se puede guardar.' });
-        return;
-    }
-    const newReportData = { ...reportData, fechaCreacion: new Date().toISOString() };
-    const docRef = await addDoc(collection(db, 'reports'), newReportData);
-    const newReport = { ...newReportData, id: docRef.id } as Report;
-    setAppState(prev => ({ ...prev, reports: [newReport, ...prev.reports] }));
+    const newReport = { ...reportData, id: `rep-${Date.now()}`, fechaCreacion: new Date().toISOString() } as Report;
+    setReports(prev => [newReport, ...prev]);
     toast({ title: 'Reporte Guardado' });
-  }, [isOffline, toast]);
+  }, [toast]);
 
   const updateReport = useCallback(async (id: string, reportData: Partial<Report>) => {
-    if (isOffline) {
-        toast({ title: 'Modo sin conexión', description: 'El reporte no se puede actualizar.' });
-        return;
-    }
-    const reportRef = doc(db, 'reports', id);
-    await updateDoc(reportRef, reportData);
-    setAppState(prev => ({
-        ...prev,
-        reports: prev.reports.map(r => r.id === id ? { ...r, ...reportData } as Report : r),
-    }));
+    setReports(prev => prev.map(r => r.id === id ? { ...r, ...reportData } as Report : r));
     toast({ title: 'Reporte Actualizado' });
-  }, [isOffline, toast]);
+  }, [toast]);
 
   const deleteReport = useCallback(async (id: string) => {
-    if (isOffline) {
-        toast({ title: 'Modo sin conexión', description: 'El reporte no se puede eliminar.' });
-        return;
-    }
-    await deleteDoc(doc(db, 'reports', id));
-    setAppState(prev => ({ ...prev, reports: prev.reports.filter(r => r.id !== id) }));
+    setReports(prev => prev.filter(r => r.id !== id));
     toast({ title: 'Reporte Eliminado' });
-  }, [isOffline, toast]);
+  }, [toast]);
 
-  const getReport = useCallback((id: string) => {
-    return appState.reports.find(r => r.id === id);
-  }, [appState.reports]);
+  const getReport = useCallback((id: string) => reports.find(r => r.id === id), [reports]);
 
-  const updateSettings = useCallback(async (newSettings: Partial<UserSettings>) => {
-    const updatedSettings = { ...appState.settings, ...newSettings };
-    setAppState(prev => ({ ...prev, settings: updatedSettings }));
-    if (!isOffline) {
-        try {
-            await setDoc(doc(db, 'settings', 'main-profile'), updatedSettings);
-            if(newSettings.theme === undefined) toast({ title: 'Ajustes Guardados' });
-        } catch (error) {
-            console.error("Error guardando ajustes:", error)
-            toast({ title: 'Error', description: 'No se pudieron guardar los ajustes.' })
-        }
-    }
-  }, [appState.settings, isOffline, toast]);
-  
-  const setTheme = useCallback((theme: UserSettings['theme']) => {
-    updateSettings({ theme });
-  }, [updateSettings]);
-
-  const addCompany = useCallback(async (companyData: Omit<Company, 'id'>): Promise<Company | undefined> => {
-    if (isOffline) {
-        toast({ title: 'Modo sin conexión', description: 'La empresa no se puede guardar.' });
-        return undefined;
-    }
-    const docRef = await addDoc(collection(db, 'companies'), companyData);
-    const newCompany = { ...companyData, id: docRef.id };
-    setAppState(prev => ({ ...prev, companies: [...prev.companies, newCompany].sort((a,b) => a.name.localeCompare(b.name)) }));
+  // --- Company Management ---
+  const addCompany = useCallback(async (companyData: Omit<Company, 'id' | 'ownerId'>): Promise<Company | undefined> => {
+    const newCompany: Company = { ...companyData, id: `comp-${Date.now()}`, ownerId: currentUser.id };
+    setCompanies(prev => [...prev, newCompany].sort((a,b) => a.name.localeCompare(b.name)));
     toast({ title: 'Empresa Agregada' });
     return newCompany;
-  }, [isOffline, toast]);
+  }, [currentUser.id, toast]);
 
   const updateCompany = useCallback(async (id: string, companyData: Partial<Omit<Company, 'id'>>) => {
-    if (isOffline) {
-        toast({ title: 'Modo sin conexión', description: 'La empresa no se puede actualizar.' });
-        return;
-    }
-     await updateDoc(doc(db, 'companies', id), companyData);
-     setAppState(prev => ({
-        ...prev,
-        companies: prev.companies.map(c => c.id === id ? { ...c, ...companyData } as Company : c).sort((a,b) => a.name.localeCompare(b.name)),
-    }));
-    toast({ title: 'Empresa Actualizada' });
-  }, [isOffline, toast]);
+     setCompanies(prev => prev.map(c => c.id === id ? { ...c, ...companyData } as Company : c).sort((a,b) => a.name.localeCompare(b.name)));
+     toast({ title: 'Empresa Actualizada' });
+  }, [toast]);
 
   const deleteCompany = useCallback(async (id: string) => {
-    if (isOffline) {
-        toast({ title: 'Modo sin conexión', description: 'La empresa no se puede eliminar.' });
-        return;
-    }
-     await deleteDoc(doc(db, 'companies', id));
-     setAppState(prev => ({ ...prev, companies: prev.companies.filter(c => c.id !== id) }));
+     setCompanies(prev => prev.filter(c => c.id !== id));
      toast({ title: 'Empresa Eliminada' });
-  }, [isOffline, toast]);
+  }, [toast]);
   
+  // --- Team Management ---
+  const inviteTeamMember = useCallback((email: string, role: TeamMemberRole) => {
+    const newMember: TeamMember = {
+      id: `team-${Date.now()}`,
+      ownerId: currentUser.id,
+      email,
+      role,
+      status: 'Pendiente'
+    };
+    setTeamMembers(prev => [...prev, newMember]);
+    toast({ title: 'Invitación Enviada', description: `Se ha invitado a ${email} a unirse a su equipo.` });
+  }, [currentUser.id, toast]);
+
+  const deleteTeamMember = useCallback((id: string) => {
+    setTeamMembers(prev => prev.filter(m => m.id !== id));
+    toast({ title: 'Miembro Eliminado' });
+  }, [toast]);
+
+  // --- Super Admin Functions ---
+  const updateUserPlan = useCallback((userId: string, plan: UserPlan) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, plan } : u));
+    toast({ title: 'Plan de Usuario Actualizado' });
+  }, [toast]);
+
+  const assignInvoices = useCallback((userId: string, amount: number) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, invoiceUsage: { ...u.invoiceUsage, limit: u.invoiceUsage.limit + amount } } : u));
+    toast({ title: 'Facturas Asignadas', description: `Se asignaron ${amount} facturas adicionales al usuario.` });
+  }, [toast]);
+
+  const updateUser = useCallback((userId: string, data: Partial<User>) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...data } : u));
+    if (userId === currentUser.id) {
+        setCurrentUser(prev => ({ ...prev, ...data }));
+    }
+    toast({ title: 'Usuario actualizado' });
+  }, [currentUser.id, toast]);
+
+  const getAllCompaniesForUser = useCallback((userId: string) => companies.filter(c => c.ownerId === userId), [companies]);
+  const getTeamMembersForUser = useCallback((userId: string) => teamMembers.filter(tm => tm.ownerId === userId), [teamMembers]);
+
   const value: AppContextType = {
-    reports: appState.reports,
-    settings: appState.settings,
-    companies: appState.companies,
-    theme: appState.settings.theme,
+    reports,
+    currentUser,
+    users,
+    companies,
+    teamMembers: teamMembers.filter(tm => tm.ownerId === currentUser.id),
+    theme: currentUser.theme,
     setTheme,
     addReport,
     updateReport,
     deleteReport,
     getReport,
-    updateSettings,
+    updateCurrentUser,
     addCompany,
     updateCompany,
     deleteCompany,
     showToast: toast,
+    inviteTeamMember,
+    deleteTeamMember,
+    updateUserPlan,
+    assignInvoices,
+    getAllCompaniesForUser,
+    getTeamMembersForUser,
+    updateUser,
   };
 
   if (isLoading) { 

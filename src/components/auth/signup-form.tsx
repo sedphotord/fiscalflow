@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export function SignUpForm() {
   const router = useRouter();
-  const { showToast, updateSettings } = useAppContext();
+  const { showToast, updateCurrentUser } = useAppContext();
   
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
@@ -35,7 +35,7 @@ export function SignUpForm() {
 
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
     console.log(values);
-    updateSettings({
+    updateCurrentUser({
       name: values.accountType === 'empresa' ? values.companyName! : values.name,
       rnc: values.accountType === 'empresa' ? values.rnc || '' : '',
       email: values.email,

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from './constants';
+import type { TeamMemberRole } from './types';
 
 // Schema for Login
 export const LoginSchema = z.object({
@@ -123,4 +124,12 @@ export const BillingSchema = z.object({
   city: z.string().min(2, "La ciudad es requerida."),
   province: z.string().min(2, "La provincia es requerida."),
   zip: z.string().min(3, "El código postal es requerido."),
+});
+
+// Schema for inviting a team member
+export const InviteTeamMemberSchema = z.object({
+  email: z.string().email({ message: 'Por favor ingrese un correo electrónico válido.' }),
+  role: z.custom<TeamMemberRole>(val => ['Admin', 'Editor', 'Solo Lectura'].includes(val as string), {
+    message: 'Por favor seleccione un rol válido.',
+  }),
 });

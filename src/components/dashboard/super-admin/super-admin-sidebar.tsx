@@ -15,6 +15,7 @@ import {
   CreditCard,
   AlertTriangle,
   ShoppingBag,
+  Users,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -49,6 +50,16 @@ export function SuperAdminSidebar() {
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Overview
+              </Link>
+              <Link
+                href="/dashboard/super-admin/users"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                  pathname.startsWith('/dashboard/super-admin/users') && 'bg-accent text-accent-foreground'
+                )}
+              >
+                <Users className="h-4 w-4" />
+                Usuarios
               </Link>
               <Accordion type="multiple" className="w-full" defaultValue={
                 [
