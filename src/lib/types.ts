@@ -1,6 +1,6 @@
 
 import { type z } from 'zod';
-import { type Form606Schema, type Form607Schema, type AdminCreateUserSchema, type PlanSchema, type InvoicePackSchema } from './schemas';
+import { type Form606Schema, type Form607Schema, type Form608Schema, type Form609Schema, type AdminCreateUserSchema, type PlanSchema, type InvoicePackSchema } from './schemas';
 import { type toast } from '@/hooks/use-toast';
 import { TEAM_ROLES } from './constants';
 
@@ -18,7 +18,22 @@ export type Report607 = z.infer<typeof Form607Schema> & {
     estado: 'Completado' | 'Borrador';
 };
 
-export type Report = Report606 | Report607;
+export type Report608 = z.infer<typeof Form608Schema> & {
+    id: string;
+    type: '608';
+    fechaCreacion: string;
+    estado: 'Completado' | 'Borrador';
+};
+
+export type Report609 = z.infer<typeof Form609Schema> & {
+    id: string;
+    type: '609';
+    fechaCreacion: string;
+    estado: 'Completado' | 'Borrador';
+};
+
+
+export type Report = Report606 | Report607 | Report608 | Report609;
 
 export type UserPlan = 'Gratis' | 'Pro' | 'Despacho';
 export type UserStatus = 'Activo' | 'Pago pendiente' | 'Cancelado';

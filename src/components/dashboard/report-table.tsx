@@ -80,8 +80,24 @@ export function ReportTable({ data }: ReportTableProps) {
     };
     
     const handleEdit = (report: Report) => {
-      const path = report.type === '606' ? '/dashboard/compras/new' : '/dashboard/ventas/new';
-      router.push(`${path}?id=${report.id}`);
+      let path = '';
+      switch (report.type) {
+        case '606':
+          path = '/dashboard/compras/new';
+          break;
+        case '607':
+          path = '/dashboard/ventas/new';
+          break;
+        case '608':
+            path = '/dashboard/ncf-anulados/new';
+            break;
+        case '609':
+            path = '/dashboard/pagos-exterior/new';
+            break;
+      }
+      if (path) {
+        router.push(`${path}?id=${report.id}`);
+      }
     }
 
     const handleDelete = (reportId: string) => {

@@ -31,6 +31,10 @@ export const MOCK_REPORTS: Report[] = [
     { id: 'rep-1', type: '606', rnc: '987654321', periodo: '202312', estado: 'Completado', fechaCreacion: new Date('2023-12-28').toISOString(), compras: [{ rncCedula: '111222333', tipoId: '1', tipoBienesServicios: '09', ncf: 'B0100000001', fechaComprobante: '2023-12-15', fechaPago: '2023-12-15', montoFacturado: 5000, itbisFacturado: 900, formaPago: 'credito' }] },
     // @ts-ignore
     { id: 'rep-2', type: '607', rnc: '987654321', periodo: '202312', estado: 'Borrador', fechaCreacion: new Date('2023-12-27').toISOString(), ventas: [{ rncCedula: '444555666', tipoId: '1', ncf: 'B0100000002', fechaComprobante: '2023-12-20', montoFacturado: 12000, itbisFacturado: 2160 }] },
+    // @ts-ignore
+    { id: 'rep-3', type: '608', rnc: '987654321', periodo: '202401', estado: 'Completado', fechaCreacion: new Date('2024-01-30').toISOString(), anulados: [{ ncfAnulado: 'B0100000003', fechaAnulacion: '2024-01-25', motivoAnulacion: '01' }] },
+    // @ts-ignore
+    { id: 'rep-4', type: '609', rnc: '987654321', periodo: '202402', estado: 'Borrador', fechaCreacion: new Date('2024-02-28').toISOString(), pagos: [{ razonSocialBeneficiario: 'International Software Co.', tipoRenta: '01', fechaPago: '2024-02-15', montoPagado: 500, isrRetenido: 50 }] },
 ];
 
 export const MOCK_PLANS: Plan[] = [

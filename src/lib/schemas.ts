@@ -1,6 +1,6 @@
 
 import { z } from 'zod';
-import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO, TEAM_ROLES } from './constants';
+import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO, TEAM_ROLES, MOTIVOS_ANULACION_608, TIPOS_RENTA_609 } from './constants';
 import type { UserPlan, TeamMemberRole } from './types';
 
 // Schema for Login
@@ -89,6 +89,37 @@ export const Form607Schema = z.object({
   periodo: z.string().regex(/^\d{6}$/, "Formato de período debe ser AAAAMM"),
   ventas: z.array(Form607RowSchema).min(1, "Debe agregar al menos una venta."),
 });
+
+// Schema for a single row in the 608 form
+export const Form608RowSchema = z.object({
+    ncfAnulado: z.string().length(11, "NCF debe tener 11 caracteres"),
+    fechaAnulacion: z.string().min(1, "Fecha requerida"),
+    motivoAnulacion: z.enum(MOTIVOS_ANULACION_608.map(item => item.value) as [string, ...string[]]),
+});
+
+// Schema for the entire 608 form
+export const Form608Schema = z.object({
+    rnc: z.string().min(9, "RNC inválido").max(11, "RNC/Cédula inválido"),
+    periodo: z.string().regex(/^\d{6}$/, "Formato de período debe ser AAAAMM"),
+    anulados: z.array(Form608RowSchema).min(1, "Debe agregar al menos un NCF anulado."),
+});
+
+// Schema for a single row in the 609 form
+export const Form609RowSchema = z.object({
+    razonSocialBeneficiario: z.string().min(1, "Razón Social es requerida"),
+    tipoRenta: z.enum(TIPOS_RENTA_609.map(item => item.value) as [string, ...string[]]),
+    fechaPago: z.string().min(1, "Fecha de pago es requerida"),
+    montoPagado: z.number({invalid_type_error: "Monto requerido"}).positive("Debe ser positivo"),
+    isrRetenido: z.number({invalid_type_error: "Monto requerido"}).min(0, "No puede ser negativo"),
+});
+
+// Schema for the entire 609 form
+export const Form609Schema = z.object({
+    rnc: z.string().min(9, "RNC inválido").max(11, "RNC/Cédula inválido"),
+    periodo: z.string().regex(/^\d{6}$/, "Formato de período debe ser AAAAMM"),
+    pagos: z.array(Form609RowSchema).min(1, "Debe agregar al menos un pago al exterior."),
+});
+
 
 // Schema for adding/editing a company
 export const CompanySchema = z.object({

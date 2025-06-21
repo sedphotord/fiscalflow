@@ -48,3 +48,24 @@ export const ALL_PLAN_FEATURES = [
     "Soporte Telefónico 24/7",
     "Consultoría y Capacitación",
 ];
+
+
+export const MOTIVOS_ANULACION_608 = [
+    { value: "01", label: "01 - Deterioro de Factura" },
+    { value: "02", label: "02 - Errores de Impresión (Factura Pre-impresa)" },
+    { value: "03", label: "03 - Impresión Defectuosa" },
+    { value: "04", label: "04 - Cese de Operaciones" },
+    { value: "05", label: "05 - Pérdida o Hurto de Factura" },
+    { value: "06", label: "06 - NCF no emitido" },
+    { value: "07", label: "07 - Cambio de NCF por Devolución o Descuento" },
+];
+
+export const TIPOS_RENTA_609 = [
+    { value: "01", label: "01 - Asistencia Técnica" },
+    { value: "02", label: "02 - Regalías" },
+    { value: "03", label: "03 - Intereses" },
+    { value: "04", label: "04 - Alquiler de Equipos" },
+    { value: "05", label: "05 - Servicios" },
+    { value: "06", label: "06 - Dividendos" },
+    { value: "07", label: "07 - Otros" },
+];

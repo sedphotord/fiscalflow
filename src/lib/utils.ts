@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import type { Report, Report606, Report607 } from "./types";
+import type { Report, Report606, Report607, Report608, Report609 } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -59,13 +59,54 @@ function format607(report: Report607): string {
             v.ncf,
             v.ncfModificado || '',
             v.fechaComprobante.replace(/-/g, ''),
-            v.montoFacturado.toFixed(2),
-            v.itbisFacturado.toFixed(2)
+            '0.00', // Monto efectivo
+            '0.00', // Cheque / Transferencia
+            '0.00', // Tarjeta
+            v.montoFacturado.toFixed(2), // A crédito
+            '0.00', // Bonos
+            '0.00', // Permuta
+            '0.00', // Otras formas
+            v.itbisFacturado.toFixed(2),
+            '0.00', // ITBIS percibido
+            '0.00', // Retencion Renta por terceros
+            '0.00', // ITBIS retenido por terceros
+            '0.00', // ISC
+            '0.00', // Otros impuestos
+            '0.00', // Propina legal
         ];
         return fields.join('|');
     }).join('\r\n');
     return header + details;
 }
+
+function format608(report: Report608): string {
+    const header = `608|${report.rnc}|${report.periodo}|${report.anulados.length}\r\n`;
+    const details = report.anulados.map(a => {
+        const fields = [
+            a.ncfAnulado,
+            a.fechaAnulacion.replace(/-/g, ''),
+            a.motivoAnulacion,
+        ];
+        return fields.join('|');
+    }).join('\r\n');
+    return header + details;
+}
+
+function format609(report: Report609): string {
+    const header = `609|${report.rnc}|${report.periodo}|${report.pagos.length}\r\n`;
+    const details = report.pagos.map(p => {
+        const fields = [
+            p.razonSocialBeneficiario,
+            p.tipoRenta,
+            p.fechaPago.replace(/-/g, ''),
+            p.montoPagado.toFixed(2),
+            p.isrRetenido.toFixed(2),
+        ];
+        return fields.join('|');
+    }).join('\r\n');
+    return header + details;
+}
+
 
 export function formatReportToTxt(report: Report) {
     if (report.estado !== 'Completado') {
@@ -78,8 +119,27 @@ export function formatReportToTxt(report: Report) {
     if (report.type === '606') {
         content = format606(report as Report606);
     } else if (report.type === '607') {
-        content = format607(report as Report607);
-    } else {
+        // Updated formatting for 607 to be more compliant
+        const header = `607|${report.rnc}|${report.periodo}|${report.ventas.length}\r\n`;
+        const details = report.ventas.map(v => {
+            const fields = [
+                v.rncCedula,
+                v.tipoId,
+                v.ncf,
+                v.ncfModificado || '',
+                v.fechaComprobante.replace(/-/g, ''),
+                v.itbisFacturado.toFixed(2),
+                v.montoFacturado.toFixed(2),
+            ];
+            return fields.join('|');
+        }).join('\r\n');
+        content = header + details;
+    } else if (report.type === '608') {
+        content = format608(report as Report608);
+    } else if (report.type === '609') {
+        content = format609(report as Report609);
+    }
+     else {
         throw new Error('Tipo de reporte no soportado para exportación.');
     }
 
