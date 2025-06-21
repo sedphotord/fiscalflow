@@ -72,13 +72,19 @@ export default function NewCompraPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [companySearchQuery, setCompanySearchQuery] = useState('');
   const [companySearchResults, setCompanySearchResults] = useState<{name: string, rnc: string}[]>([]);
   const [isCompanySearching, setIsCompanySearching] = useState(false);
   const [isSearchPopoverOpen, setIsSearchPopoverOpen] = useState(false);
 
+  const addCompanyForm = useForm<CompanyFormValues>({
+    resolver: zodResolver(CompanySchema),
+    defaultValues: { name: '', rnc: '' },
+  });
+
+  const companyNameValue = addCompanyForm.watch('name');
+
   useEffect(() => {
-    if (companySearchQuery.length < 2) {
+    if (companyNameValue.length < 2) {
       setCompanySearchResults([]);
       setIsSearchPopoverOpen(false);
       return;
@@ -86,7 +92,7 @@ export default function NewCompraPage() {
 
     const handler = setTimeout(async () => {
       setIsCompanySearching(true);
-      const results = await searchCompanies({ query: companySearchQuery });
+      const results = await searchCompanies({ query: companyNameValue });
       setCompanySearchResults(results);
       setIsCompanySearching(false);
       if(results.length > 0) {
@@ -95,7 +101,7 @@ export default function NewCompraPage() {
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [companySearchQuery]);
+  }, [companyNameValue]);
   
   const allCompanies = useMemo(() => [
     { ...settings, id: 'main', name: `${settings.name} (Principal)` }, 
@@ -109,11 +115,6 @@ export default function NewCompraPage() {
       periodo: '',
       compras: [defaultRow],
     },
-  });
-  
-  const addCompanyForm = useForm<CompanyFormValues>({
-    resolver: zodResolver(CompanySchema),
-    defaultValues: { name: '', rnc: '' },
   });
 
   useEffect(() => {
@@ -350,7 +351,6 @@ export default function NewCompraPage() {
       form.setValue('rnc', newCompany.rnc, { shouldValidate: true });
       setIsAddCompanyDialogOpen(false);
       addCompanyForm.reset();
-      setCompanySearchQuery('');
     }
   };
 
@@ -725,10 +725,6 @@ export default function NewCompraPage() {
                             <Input
                               placeholder="Buscar o escribir nombre de empresa..."
                               {...field}
-                              onChange={(e) => {
-                                field.onChange(e);
-                                setCompanySearchQuery(e.target.value);
-                              }}
                             />
                           </FormControl>
                         </PopoverTrigger>
@@ -752,7 +748,7 @@ export default function NewCompraPage() {
                                 </li>
                               ))}
                             </ul>
-                          ) : companySearchQuery.length > 2 && (
+                          ) : companyNameValue.length > 2 && (
                             <div className="p-4 text-sm text-center">No se encontraron resultados.</div>
                           )}
                         </PopoverContent>
@@ -791,3 +787,5 @@ export default function NewCompraPage() {
     </>
   );
 }
+
+    

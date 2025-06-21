@@ -30,7 +30,6 @@ export default function ManageCompaniesPage() {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isLookingUp, setIsLookingUp] = useState(false);
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{name: string, rnc: string}[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchPopoverOpen, setIsSearchPopoverOpen] = useState(false);
@@ -45,8 +44,10 @@ export default function ManageCompaniesPage() {
     },
   });
 
+  const nameValue = form.watch('name');
+
   useEffect(() => {
-    if (searchQuery.length < 2) {
+    if (nameValue.length < 2) {
       setSearchResults([]);
       setIsSearchPopoverOpen(false);
       return;
@@ -54,7 +55,7 @@ export default function ManageCompaniesPage() {
 
     const handler = setTimeout(async () => {
       setIsSearching(true);
-      const results = await searchCompanies({ query: searchQuery });
+      const results = await searchCompanies({ query: nameValue });
       setSearchResults(results);
       setIsSearching(false);
       if(results.length > 0) {
@@ -63,7 +64,7 @@ export default function ManageCompaniesPage() {
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [searchQuery]);
+  }, [nameValue]);
 
 
   const handleOpenDialog = (company: Company | null = null) => {
@@ -73,7 +74,6 @@ export default function ManageCompaniesPage() {
     } else {
       form.reset({ name: '', rnc: '', email: '', whatsapp: '' });
     }
-    setSearchQuery('');
     setSearchResults([]);
     setIsDialogOpen(true);
   };
@@ -232,10 +232,6 @@ export default function ManageCompaniesPage() {
                             <Input
                               placeholder="Buscar o escribir nombre de empresa..."
                               {...field}
-                              onChange={(e) => {
-                                field.onChange(e);
-                                setSearchQuery(e.target.value);
-                              }}
                             />
                           </FormControl>
                         </PopoverTrigger>
@@ -259,7 +255,7 @@ export default function ManageCompaniesPage() {
                                 </li>
                               ))}
                             </ul>
-                          ) : searchQuery.length > 2 && (
+                          ) : nameValue.length > 2 && (
                             <div className="p-4 text-sm text-center">No se encontraron resultados.</div>
                           )}
                         </PopoverContent>
@@ -326,3 +322,5 @@ export default function ManageCompaniesPage() {
     </div>
   );
 }
+
+    

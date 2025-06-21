@@ -42,7 +42,6 @@ export default function NewVentaPage() {
   const [isAddCompanyDialogOpen, setIsAddCompanyDialogOpen] = useState(false);
   const [isCompanyLookup, setIsCompanyLookup] = useState(false);
 
-  const [companySearchQuery, setCompanySearchQuery] = useState('');
   const [companySearchResults, setCompanySearchResults] = useState<{name: string, rnc: string}[]>([]);
   const [isCompanySearching, setIsCompanySearching] = useState(false);
   const [isSearchPopoverOpen, setIsSearchPopoverOpen] = useState(false);
@@ -66,6 +65,8 @@ export default function NewVentaPage() {
     defaultValues: { name: '', rnc: '' },
   });
 
+  const companyNameValue = addCompanyForm.watch('name');
+
   useEffect(() => {
     if (reportId) {
       const report = getReport(reportId);
@@ -76,7 +77,7 @@ export default function NewVentaPage() {
   }, [reportId, getReport, form]);
   
   useEffect(() => {
-    if (companySearchQuery.length < 2) {
+    if (companyNameValue.length < 2) {
       setCompanySearchResults([]);
       setIsSearchPopoverOpen(false);
       return;
@@ -84,7 +85,7 @@ export default function NewVentaPage() {
 
     const handler = setTimeout(async () => {
       setIsCompanySearching(true);
-      const results = await searchCompanies({ query: companySearchQuery });
+      const results = await searchCompanies({ query: companyNameValue });
       setCompanySearchResults(results);
       setIsCompanySearching(false);
       if(results.length > 0) {
@@ -93,7 +94,7 @@ export default function NewVentaPage() {
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [companySearchQuery]);
+  }, [companyNameValue]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -128,7 +129,6 @@ export default function NewVentaPage() {
       form.setValue('rnc', newCompany.rnc, { shouldValidate: true });
       setIsAddCompanyDialogOpen(false);
       addCompanyForm.reset();
-      setCompanySearchQuery('');
     }
   };
 
@@ -331,10 +331,6 @@ export default function NewVentaPage() {
                             <Input
                               placeholder="Buscar o escribir nombre de empresa..."
                               {...field}
-                              onChange={(e) => {
-                                field.onChange(e);
-                                setCompanySearchQuery(e.target.value);
-                              }}
                             />
                           </FormControl>
                         </PopoverTrigger>
@@ -358,7 +354,7 @@ export default function NewVentaPage() {
                                 </li>
                               ))}
                             </ul>
-                          ) : companySearchQuery.length > 2 && (
+                          ) : companyNameValue.length > 2 && (
                             <div className="p-4 text-sm text-center">No se encontraron resultados.</div>
                           )}
                         </PopoverContent>
@@ -397,3 +393,5 @@ export default function NewVentaPage() {
     </>
   );
 }
+
+    
