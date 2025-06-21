@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Form606Schema, CompanySchema } from '@/lib/schemas';
-import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2, CheckCircle2, XCircle, Copy } from 'lucide-react';
+import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2, CheckCircle2, XCircle, Copy, Camera } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from '@/lib/constants';
@@ -20,6 +20,8 @@ import { extractInvoiceData } from '@/ai/flows/extract-invoice-flow';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
 
 type FormValues = z.infer<typeof Form606Schema>;
 type CompanyFormValues = z.infer<typeof CompanySchema>;
@@ -59,6 +61,12 @@ export default function NewCompraPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAddCompanyDialogOpen, setIsAddCompanyDialogOpen] = useState(false);
   
+  const [isCameraDialogOpen, setIsCameraDialogOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
   const allCompanies = useMemo(() => [
     { ...settings, id: 'main', name: `${settings.name} (Principal)` }, 
     ...companies
@@ -87,6 +95,45 @@ export default function NewCompraPage() {
     }
   }, [reportId, getReport, form]);
 
+  useEffect(() => {
+    if (!isCameraDialogOpen) {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+      return;
+    }
+
+    let stream: MediaStream;
+    const getCameraPermission = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        setHasCameraPermission(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        showToast({
+          variant: 'destructive',
+          title: 'Acceso a Cámara Denegado',
+          description: 'Por favor, habilita los permisos de la cámara en tu navegador.',
+        });
+      }
+    };
+
+    getCameraPermission();
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    }
+  }, [isCameraDialogOpen, showToast]);
+
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'compras',
@@ -114,27 +161,7 @@ export default function NewCompraPage() {
     router.push('/dashboard/compras');
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsScanning(true);
-    showToast({
-      title: 'Procesando Factura...',
-      description: 'El escáner inteligente está extrayendo y validando los datos.',
-    });
-
-    try {
-      const fileReader = new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-      });
-
-      const photoDataUri = await fileReader;
-      const extractedData = await extractInvoiceData({ photoDataUri });
-
+  const processInvoiceData = useCallback((extractedData: any) => {
       const firstEmptyIndex = form.getValues('compras').findIndex(c => !c.rncCedula && !c.ncf && c.montoFacturado === 0);
 
       const newRow = {
@@ -159,6 +186,72 @@ export default function NewCompraPage() {
         title: '¡Datos Extraídos y Validados!',
         description: extractedData.validationMessage || 'La información de la factura se ha agregado al formulario.',
       });
+  }, [form, append, showToast]);
+
+  const handleCaptureAndProcess = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    setIsCapturing(true);
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    if(context) {
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const photoDataUri = canvas.toDataURL('image/jpeg');
+        
+        setIsCameraDialogOpen(false);
+        showToast({
+          title: 'Procesando Factura...',
+          description: 'El escáner inteligente está extrayendo y validando los datos.',
+        });
+
+        try {
+            const extractedData = await extractInvoiceData({ photoDataUri });
+            processInvoiceData(extractedData);
+        } catch (error) {
+            console.error('Error processing captured invoice:', error);
+            showToast({
+                variant: 'destructive',
+                title: 'Error en el Escaneo',
+                description: 'No se pudieron extraer los datos de la imagen capturada.',
+            });
+        } finally {
+            setIsCapturing(false);
+        }
+    } else {
+         showToast({
+            variant: 'destructive',
+            title: 'Error de Captura',
+            description: 'No se pudo obtener el contexto del canvas.',
+        });
+        setIsCapturing(false);
+    }
+  }
+
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    showToast({
+      title: 'Procesando Factura...',
+      description: 'El escáner inteligente está extrayendo y validando los datos.',
+    });
+
+    try {
+      const fileReader = new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+      });
+
+      const photoDataUri = await fileReader;
+      const extractedData = await extractInvoiceData({ photoDataUri });
+      processInvoiceData(extractedData);
 
     } catch (error) {
       console.error('Error scanning invoice:', error);
@@ -300,11 +393,20 @@ export default function NewCompraPage() {
                         className="hidden"
                         accept="image/*,application/pdf"
                     />
+                     <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsCameraDialogOpen(true)}
+                        disabled={isScanning || isCapturing}
+                    >
+                        <Camera className="mr-2 h-4 w-4" />
+                        Escanear Factura
+                    </Button>
                     <Button
                         type="button"
                         variant="outline"
                         onClick={() => fileInputRef.current?.click()}
-                        disabled={isScanning}
+                        disabled={isScanning || isCapturing}
                     >
                         {isScanning ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -472,6 +574,42 @@ export default function NewCompraPage() {
           </form>
         </Form>
       </TooltipProvider>
+
+       <Dialog open={isCameraDialogOpen} onOpenChange={setIsCameraDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Escanear Factura con Cámara</DialogTitle>
+            <DialogDescription>
+              Apunta la cámara a tu factura y presiona capturar. Asegúrate de que el documento esté bien iluminado y sea legible.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative">
+            <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted playsInline />
+            <canvas ref={canvasRef} className="hidden" />
+             {hasCameraPermission === false && (
+                <Alert variant="destructive" className="mt-4">
+                  <AlertTitle>Acceso a Cámara Denegado</AlertTitle>
+                  <AlertDescription>
+                    Por favor, habilita los permisos de la cámara en tu navegador para usar esta función.
+                  </AlertDescription>
+                </Alert>
+            )}
+             {hasCameraPermission === null && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-md">
+                    <Loader2 className="h-8 w-8 animate-spin text-white" />
+                </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCameraDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleCaptureAndProcess} disabled={!hasCameraPermission || isCapturing}>
+              {isCapturing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
+              {isCapturing ? 'Procesando...' : 'Capturar y Procesar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={isAddCompanyDialogOpen} onOpenChange={setIsAddCompanyDialogOpen}>
         <DialogContent>
