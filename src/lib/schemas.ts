@@ -12,7 +12,28 @@ export const SignUpSchema = z.object({
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
   email: z.string().email({ message: 'Por favor ingrese un correo electrónico válido.' }),
   password: z.string().min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
+  accountType: z.enum(['personal', 'empresa']),
+  companyName: z.string().optional(),
+  rnc: z.string().optional(),
+}).refine(data => {
+  if (data.accountType === 'empresa') {
+    return !!data.companyName && data.companyName.length >= 2;
+  }
+  return true;
+}, {
+  message: "El nombre de la empresa es requerido.",
+  path: ["companyName"],
+}).refine(data => {
+  if (data.accountType === 'empresa') {
+    const rncLength = data.rnc?.length || 0;
+    return !!data.rnc && (rncLength === 9 || rncLength === 11);
+  }
+  return true;
+}, {
+  message: "El RNC debe tener 9 u 11 dígitos.",
+  path: ["rnc"],
 });
+
 
 // Schema for a single row in the 606 form
 export const Form606RowSchema = z.object({
