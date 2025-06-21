@@ -31,15 +31,17 @@ export default function ManageCompaniesPage() {
     defaultValues: {
       name: '',
       rnc: '',
+      email: '',
+      whatsapp: '',
     },
   });
 
   const handleOpenDialog = (company: Company | null = null) => {
     setEditingCompany(company);
     if (company) {
-      form.reset({ name: company.name, rnc: company.rnc });
+      form.reset({ name: company.name, rnc: company.rnc, email: company.email || '', whatsapp: company.whatsapp || '' });
     } else {
-      form.reset({ name: '', rnc: '' });
+      form.reset({ name: '', rnc: '', email: '', whatsapp: '' });
     }
     setIsDialogOpen(true);
   };
@@ -83,6 +85,8 @@ export default function ManageCompaniesPage() {
               <TableRow>
                 <TableHead>Nombre / Razón Social</TableHead>
                 <TableHead>RNC / Cédula</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>WhatsApp</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -92,6 +96,8 @@ export default function ManageCompaniesPage() {
                 <TableRow key={company.id}>
                   <TableCell className="font-medium">{company.name}</TableCell>
                   <TableCell>{company.rnc}</TableCell>
+                  <TableCell>{(company as Company).email || '-'}</TableCell>
+                  <TableCell>{(company as Company).whatsapp || '-'}</TableCell>
                   <TableCell>
                     <Badge variant={company.type === 'Principal' ? 'default' : 'secondary'}>
                         {company.type}
@@ -174,6 +180,32 @@ export default function ManageCompaniesPage() {
                       <FormLabel>RNC / Cédula</FormLabel>
                       <FormControl>
                         <Input placeholder="RNC o Cédula de la empresa" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Correo Electrónico (Opcional)</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="contacto@empresa.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="whatsapp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>WhatsApp (Opcional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Número de WhatsApp con código de país" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

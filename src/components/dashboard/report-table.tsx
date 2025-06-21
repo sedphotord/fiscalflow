@@ -22,9 +22,10 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, FileDown, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, FileDown, Edit, Trash2, Mail, MessageSquare, UploadCloud } from 'lucide-react';
 import type { Report } from '@/lib/types';
 import { useAppContext } from '@/context/app-provider';
 import { formatReportToTxt } from '@/lib/utils';
@@ -79,6 +80,20 @@ export function ReportTable({ data }: ReportTableProps) {
         deleteReport(reportId);
         showToast({ title: 'Reporte Eliminado', description: 'El reporte ha sido eliminado permanentemente.' });
     };
+
+    const handleShare = (method: 'email' | 'whatsapp', report: Report) => {
+      showToast({
+        title: 'Función en Desarrollo',
+        description: `La opción para enviar por ${method} estará disponible próximamente.`
+      });
+    };
+
+    const handleSaveToDrive = (report: Report) => {
+        showToast({
+          title: 'Función en Desarrollo',
+          description: 'La integración con Google Drive estará disponible próximamente.'
+        });
+    }
 
 
   return (
@@ -140,6 +155,20 @@ export function ReportTable({ data }: ReportTableProps) {
                           <FileDown className="mr-2 h-4 w-4" />
                           Exportar .txt
                         </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleShare('email', report)}>
+                          <Mail className="mr-2 h-4 w-4" />
+                          Enviar por Correo
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleShare('whatsapp', report)}>
+                          <MessageSquare className="mr-2 h-4 w-4" />
+                          Enviar por WhatsApp
+                        </DropdownMenuItem>
+                         <DropdownMenuItem onClick={() => handleSaveToDrive(report)}>
+                          <UploadCloud className="mr-2 h-4 w-4" />
+                          Guardar en Drive
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                            <AlertDialogTrigger className="w-full text-destructive focus:text-destructive focus:bg-destructive/10">
                              <Trash2 className="mr-2 h-4 w-4" />

@@ -94,6 +94,8 @@ export const CompanySchema = z.object({
   rnc: z.string().refine(rnc => rnc.length === 9 || rnc.length === 11, {
     message: 'El RNC debe tener 9 u 11 dígitos.',
   }),
+  email: z.string().email({ message: "Correo electrónico inválido." }).optional().or(z.literal('')),
+  whatsapp: z.string().optional(),
 });
 
 // Schema for the support contact form

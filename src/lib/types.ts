@@ -28,6 +28,8 @@ export type Company = {
     id: string;
     name: string;
     rnc: string;
+    email?: string;
+    whatsapp?: string;
 };
 
 export type AppContextType = {

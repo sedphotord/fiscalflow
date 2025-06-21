@@ -50,8 +50,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     reports: [],
     settings: { name: 'Usuario Demo', rnc: '131999999', theme: 'system' },
     companies: [
-      { id: 'mock-1', name: 'Ferretería Don José', rnc: '130876543' },
-      { id: 'mock-2', name: 'Colmado El Vecino', rnc: '131123456' },
+      { id: 'mock-1', name: 'Ferretería Don José', rnc: '130876543', email: 'contacto@ferreteriajose.com', whatsapp: '8091234567' },
+      { id: 'mock-2', name: 'Colmado El Vecino', rnc: '131123456', email: 'colmadoelvecino@example.com' },
     ],
   });
   
