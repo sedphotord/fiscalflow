@@ -24,6 +24,7 @@ import { searchCompanies } from '@/ai/flows/search-companies-flow';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type FormValues = z.infer<typeof CompanySchema>;
 
@@ -42,6 +43,7 @@ export default function ContribuyentesPage() {
 
   // State for search and filtering
   const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
   
   // Client-side rendering state
   const [isClient, setIsClient] = useState(false);
@@ -79,9 +81,16 @@ export default function ContribuyentesPage() {
   ], [currentUser, companies]);
   
   const filteredCompanies = useMemo(() => {
-    if (!searchQuery) return allCompanies;
+    let results = allCompanies;
+    
+    if (typeFilter !== 'all') {
+      results = results.filter(company => company.type === typeFilter);
+    }
+    
+    if (!searchQuery) return results;
+
     const lowercasedQuery = searchQuery.toLowerCase();
-    return allCompanies.filter(company => {
+    return results.filter(company => {
         const companyRecord = company as Company; // Type assertion to access optional fields
         return company.name.toLowerCase().includes(lowercasedQuery) ||
         company.rnc.includes(lowercasedQuery) ||
@@ -89,7 +98,7 @@ export default function ContribuyentesPage() {
         (companyRecord.email && companyRecord.email.toLowerCase().includes(lowercasedQuery)) ||
         (companyRecord.whatsapp && companyRecord.whatsapp.includes(lowercasedQuery));
     });
-  }, [searchQuery, allCompanies]);
+  }, [searchQuery, typeFilter, allCompanies]);
 
   const lastActivityMap = useMemo(() => {
     const activityMap = new Map<string, Report>();
@@ -170,15 +179,27 @@ export default function ContribuyentesPage() {
             <CardDescription>
               Empresas registradas en su cuenta.
             </CardDescription>
-            <div className="pt-4">
-              <div className="relative">
+            <div className="pt-4 flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
-                  placeholder="Buscar por nombre, RNC, email, tipo..."
+                  placeholder="Buscar por nombre, RNC, email..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
+              </div>
+              <div className="w-full md:w-48">
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filtrar por tipo..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los Tipos</SelectItem>
+                    <SelectItem value="Principal">Principal</SelectItem>
+                    <SelectItem value="Cliente">Cliente</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardHeader>

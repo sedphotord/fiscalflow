@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -47,16 +48,29 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface ReportTableProps {
   data: Report[];
+  showType?: boolean;
+  showRnc?: boolean;
 }
 
-export function ReportTable({ data }: ReportTableProps) {
-    const { deleteReport, showToast } = useAppContext();
+export function ReportTable({ data, showType = false, showRnc = false }: ReportTableProps) {
+    const { deleteReport, showToast, users, companies } = useAppContext();
     const router = useRouter();
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
       setIsClient(true);
     }, []);
+
+    const allContributors = useMemo(() => {
+        const contributorMap = new Map<string, string>();
+        users.forEach(u => contributorMap.set(u.rnc, u.name));
+        companies.forEach(c => contributorMap.set(c.rnc, c.name));
+        return contributorMap;
+    }, [users, companies]);
+
+    const getContributorName = (rnc: string) => {
+        return allContributors.get(rnc) || rnc;
+    }
 
     const getBadgeVariant = (estado: Report['estado']) => {
         switch (estado) {
@@ -132,7 +146,8 @@ export function ReportTable({ data }: ReportTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID Reporte</TableHead>
+              {showType && <TableHead>Tipo</TableHead>}
+              {showRnc && <TableHead>Contribuyente</TableHead>}
               <TableHead>Período</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="hidden md:table-cell">
@@ -146,13 +161,14 @@ export function ReportTable({ data }: ReportTableProps) {
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  No hay reportes.
+                <TableCell colSpan={showType && showRnc ? 5 : showType || showRnc ? 4 : 3} className="h-24 text-center">
+                  No hay reportes que coincidan con su búsqueda.
                 </TableCell>
               </TableRow>
             ) : data.map((report) => (
               <TableRow key={report.id}>
-                <TableCell className="font-medium hidden sm:table-cell">{report.id.substring(0,8)}...</TableCell>
+                {showType && <TableCell className="font-mono text-xs">{report.type}</TableCell>}
+                {showRnc && <TableCell className="font-medium">{getContributorName(report.rnc)}</TableCell>}
                 <TableCell className="font-medium">{report.periodo}</TableCell>
                 <TableCell>
                   <Badge variant={getBadgeVariant(report.estado)}>{report.estado}</Badge>

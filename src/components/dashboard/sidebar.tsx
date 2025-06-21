@@ -28,6 +28,7 @@ import {
   TrendingUp,
   Landmark,
   AlertTriangle,
+  Archive,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
@@ -77,6 +78,16 @@ export function AppSidebar() {
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
+              </Link>
+              <Link
+                href="/dashboard/reports"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                  pathname.startsWith('/dashboard/reports') && 'bg-muted text-primary'
+                )}
+              >
+                <Archive className="h-4 w-4" />
+                Historial de Reportes
               </Link>
               <Accordion type="multiple" className="w-full" defaultValue={
                 [
