@@ -106,12 +106,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error: any) {
         const errorCode = error.code || 'desconocido';
-        console.error(`Código de error de Firebase: ${errorCode}`);
+        console.error(`Error al conectar con Firestore. Código: ${errorCode}`, error);
         
         toast({
           variant: 'destructive',
-          title: 'Modo sin Conexión Activado',
-          description: 'No se pudo conectar a Firestore. La aplicación funcionará con datos de muestra.',
+          title: 'Error de Conexión a Firebase',
+          description: `No se pudo conectar a la base de datos (Error: ${errorCode}). La aplicación se ha iniciado en modo sin conexión con datos de muestra.`,
         });
 
         setAppState({
