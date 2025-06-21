@@ -36,6 +36,8 @@ export const Form606RowSchema = z.object({
   otrosImpuestos: z.number().min(0, "No puede ser negativo").optional(),
   montoPropinaLegal: z.number().min(0, "No puede ser negativo").optional(),
   formaPago: z.enum(FORMAS_PAGO.map(item => item.value) as [string, ...string[]], { errorMap: () => ({ message: "Seleccione una forma de pago" }) }),
+  isRncValid: z.boolean().optional(),
+  isNcfValid: z.boolean().optional(),
 });
 
 // Schema for the entire 606 form

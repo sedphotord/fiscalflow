@@ -12,11 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Form606Schema } from '@/lib/schemas';
-import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2 } from 'lucide-react';
+import { PlusCircle, Trash2, Save, FileDown, Upload, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { useEffect, useState, useRef } from 'react';
 import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from '@/lib/constants';
 import { extractInvoiceData } from '@/ai/flows/extract-invoice-flow';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type FormValues = z.infer<typeof Form606Schema>;
 
@@ -41,6 +42,8 @@ const defaultRow = {
   otrosImpuestos: 0,
   montoPropinaLegal: 0,
   formaPago: 'credito' as const,
+  isRncValid: undefined,
+  isNcfValid: undefined,
 };
 
 export default function NewCompraPage() {
@@ -103,7 +106,7 @@ export default function NewCompraPage() {
     setIsScanning(true);
     showToast({
       title: 'Procesando Factura...',
-      description: 'El escáner inteligente está extrayendo los datos.',
+      description: 'El escáner inteligente está extrayendo y validando los datos.',
     });
 
     try {
@@ -127,6 +130,8 @@ export default function NewCompraPage() {
         fechaPago: extractedData.fechaComprobante || '', // Default payment date
         montoFacturado: extractedData.montoFacturado || 0,
         itbisFacturado: extractedData.itbisFacturado || 0,
+        isRncValid: extractedData.isRncValid,
+        isNcfValid: extractedData.isNcfValid,
       };
 
       if (firstEmptyIndex !== -1) {
@@ -136,8 +141,8 @@ export default function NewCompraPage() {
       }
 
       showToast({
-        title: '¡Datos Extraídos!',
-        description: 'La información de la factura se ha agregado al formulario.',
+        title: '¡Datos Extraídos y Validados!',
+        description: extractedData.validationMessage || 'La información de la factura se ha agregado al formulario.',
       });
 
     } catch (error) {
@@ -156,165 +161,223 @@ export default function NewCompraPage() {
   };
   
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
-        <PageHeader
-          title={reportId ? "Editar Reporte 606" : "Nuevo Reporte 606"}
-          description="Complete la información para generar el reporte de compras."
-        >
-          <Button type="button" variant="outline" onClick={onSaveDraft}>
-            <Save className="mr-2 h-4 w-4" />
-            Guardar Borrador
-          </Button>
-          <Button type="submit">
-            <FileDown className="mr-2 h-4 w-4" />
-            {reportId ? "Actualizar Reporte" : "Generar Reporte"}
-          </Button>
-        </PageHeader>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Información del Contribuyente</CardTitle>
-          </CardHeader>
-          <CardContent className="grid md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="rnc"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>RNC o Cédula</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Su RNC o Cédula" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="periodo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Período Fiscal (AAAAMM)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 202305" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-             <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <CardTitle>Detalle de Compras</CardTitle>
-                    <CardDescription>Agregue sus compras manualmente o use el escaneo inteligente.</CardDescription>
-                </div>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                    accept="image/*,application/pdf"
-                />
-                <Button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isScanning}
-                >
-                    {isScanning ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                        <Upload className="mr-2 h-4 w-4" />
-                    )}
-                    Escanear Factura
-                </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>RNC/Cédula Prov.</TableHead>
-                    <TableHead>Tipo ID</TableHead>
-                    <TableHead>Tipo Bien/Servicio</TableHead>
-                    <TableHead>NCF</TableHead>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Monto</TableHead>
-                    <TableHead>ITBIS</TableHead>
-                    <TableHead>Forma de Pago</TableHead>
-                    <TableHead>Acción</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {fields.map((item, index) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="min-w-[150px]">
-                        <FormField control={form.control} name={`compras.${index}.rncCedula`} render={({ field }) => <Input {...field} placeholder="RNC del Proveedor" />} />
-                      </TableCell>
-                      <TableCell className="min-w-[120px]">
-                         <FormField control={form.control} name={`compras.${index}.tipoId`} render={({ field }) => (
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger></FormControl>
-                              <SelectContent><SelectItem value="1">RNC</SelectItem><SelectItem value="2">Cédula</SelectItem></SelectContent>
-                            </Select>
-                          )} />
-                      </TableCell>
-                      <TableCell className="min-w-[200px]">
-                         <FormField control={form.control} name={`compras.${index}.tipoBienesServicios`} render={({ field }) => (
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Seleccione..." /></SelectTrigger></FormControl>
-                              <SelectContent>{TIPO_BIENES_SERVICIOS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
-                            </Select>
-                          )} />
-                      </TableCell>
-                      <TableCell className="min-w-[150px]">
-                        <FormField control={form.control} name={`compras.${index}.ncf`} render={({ field }) => <Input {...field} placeholder="B01000..." />} />
-                      </TableCell>
-                       <TableCell className="min-w-[150px]">
-                        <FormField control={form.control} name={`compras.${index}.fechaComprobante`} render={({ field }) => <Input type="date" {...field} />} />
-                      </TableCell>
-                      <TableCell className="min-w-[120px]">
-                        <FormField control={form.control} name={`compras.${index}.montoFacturado`} render={({ field }) => <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} />} />
-                      </TableCell>
-                       <TableCell className="min-w-[120px]">
-                        <FormField control={form.control} name={`compras.${index}.itbisFacturado`} render={({ field }) => <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} />} />
-                      </TableCell>
-                       <TableCell className="min-w-[150px]">
-                         <FormField control={form.control} name={`compras.${index}.formaPago`} render={({ field }) => (
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl><SelectTrigger><SelectValue placeholder="Forma de pago" /></SelectTrigger></FormControl>
-                              <SelectContent>{FORMAS_PAGO.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
-                            </Select>
-                          )} />
-                      </TableCell>
-                      <TableCell>
-                        <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-             <Button type="button" variant="outline" size="sm" className="mt-4" onClick={() => append(defaultRow)}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Agregar Fila
+    <TooltipProvider>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+          <PageHeader
+            title={reportId ? "Editar Reporte 606" : "Nuevo Reporte 606"}
+            description="Complete la información para generar el reporte de compras."
+          >
+            <Button type="button" variant="outline" onClick={onSaveDraft}>
+              <Save className="mr-2 h-4 w-4" />
+              Guardar Borrador
             </Button>
-            {form.formState.errors.compras?.root && (
-                <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.compras.root.message}</p>
-            )}
-             {form.formState.errors.compras && !form.formState.errors.compras.root && (
-                <p className="text-sm font-medium text-destructive mt-2">Hay errores en algunas filas. Por favor, revise los campos marcados en rojo.</p>
-            )}
-          </CardContent>
-        </Card>
-      </form>
-    </Form>
+            <Button type="submit">
+              <FileDown className="mr-2 h-4 w-4" />
+              {reportId ? "Actualizar Reporte" : "Generar Reporte"}
+            </Button>
+          </PageHeader>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Información del Contribuyente</CardTitle>
+            </CardHeader>
+            <CardContent className="grid md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="rnc"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>RNC o Cédula</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Su RNC o Cédula" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="periodo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Período Fiscal (AAAAMM)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ej: 202305" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                      <CardTitle>Detalle de Compras</CardTitle>
+                      <CardDescription>Agregue sus compras manualmente o use el escaneo inteligente.</CardDescription>
+                  </div>
+                  <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
+                      accept="image/*,application/pdf"
+                  />
+                  <Button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isScanning}
+                  >
+                      {isScanning ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                          <Upload className="mr-2 h-4 w-4" />
+                      )}
+                      Escanear Factura
+                  </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>RNC/Cédula Prov.</TableHead>
+                      <TableHead>Tipo ID</TableHead>
+                      <TableHead>Tipo Bien/Servicio</TableHead>
+                      <TableHead>NCF</TableHead>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Monto</TableHead>
+                      <TableHead>ITBIS</TableHead>
+                      <TableHead>Forma de Pago</TableHead>
+                      <TableHead>Acción</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fields.map((item, index) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="min-w-[170px]">
+                          <FormField control={form.control} name={`compras.${index}.rncCedula`} render={({ field }) => (
+                              <div className="relative">
+                                  <Input {...field} placeholder="RNC del Proveedor" className="pr-8" />
+                                  {item.isRncValid === true && (
+                                      <Tooltip>
+                                          <TooltipTrigger asChild>
+                                              <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
+                                                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                              </span>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                              <p>RNC/Cédula válido (simulado)</p>
+                                          </TooltipContent>
+                                      </Tooltip>
+                                  )}
+                                  {item.isRncValid === false && (
+                                      <Tooltip>
+                                          <TooltipTrigger asChild>
+                                              <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
+                                                  <XCircle className="h-5 w-5 text-destructive" />
+                                              </span>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                              <p>Formato de RNC/Cédula inválido (simulado)</p>
+                                          </TooltipContent>
+                                      </Tooltip>
+                                  )}
+                              </div>
+                          )} />
+                        </TableCell>
+                        <TableCell className="min-w-[120px]">
+                          <FormField control={form.control} name={`compras.${index}.tipoId`} render={({ field }) => (
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger></FormControl>
+                                <SelectContent><SelectItem value="1">RNC</SelectItem><SelectItem value="2">Cédula</SelectItem></SelectContent>
+                              </Select>
+                            )} />
+                        </TableCell>
+                        <TableCell className="min-w-[200px]">
+                          <FormField control={form.control} name={`compras.${index}.tipoBienesServicios`} render={({ field }) => (
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Seleccione..." /></SelectTrigger></FormControl>
+                                <SelectContent>{TIPO_BIENES_SERVICIOS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
+                              </Select>
+                            )} />
+                        </TableCell>
+                        <TableCell className="min-w-[170px]">
+                           <FormField control={form.control} name={`compras.${index}.ncf`} render={({ field }) => (
+                              <div className="relative">
+                                  <Input {...field} placeholder="B01000..." className="pr-8" />
+                                  {item.isNcfValid === true && (
+                                       <Tooltip>
+                                          <TooltipTrigger asChild>
+                                              <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
+                                                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                              </span>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                              <p>NCF válido (simulado)</p>
+                                          </TooltipContent>
+                                      </Tooltip>
+                                  )}
+                                  {item.isNcfValid === false && (
+                                      <Tooltip>
+                                          <TooltipTrigger asChild>
+                                              <span className="absolute right-2 top-1/2 -translate-y-1/2 cursor-help">
+                                                  <XCircle className="h-5 w-5 text-destructive" />
+                                              </span>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                              <p>Formato de NCF inválido (simulado)</p>
+                                          </TooltipContent>
+                                      </Tooltip>
+                                  )}
+                              </div>
+                          )} />
+                        </TableCell>
+                        <TableCell className="min-w-[150px]">
+                          <FormField control={form.control} name={`compras.${index}.fechaComprobante`} render={({ field }) => <Input type="date" {...field} />} />
+                        </TableCell>
+                        <TableCell className="min-w-[120px]">
+                          <FormField control={form.control} name={`compras.${index}.montoFacturado`} render={({ field }) => <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} />} />
+                        </TableCell>
+                        <TableCell className="min-w-[120px]">
+                          <FormField control={form.control} name={`compras.${index}.itbisFacturado`} render={({ field }) => <Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} />} />
+                        </TableCell>
+                        <TableCell className="min-w-[150px]">
+                          <FormField control={form.control} name={`compras.${index}.formaPago`} render={({ field }) => (
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Forma de pago" /></SelectTrigger></FormControl>
+                                <SelectContent>{FORMAS_PAGO.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
+                              </Select>
+                            )} />
+                        </TableCell>
+                        <TableCell>
+                          <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <Button type="button" variant="outline" size="sm" className="mt-4" onClick={() => append(defaultRow)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Agregar Fila
+              </Button>
+              {form.formState.errors.compras?.root && (
+                  <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.compras.root.message}</p>
+              )}
+              {form.formState.errors.compras && !form.formState.errors.compras.root && (
+                  <p className="text-sm font-medium text-destructive mt-2">Hay errores en algunas filas. Por favor, revise los campos marcados en rojo.</p>
+              )}
+            </CardContent>
+          </Card>
+        </form>
+      </Form>
+    </TooltipProvider>
   );
 }
