@@ -57,7 +57,16 @@ export type TeamMember = {
     status: 'Activo' | 'Pendiente';
 };
 
-export type Plan = z.infer<typeof PlanSchema> & { id: string };
+export type Plan = {
+    id: string;
+    name: string;
+    price: number;
+    invoiceLimit: number;
+    teamMemberLimit: number;
+    description?: string;
+    features: string[];
+};
+
 export type InvoicePack = z.infer<typeof InvoicePackSchema> & { id: string };
 export type CreateUserByAdminData = z.infer<typeof AdminCreateUserSchema>;
 export type PlanData = Omit<Plan, 'id'>;

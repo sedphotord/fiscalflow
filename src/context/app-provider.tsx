@@ -34,9 +34,9 @@ const MOCK_REPORTS: Report[] = [
     { id: 'rep-2', type: '607', rnc: '987654321', periodo: '202312', estado: 'Borrador', fechaCreacion: new Date('2023-12-27').toISOString(), ventas: [{ rncCedula: '444555666', tipoId: '1', ncf: 'B0100000002', fechaComprobante: '2023-12-20', montoFacturado: 12000, itbisFacturado: 2160 }] },
 ];
 const MOCK_PLANS: Plan[] = [
-    { id: 'plan-1', name: 'Gratis', price: 0, invoiceLimit: 50, teamMemberLimit: 1, description: 'Para individuos y freelancers que están empezando.' },
-    { id: 'plan-2', name: 'Pro', price: 2500, invoiceLimit: 500, teamMemberLimit: 5, description: 'Ideal para pequeñas empresas y contadores con varios clientes.' },
-    { id: 'plan-3', name: 'Despacho', price: 6500, invoiceLimit: 10000, teamMemberLimit: 50, description: 'La solución completa para despachos contables y grandes empresas.' },
+    { id: 'plan-1', name: 'Gratis', price: 0, invoiceLimit: 50, teamMemberLimit: 1, description: 'Para individuos y freelancers que están empezando.', features: ["Hasta 50 facturas/mes", "Formularios 606 y 607", "Dashboard Analítico"] },
+    { id: 'plan-2', name: 'Pro', price: 2500, invoiceLimit: 500, teamMemberLimit: 5, description: 'Ideal para pequeñas empresas y contadores con varios clientes.', features: ["Todo lo del plan Gratis", "Gestión Multi-Empresa", "Escaneo en Lote", "Soporte Prioritario"] },
+    { id: 'plan-3', name: 'Despacho', price: 6500, invoiceLimit: 10000, teamMemberLimit: 50, description: 'La solución completa para despachos contables y grandes empresas.', features: ["Todo lo del plan Pro", "Usuarios Ilimitados", "API para Integración", "Soporte 24/7"] },
 ];
 const MOCK_INVOICE_PACKS: InvoicePack[] = [
     { id: 'pack-1', amount: 50, price: 1000 },
@@ -232,7 +232,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [toast]);
 
   const updatePlan = useCallback((id: string, data: PlanData) => {
-    setPlans(prev => prev.map(p => p.id === id ? { ...p, ...data, id: p.id } : p));
+    setPlans(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
     toast({ title: 'Plan Actualizado' });
   }, [toast]);
 

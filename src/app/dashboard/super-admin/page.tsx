@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Users, FileText, Server, MoreHorizontal, TrendingUp, Wallet, DollarSign, UserPlus, LineChart } from 'lucide-react';
+import { Users, FileText, MoreHorizontal, Wallet, UserPlus, UserX } from 'lucide-react';
 import { ChartContainer, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts';
 import { format } from 'date-fns';
@@ -69,24 +69,22 @@ export default function SuperAdminPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ventas (Junio)</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Nuevos Usuarios (Mes)</CardTitle>
+            <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+12,234</div>
-            <p className="text-xs text-muted-foreground">+19% que el mes pasado</p>
+            <div className="text-2xl font-bold">+78</div>
+            <p className="text-xs text-muted-foreground">+18.7% que el mes pasado</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Estado del Sistema</CardTitle>
-            <Server className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Cancelaciones (Mes)</CardTitle>
+            <UserX className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600 flex items-center gap-2">
-              Operacional
-            </div>
-            <p className="text-xs text-muted-foreground">Todos los servicios funcionan.</p>
+            <div className="text-2xl font-bold">5</div>
+            <p className="text-xs text-muted-foreground">2% menos que el mes pasado</p>
           </CardContent>
         </Card>
       </div>

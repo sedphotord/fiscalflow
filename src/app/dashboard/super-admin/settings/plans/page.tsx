@@ -43,18 +43,24 @@ export default function ManagePlansPage() {
   const handleOpenPlanDialog = (plan: Plan | null = null) => {
     setEditingPlan(plan);
     if (plan) {
-      planForm.reset(plan);
+      planForm.reset({...plan, features: plan.features.join('\n')});
     } else {
-      planForm.reset({ name: '', price: 0, invoiceLimit: 0, teamMemberLimit: 0, description: '' });
+      planForm.reset({ name: '', price: 0, invoiceLimit: 0, teamMemberLimit: 0, description: '', features: '' });
     }
     setIsPlanDialogOpen(true);
   };
   
   const onPlanSubmit = (data: PlanFormValues) => {
+    const planData: PlanData = {
+        ...data,
+        description: data.description || '',
+        features: data.features ? data.features.split('\n').filter(f => f.trim() !== '') : []
+    };
+
     if (editingPlan) {
-      updatePlan(editingPlan.id, data as PlanData);
+      updatePlan(editingPlan.id, planData);
     } else {
-      createPlan(data as PlanData);
+      createPlan(planData);
     }
     setIsPlanDialogOpen(false);
   };
@@ -107,6 +113,7 @@ export default function ManagePlansPage() {
                   <TableHead>Precio (RD$/mes)</TableHead>
                   <TableHead>Límite Facturas</TableHead>
                   <TableHead>Límite Miembros</TableHead>
+                  <TableHead>Beneficios</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -117,6 +124,7 @@ export default function ManagePlansPage() {
                     <TableCell>{plan.price.toFixed(2)}</TableCell>
                     <TableCell>{plan.invoiceLimit}</TableCell>
                     <TableCell>{plan.teamMemberLimit}</TableCell>
+                    <TableCell>{plan.features.length} beneficios</TableCell>
                     <TableCell className="text-right">
                        <AlertDialog>
                         <DropdownMenu>
@@ -195,6 +203,7 @@ export default function ManagePlansPage() {
               <FormField control={planForm.control} name="invoiceLimit" render={({ field }) => (<FormItem><FormLabel>Límite de Facturas</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl><FormMessage /></FormItem>)} />
               <FormField control={planForm.control} name="teamMemberLimit" render={({ field }) => (<FormItem><FormLabel>Límite de Miembros de Equipo</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl><FormMessage /></FormItem>)} />
               <FormField control={planForm.control} name="description" render={({ field }) => (<FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea placeholder="Breve descripción del plan..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={planForm.control} name="features" render={({ field }) => (<FormItem><FormLabel>Beneficios (uno por línea)</FormLabel><FormControl><Textarea placeholder="- Beneficio 1&#10;- Beneficio 2" {...field} rows={5} /></FormControl><FormMessage /></FormItem>)} />
               <DialogFooter><DialogClose asChild><Button type="button" variant="ghost">Cancelar</Button></DialogClose><Button type="submit">Guardar</Button></DialogFooter>
             </form>
           </Form>
