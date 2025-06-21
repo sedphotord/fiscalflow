@@ -31,7 +31,7 @@ export default function VentasPage() {
       <CtaBanner
         title="Genera tu 607 sin complicaciones"
         description="Crea tus reportes de ventas de forma rápida y segura. Próximamente podrás conectar tus sistemas de facturación para una automatización completa."
-        imageUrl="https://placehold.co/1200x200.png"
+        imageUrl="https://cdn1.alegra.com/websites/green-banner-background-2.webp"
       >
         <Button asChild size="lg" variant="secondary">
             <Link href="/dashboard/ventas/new"><FilePlus2 className="mr-2"/>Crear Reporte 607</Link>

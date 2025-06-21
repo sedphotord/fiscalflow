@@ -31,7 +31,7 @@ export default function ComprasPage() {
       <CtaBanner
         title="Acelera tu registro de compras con la IA"
         description="Utiliza nuestro escáner inteligente para extraer datos de tus facturas automáticamente. Sube una foto o PDF y olvídate de la digitación manual."
-        imageUrl="https://placehold.co/1200x200.png"
+        imageUrl="https://cdn1.alegra.com/websites/green-banner-background-2.webp"
       >
         <Button asChild size="lg" variant="secondary">
             <Link href="/dashboard/compras/new?action=scan"><Camera className="mr-2"/>Escanear Factura</Link>

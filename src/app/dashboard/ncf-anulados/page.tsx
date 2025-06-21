@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -7,6 +8,7 @@ import { ReportTable } from '@/components/dashboard/report-table';
 import { FilePlus2 } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { useMemo } from 'react';
+import { CtaBanner } from '@/components/dashboard/cta-banner';
 
 export default function NcfAnuladosPage() {
   const { reports } = useAppContext();
@@ -25,6 +27,17 @@ export default function NcfAnuladosPage() {
           </Button>
         </Link>
       </PageHeader>
+
+      <CtaBanner
+        title="Mantén tus registros al día"
+        description="Registra fácilmente los comprobantes que has anulado durante el período para generar tu Formato 608 y cumplir con la normativa."
+        imageUrl="https://cdn1.alegra.com/websites/green-banner-background-2.webp"
+      >
+          <Button asChild size="lg" variant="secondary">
+              <Link href="/dashboard/ncf-anulados/new"><FilePlus2 className="mr-2"/>Crear Reporte 608</Link>
+          </Button>
+      </CtaBanner>
+
       <ReportTable data={reportes608} />
     </div>
   );

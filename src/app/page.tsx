@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -248,22 +249,26 @@ export default function LandingPage() {
             variants={staggeredContainer}
           >
             <div className="container px-4 md:px-6">
-              <div className="grid gap-8 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px] bg-secondary/30 p-8 md:p-12 rounded-2xl items-center">
-                <motion.div className="flex flex-col justify-center space-y-4" variants={itemVariants}>
+              <div 
+                className="relative grid gap-8 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px] p-8 md:p-12 rounded-2xl items-center overflow-hidden"
+                style={{ backgroundImage: 'url(https://cdn1.alegra.com/websites/green-banner-background-2.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+              >
+                <div className="absolute inset-0 bg-primary/90" />
+                <motion.div className="relative z-10 flex flex-col justify-center space-y-4" variants={itemVariants}>
                   <div className="space-y-2">
-                    <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
+                    <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline text-primary-foreground">
                       Simplifica tus Reportes Fiscales a la DGII
                     </h1>
-                    <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                    <p className="max-w-[600px] text-primary-foreground/80 md:text-xl">
                       FiscalFlow es la herramienta definitiva para generar los formatos 606 y 607 sin complicaciones. Ahorra tiempo, evita errores y mantén tus impuestos al día.
                     </p>
                   </div>
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
                     <Link href="/signup">
-                      <Button size="lg">Empieza Gratis</Button>
+                      <Button size="lg" variant="secondary">Empieza Gratis</Button>
                     </Link>
                     <Link href="/login">
-                      <Button size="lg" variant="outline">
+                      <Button size="lg" variant="ghost" className="border border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
                         Ya tengo una cuenta
                       </Button>
                     </Link>
@@ -271,7 +276,7 @@ export default function LandingPage() {
                 </motion.div>
                 <motion.div
                   variants={itemVariants}
-                  className="mx-auto aspect-[3/2] overflow-hidden rounded-xl"
+                  className="relative z-10 mx-auto aspect-[3/2] overflow-hidden rounded-xl"
                 >
                   <Image
                     src="https://placehold.co/600x400.png"

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -7,6 +8,7 @@ import { ReportTable } from '@/components/dashboard/report-table';
 import { FilePlus2 } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { useMemo } from 'react';
+import { CtaBanner } from '@/components/dashboard/cta-banner';
 
 export default function PagosExteriorPage() {
   const { reports } = useAppContext();
@@ -25,6 +27,17 @@ export default function PagosExteriorPage() {
           </Button>
         </Link>
       </PageHeader>
+
+      <CtaBanner
+          title="Cumple con tus Pagos al Exterior"
+          description="Genera el Formato 609 de manera sencilla, reportando tus pagos por servicios a proveedores en el extranjero y aplicando las retenciones correspondientes."
+          imageUrl="https://cdn1.alegra.com/websites/green-banner-background-2.webp"
+      >
+          <Button asChild size="lg" variant="secondary">
+              <Link href="/dashboard/pagos-exterior/new"><FilePlus2 className="mr-2"/>Crear Reporte 609</Link>
+          </Button>
+      </CtaBanner>
+
       <ReportTable data={reportes609} />
     </div>
   );
