@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -50,14 +51,14 @@ export default function PaymentMethodsPage() {
   };
 
   return (
-    <>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <div className="flex flex-col gap-6">
         <PageHeader
           title="Métodos de Pago"
           description="Añada y gestione sus tarjetas de crédito o débito."
         >
            <DialogTrigger asChild>
-                <Button onClick={() => setIsDialogOpen(true)}>
+                <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Agregar Método
                 </Button>
@@ -123,78 +124,76 @@ export default function PaymentMethodsPage() {
         </Card>
       </div>
 
-       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Agregar Nuevo Método de Pago</DialogTitle>
-              <DialogDescription>
-                Su información de pago es encriptada y segura.
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="cardholderName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre en la Tarjeta</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John M. Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="cardNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Número de Tarjeta</FormLabel>
-                      <FormControl>
-                        <Input placeholder="0000 0000 0000 0000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="expiryDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Vencimiento</FormLabel>
-                          <FormControl>
-                            <Input placeholder="MM/AA" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="cvc"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>CVC</FormLabel>
-                          <FormControl>
-                            <Input placeholder="123" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                </div>
-                <DialogFooter>
-                  <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-                  <Button type="submit">Agregar Tarjeta</Button>
-                </DialogFooter>
-              </form>
-            </Form>
-          </DialogContent>
-      </Dialog>
-    </>
+       <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Agregar Nuevo Método de Pago</DialogTitle>
+            <DialogDescription>
+              Su información de pago es encriptada y segura.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="cardholderName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nombre en la Tarjeta</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John M. Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="cardNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Número de Tarjeta</FormLabel>
+                    <FormControl>
+                      <Input placeholder="0000 0000 0000 0000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="expiryDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vencimiento</FormLabel>
+                        <FormControl>
+                          <Input placeholder="MM/AA" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="cvc"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>CVC</FormLabel>
+                        <FormControl>
+                          <Input placeholder="123" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
+                <Button type="submit">Agregar Tarjeta</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+    </Dialog>
   );
 }
