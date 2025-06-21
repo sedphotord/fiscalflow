@@ -10,23 +10,29 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Check if essential Firebase config keys are present
-const isFirebaseConfigured = firebaseConfig.projectId && firebaseConfig.apiKey;
-
 // Initialize Firebase
-let app;
-if (getApps().length === 0) {
-  if (!isFirebaseConfigured) {
-     console.warn("Firebase config is incomplete. The app will run in offline mode. Please set up your .env file to enable cloud features.");
-     app = null;
-  } else {
-     app = initializeApp(firebaseConfig);
-  }
+let app = null;
+let db = null;
+
+if (firebaseConfig.projectId && firebaseConfig.apiKey) {
+    console.log(`Firebase config found for project: ${firebaseConfig.projectId}`);
+    try {
+        if (getApps().length === 0) {
+            app = initializeApp(firebaseConfig);
+            console.log("Firebase has been initialized.");
+        } else {
+            app = getApp();
+            console.log("Re-using existing Firebase app instance.");
+        }
+        db = getFirestore(app);
+    } catch (error) {
+        console.error("Firebase initialization failed:", error);
+        app = null;
+        db = null;
+    }
 } else {
-    app = getApp();
+    console.warn("Firebase configuration is missing or incomplete. The application will operate in a simulated offline mode. Please ensure your .env file is correctly set up with all NEXT_PUBLIC_FIREBASE_ variables.");
 }
 
-
-const db = app ? getFirestore(app) : null;
 
 export { app, db };

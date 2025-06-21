@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { Report, UserSettings, Company, AppContextType } from '@/lib/types';
-import { toast, useToast } from "@/hooks/use-toast";
+import { type toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Toaster } from '@/components/ui/toaster';
 import { db } from '@/lib/firebase';
 import { collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
@@ -34,7 +35,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchData = async () => {
       if (!db) {
-        console.error("Firestore is not initialized. Check your .env file.");
+        console.warn("Firestore is not initialized. Running in offline mode.");
+        toast({
+          variant: 'destructive',
+          title: 'Modo sin Conexión',
+          description: 'No se pudo conectar a Firebase. Revise las credenciales en su archivo .env y que Firestore esté habilitado.',
+          duration: Infinity,
+        });
         setIsLoading(false);
         return;
       }
@@ -47,7 +54,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const userDoc = await getDoc(userRef);
         let settings = defaultInitialState.settings;
         if (userDoc.exists()) {
-            settings = userDoc.data() as UserSettings;
+            settings = { ...settings, ...userDoc.data() };
         } else {
             // If settings don't exist for the user, create them
             await setDoc(userRef, settings);
@@ -68,8 +75,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         console.error("Error fetching data from Firestore:", error);
         toast({
           variant: 'destructive',
-          title: 'Error de Conexión',
-          description: 'No se pudieron cargar los datos. Revisa la configuración de Firebase en tu archivo .env.',
+          title: 'Error de Carga',
+          description: 'No se pudieron cargar los datos de Firestore. Verifique las reglas de seguridad de su base de datos.',
+          duration: Infinity,
         });
         // Fallback to default state on error
         setAppState(defaultInitialState);
@@ -79,6 +87,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast]);
 
   useEffect(() => {
@@ -96,7 +105,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [appState.settings.theme, isLoading]);
 
   const addReport = useCallback(async (reportData: Omit<Report, 'id' | 'fechaCreacion'>) => {
-    if (!db) return;
+    if (!db) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Modo sin conexión. No se puede guardar el reporte.' });
+        return;
+    }
     const newReportData = {
         ...reportData,
         fechaCreacion: new Date().toISOString(),
@@ -114,7 +126,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [toast]);
 
   const updateReport = useCallback(async (id: string, reportData: Partial<Report>) => {
-    if (!db) return;
+    if (!db) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Modo sin conexión. No se puede actualizar el reporte.' });
+        return;
+    }
      try {
         const reportRef = doc(db, 'users', MOCK_USER_ID, 'reports', id);
         await updateDoc(reportRef, reportData);
@@ -129,7 +144,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [toast]);
 
   const deleteReport = useCallback(async (id: string) => {
-    if (!db) return;
+    if (!db) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Modo sin conexión. No se puede eliminar el reporte.' });
+      return;
+    }
     try {
         const reportRef = doc(db, 'users', MOCK_USER_ID, 'reports', id);
         await deleteDoc(reportRef);
@@ -145,7 +163,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [appState.reports]);
 
   const updateSettings = useCallback(async (newSettings: Partial<UserSettings>) => {
-    if (!db) return;
+    if (!db) {
+       toast({ variant: 'destructive', title: 'Error', description: 'Modo sin conexión. No se pueden guardar los ajustes.' });
+       // Still update local state in offline mode
+       setAppState(prev => ({ ...prev, settings: {...prev.settings, ...newSettings} }));
+       return;
+    };
     const updatedSettings = { ...appState.settings, ...newSettings };
      try {
         const userRef = doc(db, 'users', MOCK_USER_ID);
@@ -162,7 +185,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [updateSettings]);
 
   const addCompany = useCallback(async (companyData: Omit<Company, 'id'>): Promise<Company | undefined> => {
-    if (!db) return undefined;
+    if (!db) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Modo sin conexión. No se puede agregar la empresa.' });
+      return undefined;
+    }
     try {
         const userRef = doc(db, 'users', MOCK_USER_ID);
         const companiesRef = collection(userRef, 'companies');
@@ -179,7 +205,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [toast]);
 
   const updateCompany = useCallback(async (id: string, companyData: Partial<Omit<Company, 'id'>>) => {
-    if (!db) return;
+    if (!db) {
+       toast({ variant: 'destructive', title: 'Error', description: 'Modo sin conexión. No se puede actualizar la empresa.' });
+       return;
+    }
      try {
         const companyRef = doc(db, 'users', MOCK_USER_ID, 'companies', id);
         await updateDoc(companyRef, companyData);
@@ -195,7 +224,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [toast]);
 
   const deleteCompany = useCallback(async (id: string) => {
-    if (!db) return;
+    if (!db) {
+       toast({ variant: 'destructive', title: 'Error', description: 'Modo sin conexión. No se pudo eliminar la empresa.' });
+       return;
+    }
      try {
         const companyRef = doc(db, 'users', MOCK_USER_ID, 'companies', id);
         await deleteDoc(companyRef);
