@@ -58,12 +58,14 @@ export function SuperAdminSidebar() {
                 ].filter(Boolean)
                 }>
               <AccordionItem value="analytics" className="border-none">
-                <AccordionTrigger className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
-                  isAnalyticsActive && 'text-primary'
+                 <AccordionTrigger className={cn(
+                    "flex items-center w-full rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline",
+                    isAnalyticsActive && 'text-primary'
                   )}>
-                  <BarChart2 className="h-4 w-4" />
-                  Analíticas
+                    <div className="flex items-center gap-3">
+                        <BarChart2 className="h-4 w-4" />
+                        <span>Analíticas</span>
+                    </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                   <nav className="grid gap-1">
@@ -75,11 +77,13 @@ export function SuperAdminSidebar() {
               </AccordionItem>
               <AccordionItem value="content" className="border-none">
                 <AccordionTrigger className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
-                  isContentActive && 'text-primary'
+                    "flex items-center w-full rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline",
+                    isContentActive && 'text-primary'
                   )}>
-                  <FileText className="h-4 w-4" />
-                  Contenido
+                   <div className="flex items-center gap-3">
+                        <FileText className="h-4 w-4" />
+                        <span>Contenido</span>
+                    </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                   <nav className="grid gap-1">
@@ -89,12 +93,14 @@ export function SuperAdminSidebar() {
                 </AccordionContent>
               </AccordionItem>
                <AccordionItem value="features" className="border-none">
-                <AccordionTrigger className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
-                  isFeaturesActive && 'text-primary'
+                 <AccordionTrigger className={cn(
+                    "flex items-center w-full rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline",
+                    isFeaturesActive && 'text-primary'
                   )}>
-                  <Bot className="h-4 w-4" />
-                  Funcionalidades
+                    <div className="flex items-center gap-3">
+                        <Bot className="h-4 w-4" />
+                        <span>Funcionalidades</span>
+                    </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                   <nav className="grid gap-1">

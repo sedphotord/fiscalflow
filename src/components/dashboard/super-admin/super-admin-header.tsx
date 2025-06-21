@@ -7,6 +7,10 @@ import {
   Settings,
   LifeBuoy,
   LogOut,
+  Bell,
+  Search,
+  UserPlus,
+  CreditCard,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +24,10 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { SuperAdminSidebar } from './super-admin-sidebar';
 import { useAppContext } from '@/context/app-provider';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 export function SuperAdminHeader() {
   const router = useRouter();
@@ -42,9 +50,66 @@ export function SuperAdminHeader() {
           <SuperAdminSidebar />
         </SheetContent>
       </Sheet>
-      <div className="w-full flex-1">
-        {/* Placeholder for header content like breadcrumbs */}
+       <div className="w-full flex-1">
+        <Popover>
+          <PopoverTrigger asChild>
+             <div className="relative w-full max-w-sm cursor-pointer">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Buscar usuarios, planes, pagos..."
+                className="pl-10"
+                readOnly
+              />
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+             <div className="grid gap-4">
+              <div>
+                <h4 className="mb-2 font-medium leading-none">
+                  Búsqueda de Administrador
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  Busca en toda la base de datos de la aplicación.
+                </p>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input placeholder="Buscar..." className="pl-10" />
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full relative">
+                <Bell className="h-5 w-5" />
+                <span className="absolute top-1 right-1 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                <span className="sr-only">Ver notificaciones</span>
+            </Button>
+        </DropdownMenuTrigger>
+         <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel>Notificaciones</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="flex items-start gap-3">
+              <UserPlus className="mt-1 h-4 w-4 text-green-500" />
+              <div>
+                <p className="font-medium">Nuevo Usuario Registrado</p>
+                <p className="text-xs text-muted-foreground">usuario.nuevo@ejemplo.com</p>
+              </div>
+            </DropdownMenuItem>
+             <DropdownMenuItem className="flex items-start gap-3">
+              <CreditCard className="mt-1 h-4 w-4 text-blue-500" />
+              <div>
+                <p className="font-medium">Pago Recibido</p>
+                <p className="text-xs text-muted-foreground">Empresa ABC SRL - Plan Pro</p>
+              </div>
+            </DropdownMenuItem>
+         </DropdownMenuContent>
+      </DropdownMenu>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full">

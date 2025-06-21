@@ -1,22 +1,106 @@
+'use client';
+
 import { PageHeader } from '@/components/dashboard/page-header';
-import { Card, CardContent } from '@/components/ui/card';
-import { Construction } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Save } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function AdminSettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Ajustes de Administrador"
+        title="Ajustes Globales de la Aplicación"
         description="Configure los parámetros globales de la aplicación."
       />
-      <Card>
-        <CardContent className="p-6 flex items-center justify-center h-96">
-            <div className="text-center text-muted-foreground">
-                <Construction className="mx-auto h-12 w-12" />
-                <p className="mt-4">La sección de ajustes de administrador está en construcción.</p>
-            </div>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+            <CardHeader>
+                <CardTitle>Registro y Autenticación</CardTitle>
+                <CardDescription>Controle cómo los usuarios acceden a la aplicación.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <Label>Permitir Registro de Nuevos Usuarios</Label>
+                        <p className="text-xs text-muted-foreground">
+                            Si se desactiva, solo los usuarios existentes podrán iniciar sesión.
+                        </p>
+                    </div>
+                    <Switch defaultChecked={true} />
+                </div>
+                <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <Label>Requerir Verificación de Correo</Label>
+                         <p className="text-xs text-muted-foreground">
+                            Los nuevos usuarios deben verificar su correo antes de acceder.
+                        </p>
+                    </div>
+                    <Switch defaultChecked={true} />
+                </div>
+                 <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <Label>Forzar Autenticación de Dos Pasos</Label>
+                         <p className="text-xs text-muted-foreground">
+                            Obliga a todos los usuarios a configurar 2FA para mayor seguridad.
+                        </p>
+                    </div>
+                    <Switch defaultChecked={false} />
+                </div>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>Configuración de Planes</CardTitle>
+                <CardDescription>Ajuste los límites y precios de los planes de suscripción.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div>
+                    <Label htmlFor="pro-price">Precio Plan Pro (RD$ / mes)</Label>
+                    <Input id="pro-price" defaultValue="2500" />
+                </div>
+                 <div>
+                    <Label htmlFor="pro-limit">Límite de Facturas Plan Pro</Label>
+                    <Input id="pro-limit" defaultValue="500" />
+                </div>
+                 <div>
+                    <Label htmlFor="despacho-price">Precio Plan Despacho (RD$ / mes)</Label>
+                    <Input id="despacho-price" defaultValue="6500" />
+                </div>
+            </CardContent>
+        </Card>
+         <Card className="lg:col-span-2">
+            <CardHeader>
+                <CardTitle>Mantenimiento</CardTitle>
+                <CardDescription>Ponga la aplicación en modo de mantenimiento si es necesario.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                        <Label>Activar Modo Mantenimiento</Label>
+                        <p className="text-xs text-muted-foreground">
+                            Bloqueará el acceso a los usuarios y mostrará una página de mantenimiento.
+                        </p>
+                    </div>
+                    <Switch defaultChecked={false} />
+                </div>
+                 <div className="space-y-2 mt-4">
+                    <Label htmlFor="maintenance-message">Mensaje de Mantenimiento</Label>
+                    <Input id="maintenance-message" defaultValue="Estamos realizando mejoras. Volveremos pronto." />
+                </div>
+            </CardContent>
+        </Card>
+      </div>
+      <div className="flex justify-end">
+          <Button>
+              <Save className="mr-2 h-4 w-4" />
+              Guardar Todos los Cambios
+          </Button>
+      </div>
     </div>
   );
 }
