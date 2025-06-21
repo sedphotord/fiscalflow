@@ -68,11 +68,13 @@ export function AppSidebar() {
                 }>
               <AccordionItem value="formatos-envio" className="border-none">
                 <AccordionTrigger className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
+                  "flex items-center rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
                   isEnvioActive && 'text-primary'
                   )}>
-                  <FileText className="h-4 w-4" />
-                  Formatos de Envío
+                  <span className="flex items-center gap-3">
+                    <FileText className="h-4 w-4" />
+                    Formatos de Envío
+                  </span>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                   <nav className="grid gap-1">
@@ -131,11 +133,13 @@ export function AppSidebar() {
               </AccordionItem>
               <AccordionItem value="declaraciones-anuales" className="border-none">
                 <AccordionTrigger className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
+                  "flex items-center rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
                   isDeclaracionesActive && 'text-primary'
                   )}>
-                  <BookMarked className="h-4 w-4" />
-                  Declaraciones Anuales
+                  <span className="flex items-center gap-3">
+                    <BookMarked className="h-4 w-4" />
+                    Declaraciones Anuales
+                  </span>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                    <nav className="grid gap-1">
@@ -180,11 +184,13 @@ export function AppSidebar() {
                 }>
               <AccordionItem value="suscripciones" className="border-none">
                 <AccordionTrigger className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
+                  "flex items-center rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:no-underline [&[data-state=open]>svg]:rotate-180",
                   isSuscripcionesActive && 'text-primary'
                   )}>
-                  <CreditCard className="h-4 w-4" />
-                  Suscripciones
+                  <span className="flex items-center gap-3">
+                    <CreditCard className="h-4 w-4" />
+                    Suscripciones
+                  </span>
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                    <nav className="grid gap-1">
