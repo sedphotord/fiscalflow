@@ -1,4 +1,3 @@
-
 'use client';
 
 import dynamic from 'next/dynamic';
@@ -46,7 +45,7 @@ export default function DashboardPage() {
         <Button asChild size="lg" variant="secondary">
           <Link href="/dashboard/settings/team"><Zap className="mr-2"/>Invitar al Equipo</Link>
         </Button>
-        <Button asChild size="lg" variant="ghost">
+        <Button asChild size="lg" variant="ghost" className="border border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
           <Link href="/dashboard/support"><LifeBuoy className="mr-2"/>Contactar Soporte</Link>
         </Button>
       </CtaBanner>
