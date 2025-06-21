@@ -52,6 +52,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [users, setUsers] = useState<User[]>(MOCK_USERS);
   const [companies, setCompanies] = useState<Company[]>(MOCK_COMPANIES);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(MOCK_TEAM_MEMBERS);
+  const [reports, setReports] = useState<Report[]>(MOCK_REPORTS);
   const [plans, setPlans] = useState<Plan[]>(MOCK_PLANS);
   const [invoicePacks, setInvoicePacks] = useState<InvoicePack[]>(MOCK_INVOICE_PACKS);
   
