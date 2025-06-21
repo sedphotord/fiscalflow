@@ -16,7 +16,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { PlanSchema, InvoicePackSchema } from '@/lib/schemas';
-import type { Plan, InvoicePack } from '@/lib/types';
+import type { Plan, InvoicePack, PlanData, InvoicePackData } from '@/lib/types';
+import { Textarea } from '@/components/ui/textarea';
 
 
 type PlanFormValues = z.infer<typeof PlanSchema>;
@@ -44,16 +45,16 @@ export default function ManagePlansPage() {
     if (plan) {
       planForm.reset(plan);
     } else {
-      planForm.reset({ name: '', price: 0, invoiceLimit: 0, teamMemberLimit: 0 });
+      planForm.reset({ name: '', price: 0, invoiceLimit: 0, teamMemberLimit: 0, description: '' });
     }
     setIsPlanDialogOpen(true);
   };
   
   const onPlanSubmit = (data: PlanFormValues) => {
     if (editingPlan) {
-      updatePlan(editingPlan.id, data);
+      updatePlan(editingPlan.id, data as PlanData);
     } else {
-      createPlan(data);
+      createPlan(data as PlanData);
     }
     setIsPlanDialogOpen(false);
   };
@@ -193,6 +194,7 @@ export default function ManagePlansPage() {
               <FormField control={planForm.control} name="price" render={({ field }) => (<FormItem><FormLabel>Precio (RD$/mes)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl><FormMessage /></FormItem>)} />
               <FormField control={planForm.control} name="invoiceLimit" render={({ field }) => (<FormItem><FormLabel>Límite de Facturas</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl><FormMessage /></FormItem>)} />
               <FormField control={planForm.control} name="teamMemberLimit" render={({ field }) => (<FormItem><FormLabel>Límite de Miembros de Equipo</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={planForm.control} name="description" render={({ field }) => (<FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea placeholder="Breve descripción del plan..." {...field} /></FormControl><FormMessage /></FormItem>)} />
               <DialogFooter><DialogClose asChild><Button type="button" variant="ghost">Cancelar</Button></DialogClose><Button type="submit">Guardar</Button></DialogFooter>
             </form>
           </Form>

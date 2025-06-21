@@ -1,3 +1,5 @@
+
+
 export const TIPO_BIENES_SERVICIOS = [
     { value: "01", label: "01 - Gastos de Personal" },
     { value: "02", label: "02 - Gastos por Trabajos, Suministros y Servicios" },
@@ -17,4 +19,11 @@ export const FORMAS_PAGO = [
     { value: "cheque", label: "Cheque/Transferencia" },
     { value: "tarjeta", label: "Tarjeta Crédito/Débito" },
     { value: "credito", label: "A Crédito" },
+];
+
+export const TEAM_ROLES = [
+    { id: 'Admin', name: 'Administrador', description: 'Acceso total a todas las funciones y configuraciones.'},
+    { id: 'Supervisor', name: 'Contador Supervisor', description: 'Puede gestionar reportes, clientes y revisar trabajo.'},
+    { id: 'Contable', name: 'Contable', description: 'Puede crear y editar reportes para los clientes asignados.'},
+    { id: 'Solo Lectura', name: 'Solo Lectura', description: 'Solo puede ver reportes, no puede editar ni crear.'},
 ];

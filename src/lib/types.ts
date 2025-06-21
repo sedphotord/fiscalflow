@@ -1,6 +1,8 @@
+
 import { type z } from 'zod';
 import { type Form606Schema, type Form607Schema, type AdminCreateUserSchema, type PlanSchema, type InvoicePackSchema } from './schemas';
 import { type toast } from '@/hooks/use-toast';
+import { TEAM_ROLES } from './constants';
 
 export type Report606 = z.infer<typeof Form606Schema> & {
     id: string;
@@ -20,7 +22,7 @@ export type Report = Report606 | Report607;
 
 export type UserPlan = 'Gratis' | 'Pro' | 'Despacho';
 export type UserStatus = 'Activo' | 'Pago pendiente' | 'Cancelado';
-export type TeamMemberRole = 'Admin' | 'Editor' | 'Solo Lectura';
+export type TeamMemberRole = typeof TEAM_ROLES[number]['id'];
 
 export type User = {
     id: string;
@@ -58,7 +60,7 @@ export type TeamMember = {
 export type Plan = z.infer<typeof PlanSchema> & { id: string };
 export type InvoicePack = z.infer<typeof InvoicePackSchema> & { id: string };
 export type CreateUserByAdminData = z.infer<typeof AdminCreateUserSchema>;
-export type PlanData = z.infer<typeof PlanSchema>;
+export type PlanData = Omit<Plan, 'id'>;
 export type InvoicePackData = z.infer<typeof InvoicePackSchema>;
 
 
@@ -67,7 +69,7 @@ export type AppContextType = {
   currentUser: User;
   users: User[]; // For super-admin view
   companies: Company[];
-  teamMembers: TeamMember[]; // Team members of the current user
+  teamMembers: TeamMember[]; // All team members for all users
   plans: Plan[];
   invoicePacks: InvoicePack[];
   theme: User['theme'];

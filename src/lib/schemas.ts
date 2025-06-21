@@ -1,6 +1,7 @@
+
 import { z } from 'zod';
-import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO } from './constants';
-import type { TeamMemberRole, UserPlan } from './types';
+import { TIPO_BIENES_SERVICIOS, FORMAS_PAGO, TEAM_ROLES } from './constants';
+import type { UserPlan, TeamMemberRole } from './types';
 
 // Schema for Login
 export const LoginSchema = z.object({
@@ -129,24 +130,33 @@ export const BillingSchema = z.object({
 // Schema for inviting a team member
 export const InviteTeamMemberSchema = z.object({
   email: z.string().email({ message: 'Por favor ingrese un correo electrónico válido.' }),
-  role: z.custom<TeamMemberRole>(val => ['Admin', 'Editor', 'Solo Lectura'].includes(val as string), {
+  role: z.custom<TeamMemberRole>(val => TEAM_ROLES.some(role => role.id === val), {
     message: 'Por favor seleccione un rol válido.',
   }),
 });
 
 // Admin Schemas
+const TeamMemberCreationSchema = z.object({
+  email: z.string().email({ message: 'Correo de miembro inválido.' }),
+  password: z.string().min(6, { message: 'Contraseña de miembro debe tener al menos 6 caracteres.' }),
+  role: z.custom<TeamMemberRole>(val => TEAM_ROLES.some(role => role.id === val), {
+    message: 'Por favor seleccione un rol válido para el miembro.',
+  }),
+});
+
 export const AdminCreateUserSchema = z.object({
     name: z.string().min(2, { message: 'El nombre es requerido.' }),
     email: z.string().email({ message: 'Correo inválido.' }),
     password: z.string().min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
     plan: z.custom<UserPlan>(),
-    teamMemberLimit: z.number().int().min(0, "Debe ser 0 o mayor."),
     additionalInvoices: z.number().int().min(0, "Debe ser 0 o mayor.").optional(),
+    additionalTeamMembers: z.number().int().min(0, "Debe ser 0 o mayor.").optional(),
+    teamMembers: z.array(TeamMemberCreationSchema).optional(),
 });
 
 export const AdminInviteTeamMemberSchema = z.object({
   email: z.string().email({ message: 'Correo inválido.' }),
-  role: z.custom<TeamMemberRole>(),
+  role: z.custom<TeamMemberRole>(val => TEAM_ROLES.some(role => role.id === val)),
 });
 
 
@@ -155,6 +165,7 @@ export const PlanSchema = z.object({
   price: z.number().min(0, "El precio no puede ser negativo."),
   invoiceLimit: z.number().int().min(0, "El límite debe ser 0 o mayor."),
   teamMemberLimit: z.number().int().min(0, "El límite debe ser 0 o mayor."),
+  description: z.string().optional(),
 });
 
 export const InvoicePackSchema = z.object({

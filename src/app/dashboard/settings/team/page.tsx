@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -19,11 +20,12 @@ import { Input } from '@/components/ui/input';
 import { InviteTeamMemberSchema } from '@/lib/schemas';
 import type { TeamMember, TeamMemberRole } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { TEAM_ROLES } from '@/lib/constants';
 
 type FormValues = z.infer<typeof InviteTeamMemberSchema>;
 
 export default function ManageTeamPage() {
-  const { teamMembers, inviteTeamMember, deleteTeamMember, currentUser } = useAppContext();
+  const { teamMembers, inviteTeamMember, currentUser } = useAppContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const planLimits = {
@@ -32,7 +34,7 @@ export default function ManageTeamPage() {
     'Despacho': Infinity
   };
 
-  const currentMemberCount = 1 + teamMembers.length; // Owner + team members
+  const currentMemberCount = 1 + teamMembers.filter(m => m.ownerId === currentUser.id).length; // Owner + team members for current user
   const memberLimit = planLimits[currentUser.plan];
   const canAddMembers = currentMemberCount < memberLimit;
 
@@ -40,7 +42,7 @@ export default function ManageTeamPage() {
     resolver: zodResolver(InviteTeamMemberSchema),
     defaultValues: {
       email: '',
-      role: 'Editor',
+      role: 'Contable',
     },
   });
 
@@ -53,6 +55,8 @@ export default function ManageTeamPage() {
   const getStatusVariant = (status: TeamMember['status']) => {
     return status === 'Activo' ? 'default' : 'secondary';
   };
+  
+  const userTeamMembers = teamMembers.filter(m => m.ownerId === currentUser.id);
 
   return (
     <div className="flex flex-col gap-6">
@@ -96,7 +100,7 @@ export default function ManageTeamPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {teamMembers.map((member) => (
+              {userTeamMembers.map((member) => (
                 <TableRow key={member.id}>
                   <TableCell className="font-medium">{member.email}</TableCell>
                   <TableCell>{member.role}</TableCell>
@@ -179,9 +183,11 @@ export default function ManageTeamPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Admin">Admin</SelectItem>
-                            <SelectItem value="Editor">Editor</SelectItem>
-                            <SelectItem value="Solo Lectura">Solo Lectura</SelectItem>
+                            {TEAM_ROLES.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>
+                                {role.name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       <FormMessage />

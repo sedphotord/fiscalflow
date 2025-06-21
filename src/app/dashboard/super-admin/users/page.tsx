@@ -18,13 +18,14 @@ import type { User as UserType, UserPlan, UserStatus, TeamMemberRole } from '@/l
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminCreateUserSchema, AdminInviteTeamMemberSchema } from '@/lib/schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
+import { TEAM_ROLES } from '@/lib/constants';
 
 type CreateUserFormValues = z.infer<typeof AdminCreateUserSchema>;
 type InviteMemberFormValues = z.infer<typeof AdminInviteTeamMemberSchema>;
@@ -45,8 +46,29 @@ export default function AdminUsersPage() {
   }, []);
 
   
-  const createUserForm = useForm<CreateUserFormValues>({ resolver: zodResolver(AdminCreateUserSchema), defaultValues: { name: '', email: '', password: '', plan: 'Gratis', teamMemberLimit: 1, additionalInvoices: 0 }});
-  const inviteMemberForm = useForm<InviteMemberFormValues>({ resolver: zodResolver(AdminInviteTeamMemberSchema), defaultValues: { email: '', role: 'Editor' }});
+  const createUserForm = useForm<CreateUserFormValues>({ 
+    resolver: zodResolver(AdminCreateUserSchema), 
+    defaultValues: { 
+      name: '', 
+      email: '', 
+      password: '', 
+      plan: 'Gratis', 
+      additionalInvoices: 0,
+      additionalTeamMembers: 0,
+      teamMembers: [],
+    }
+  });
+  const { fields, append, remove } = useFieldArray({
+    control: createUserForm.control,
+    name: "teamMembers",
+  });
+  
+  const inviteMemberForm = useForm<InviteMemberFormValues>({ resolver: zodResolver(AdminInviteTeamMemberSchema), defaultValues: { email: '', role: 'Contable' }});
+
+  const selectedPlanName = createUserForm.watch('plan');
+  const selectedPlan = plans.find(p => p.name === selectedPlanName);
+  const additionalTeamMembers = createUserForm.watch('additionalTeamMembers');
+  const totalTeamLimit = (selectedPlan?.teamMemberLimit || 0) + additionalTeamMembers;
 
 
   const getStatusVariant = (status: UserStatus) => {
@@ -79,6 +101,10 @@ export default function AdminUsersPage() {
   }
 
   const onCreateUserSubmit = (data: CreateUserFormValues) => {
+    if (data.teamMembers.length > totalTeamLimit) {
+      createUserForm.setError("teamMembers", { type: 'manual', message: 'Ha excedido el límite de miembros del equipo para este plan.' });
+      return;
+    }
     createUserByAdmin(data);
     setIsCreateUserOpen(false);
     createUserForm.reset();
@@ -268,47 +294,79 @@ export default function AdminUsersPage() {
       </Dialog>
 
       <Dialog open={isCreateUserOpen} onOpenChange={setIsCreateUserOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Crear Nuevo Usuario</DialogTitle><DialogDescription>Complete los datos para registrar un nuevo usuario en la plataforma.</DialogDescription></DialogHeader>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader><DialogTitle>Crear Nuevo Usuario y Equipo</DialogTitle><DialogDescription>Complete los datos para registrar un nuevo usuario y sus miembros de equipo.</DialogDescription></DialogHeader>
           <Form {...createUserForm}>
-            <form onSubmit={createUserForm.handleSubmit(onCreateUserSubmit)} className="space-y-4 py-4">
-               <FormField control={createUserForm.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nombre Completo</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>)} />
-               <FormField control={createUserForm.control} name="email" render={({ field }) => (<FormItem><FormLabel>Correo Electrónico</FormLabel><FormControl><Input type="email" placeholder="usuario@ejemplo.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-               <FormField control={createUserForm.control} name="password" render={({ field }) => (<FormItem><FormLabel>Contraseña</FormLabel><FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl><FormMessage /></FormItem>)} />
-               <FormField control={createUserForm.control} name="plan" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Plan Inicial</FormLabel>
-                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <form onSubmit={createUserForm.handleSubmit(onCreateUserSubmit)} className="space-y-6 py-4 max-h-[70vh] overflow-y-auto pr-4">
+              <Card>
+                <CardHeader><CardTitle>Datos del Dueño de la Cuenta</CardTitle></CardHeader>
+                <CardContent className="grid md:grid-cols-2 gap-4">
+                  <FormField control={createUserForm.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nombre Completo</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={createUserForm.control} name="email" render={({ field }) => (<FormItem><FormLabel>Correo Electrónico</FormLabel><FormControl><Input type="email" placeholder="usuario@ejemplo.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={createUserForm.control} name="password" render={({ field }) => (<FormItem><FormLabel>Contraseña</FormLabel><FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader><CardTitle>Configuración del Plan</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField control={createUserForm.control} name="plan" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Plan Inicial</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Seleccione un plan..." /></SelectTrigger></FormControl>
                         <SelectContent>{plans.map(p => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}</SelectContent>
-                      </Select>
-                  <FormMessage />
-                </FormItem>)} />
-                <FormField control={createUserForm.control} name="teamMemberLimit" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Límite de Miembros de Equipo</FormLabel>
-                        <FormControl><Input type="number" placeholder="Ej: 5" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )} />
-                <div className="grid grid-cols-2 gap-4">
-                    <FormItem>
-                        <FormLabel>Límite Facturas (Plan)</FormLabel>
-                        <Input
-                            type="number"
-                            disabled
-                            value={plans.find(p => p.name === createUserForm.watch('plan'))?.invoiceLimit || 0}
-                        />
-                    </FormItem>
-                    <FormField control={createUserForm.control} name="additionalInvoices" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Facturas Adicionales</FormLabel>
-                            <FormControl><Input type="number" placeholder="Ej: 100" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
-                </div>
-              <DialogFooter><Button type="button" variant="ghost" onClick={() => setIsCreateUserOpen(false)}>Cancelar</Button><Button type="submit">Crear Usuario</Button></DialogFooter>
+                    </Select>
+                    {selectedPlan && <p className="text-sm text-muted-foreground mt-2">{selectedPlan.description}</p>}
+                    <FormMessage />
+                  </FormItem>)} />
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <FormItem>
+                          <FormLabel>Facturas (Plan)</FormLabel>
+                          <Input type="number" disabled value={selectedPlan?.invoiceLimit || 0}/>
+                      </FormItem>
+                      <FormField control={createUserForm.control} name="additionalInvoices" render={({ field }) => (<FormItem><FormLabel>Fact. Adicionales</FormLabel><FormControl><Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormItem>
+                          <FormLabel>Miembros (Plan)</FormLabel>
+                          <Input type="number" disabled value={selectedPlan?.teamMemberLimit || 0}/>
+                      </FormItem>
+                      <FormField control={createUserForm.control} name="additionalTeamMembers" render={({ field }) => (<FormItem><FormLabel>Miembros Adic.</FormLabel><FormControl><Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.valueAsNumber || 0)} /></FormControl><FormMessage /></FormItem>)} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                  <CardHeader>
+                      <div className="flex justify-between items-center">
+                          <div>
+                            <CardTitle>Miembros del Equipo</CardTitle>
+                            <CardDescription>Agregados: {fields.length} / Límite Total: {totalTeamLimit}</CardDescription>
+                          </div>
+                           <Button type="button" variant="outline" size="sm" onClick={() => append({ email: '', password: '', role: 'Contable' })} disabled={fields.length >= totalTeamLimit}>
+                              <PlusCircle className="mr-2 h-4 w-4" /> Añadir Miembro
+                          </Button>
+                      </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                      {fields.map((field, index) => (
+                          <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 border p-4 rounded-lg relative">
+                              <FormField control={createUserForm.control} name={`teamMembers.${index}.email`} render={({ field }) => (<FormItem><FormLabel>Correo del Miembro</FormLabel><FormControl><Input type="email" placeholder="miembro@ejemplo.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                              <FormField control={createUserForm.control} name={`teamMembers.${index}.password`} render={({ field }) => (<FormItem><FormLabel>Contraseña Inicial</FormLabel><FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                              <FormField control={createUserForm.control} name={`teamMembers.${index}.role`} render={({ field }) => (<FormItem><FormLabel>Rol</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Seleccione un rol" /></SelectTrigger></FormControl><SelectContent>{TEAM_ROLES.map(role => <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                              <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => remove(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                          </div>
+                      ))}
+                       {createUserForm.formState.errors.teamMembers?.message && (
+                          <p className="text-sm font-medium text-destructive">{createUserForm.formState.errors.teamMembers.message}</p>
+                      )}
+                  </CardContent>
+              </Card>
+
+              <DialogFooter>
+                <Button type="button" variant="ghost" onClick={() => setIsCreateUserOpen(false)}>Cancelar</Button>
+                <Button type="submit">Crear Usuario y Equipo</Button>
+              </DialogFooter>
             </form>
           </Form>
         </DialogContent>
@@ -340,7 +398,16 @@ export default function AdminUsersPage() {
                 <FormItem><FormLabel>Rol</FormLabel>
                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Seleccione un rol" /></SelectTrigger></FormControl>
-                        <SelectContent><SelectItem value="Admin">Admin</SelectItem><SelectItem value="Editor">Editor</SelectItem><SelectItem value="Solo Lectura">Solo Lectura</SelectItem></SelectContent>
+                        <SelectContent>
+                          {TEAM_ROLES.map(role => (
+                            <SelectItem key={role.id} value={role.id}>
+                              <div>
+                                <p className="font-medium">{role.name}</p>
+                                <p className="text-xs text-muted-foreground">{role.description}</p>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
                     </Select>
                   <FormMessage />
                 </FormItem>
