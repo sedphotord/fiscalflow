@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import type { Report, UserSettings, Company } from '@/lib/types';
+import type { Report, UserSettings, Company, AppContextType } from '@/lib/types';
 import { toast, useToast } from "@/hooks/use-toast"
 import { Toaster } from '@/components/ui/toaster';
 
@@ -11,23 +11,6 @@ type AppState = {
   reports: Report[];
   settings: UserSettings;
   companies: Company[];
-};
-
-type AppContextType = {
-  reports: Report[];
-  settings: UserSettings;
-  companies: Company[];
-  theme: UserSettings['theme'];
-  setTheme: (theme: UserSettings['theme']) => void;
-  addReport: (reportData: Omit<Report, 'id' | 'fechaCreacion'>) => void;
-  updateReport: (id: string, reportData: Partial<Report>) => void;
-  deleteReport: (id: string) => void;
-  getReport: (id: string) => Report | undefined;
-  updateSettings: (newSettings: Partial<UserSettings>) => void;
-  addCompany: (companyData: Omit<Company, 'id'>) => void;
-  updateCompany: (id: string, companyData: Partial<Omit<Company, 'id'>>) => void;
-  deleteCompany: (id: string) => void;
-  showToast: typeof toast;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -125,13 +108,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     updateSettings({ theme });
   }, [updateSettings]);
 
-  const addCompany = useCallback((companyData: Omit<Company, 'id'>) => {
+  const addCompany = useCallback((companyData: Omit<Company, 'id'>): Company => {
     const newCompany: Company = {
         ...companyData,
         id: crypto.randomUUID(),
     };
     setAppState(prev => ({ ...prev, companies: [...prev.companies, newCompany] }));
     toast({ title: 'Empresa Agregada', description: `La empresa ${newCompany.name} ha sido agregada.` });
+    return newCompany;
   }, [setAppState, toast]);
 
   const updateCompany = useCallback((id: string, companyData: Partial<Omit<Company, 'id'>>) => {
@@ -147,7 +131,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     toast({ title: 'Empresa Eliminada', description: 'La empresa ha sido eliminada.' });
   }, [setAppState, toast]);
   
-  const value = {
+  const value: AppContextType = {
     reports: appState.reports,
     settings: appState.settings,
     companies: appState.companies,
