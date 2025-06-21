@@ -44,7 +44,24 @@ export function AnalyticsCharts({ reports }: AnalyticsChartsProps) {
     const activity = days.map(day => ({ name: day, total: 0 }));
     reports.forEach(report => {
       const dayIndex = new Date(report.fechaCreacion).getDay();
-      const count = report.type === '606' ? report.compras.length : report.ventas.length;
+      let count = 0;
+      switch (report.type) {
+        case '606':
+          count = report.compras.length;
+          break;
+        case '607':
+          count = report.ventas.length;
+          break;
+        case '608':
+          count = report.anulados.length;
+          break;
+        case '609':
+          count = report.pagos.length;
+          break;
+        default:
+          count = 0;
+          break;
+      }
       activity[dayIndex].total += count;
     });
     return activity;
