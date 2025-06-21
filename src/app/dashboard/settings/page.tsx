@@ -95,7 +95,7 @@ export default function SettingsPage() {
             <CardDescription>Personalice la apariencia de la aplicación.</CardDescription>
           </CardHeader>
           <CardContent>
-            <FormLabel>Tema</FormLabel>
+            <Label>Tema</Label>
             <RadioGroup
               value={theme}
               onValueChange={(value: 'light' | 'dark' | 'system') => setTheme(value)}
