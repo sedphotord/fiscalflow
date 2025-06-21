@@ -3,14 +3,14 @@ import { getFirestore, type Firestore } from 'firebase/firestore';
 
 // --- Firebase Web Configuration ---
 // This configuration is for connecting the web application to your Firebase project.
-// TODO: Replace with your project's Firebase configuration from the Firebase console.
+// It is recommended to use environment variables for security.
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "fiscalflow.firebaseapp.com",
-  projectId: "fiscalflow",
-  storageBucket: "fiscalflow.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 // --- Firebase Initialization ---
@@ -19,8 +19,8 @@ let db: Firestore;
 
 try {
     // A missing or placeholder API key is a clear sign that Firebase is not configured.
-    if (!firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith('YOUR_')) {
-        throw new Error("Firebase configuration is missing or incomplete. Please update src/lib/firebase.ts with your project's credentials.");
+    if (!firebaseConfig.apiKey) {
+        throw new Error("Firebase configuration is missing or incomplete. Please check your environment variables.");
     }
     app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     db = getFirestore(app);
