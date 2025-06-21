@@ -1,11 +1,11 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getFirestore, enableIndexedDbPersistence, type Firestore, enableNetwork } from 'firebase/firestore';
+import { getFirestore, type Firestore, enableNetwork } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  storageBucket: "fiscalflow-j6b89.appspot.com",
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
@@ -22,23 +22,9 @@ if (firebaseConfig.projectId && firebaseConfig.apiKey) {
         enableNetwork(firestoreDb).catch((err) => {
             console.error("Error al intentar habilitar la red de Firestore:", err);
         });
-
-        enableIndexedDbPersistence(firestoreDb)
-            .then(() => {
-                console.log("Firebase persistence enabled successfully.");
-            })
-            .catch((err) => {
-                if (err.code == 'failed-precondition') {
-                    console.warn("Firebase persistence failed: Multiple tabs open. Persistence can only be enabled in one tab at a time.");
-                } else if (err.code == 'unimplemented') {
-                    console.warn("Firebase persistence failed: Browser does not support required features.");
-                } else {
-                    console.error("Firebase persistence failed with error: ", err);
-                }
-            });
         
         db = firestoreDb;
-        console.log("Firebase initialized. Persistence setup initiated, network explicitly enabled.");
+        console.log("Firebase initialized. Network explicitly enabled.");
 
     } catch (error) {
         console.error("Firebase initialization failed:", error);
