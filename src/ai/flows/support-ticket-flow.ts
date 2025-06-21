@@ -9,13 +9,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const SupportTicketInputSchema = z.object({
+const SupportTicketInputSchema = z.object({
   subject: z.string().describe('The subject of the support ticket.'),
   message: z.string().describe('The detailed message of the support ticket.'),
 });
 export type SupportTicketInput = z.infer<typeof SupportTicketInputSchema>;
 
-export const SupportTicketOutputSchema = z.object({
+const SupportTicketOutputSchema = z.object({
   ticketId: z.string().describe('A unique identifier for the created ticket, in the format TICKET-XXXXX.'),
   response: z.string().describe('A friendly and helpful response to the user, confirming receipt and providing the ticket ID.'),
 });
