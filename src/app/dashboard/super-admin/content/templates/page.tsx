@@ -2,66 +2,35 @@
 
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { FileCode, Home, Mail, Palette } from 'lucide-react';
-import Link from 'next/link';
-
-const templates = [
-    {
-        name: 'Landing Page',
-        description: 'La página principal de bienvenida para nuevos visitantes.',
-        icon: Home,
-        editUrl: '#'
-    },
-    {
-        name: 'Plantilla de Email - Bienvenida',
-        description: 'El correo que se envía a los nuevos usuarios registrados.',
-        icon: Mail,
-        editUrl: '#'
-    },
-    {
-        name: 'Plantilla de Email - Resumen Mensual',
-        description: 'El correo con el resumen de actividad para los suscriptores.',
-        icon: Mail,
-        editUrl: '#'
-    },
-    {
-        name: 'Página de Precios',
-        description: 'La página que muestra los diferentes planes y precios.',
-        icon: FileCode,
-        editUrl: '#'
-    }
-]
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Palette, Bot } from 'lucide-react';
 
 
 export default function AdminTemplatesPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Editor de Plantillas"
-        description="Modifique visualmente las plantillas de las páginas (ej. Landing Page)."
+        title="Gestión de Plantillas"
+        description="Modifique el contenido y la apariencia de las páginas públicas."
       />
-      <div className="grid gap-6 md:grid-cols-2">
-        {templates.map(template => (
-            <Card key={template.name}>
-                <CardHeader className="flex flex-row items-center gap-4">
-                    <template.icon className="h-8 w-8 text-primary" />
-                    <div className="flex-1">
-                        <CardTitle>{template.name}</CardTitle>
-                        <CardDescription>{template.description}</CardDescription>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <Link href={template.editUrl} passHref>
-                        <Button variant="outline" className="w-full">
-                            <Palette className="mr-2 h-4 w-4" />
-                            Editar Plantilla
-                        </Button>
-                    </Link>
-                </CardContent>
-            </Card>
-        ))}
-      </div>
+       <Alert>
+        <Palette className="h-4 w-4" />
+        <AlertTitle>Sección en Desarrollo</AlertTitle>
+        <AlertDescription>
+          La creación de un editor visual completo es una tarea compleja. Por ahora, puede solicitar cambios específicos en el contenido o diseño de la página de inicio directamente a través del chat.
+        </AlertDescription>
+      </Alert>
+      <Card>
+        <CardHeader>
+            <CardTitle>¿Qué puedo cambiar?</CardTitle>
+            <CardDescription>Puede solicitar cambios en textos, colores, imágenes o la disposición de los elementos en la página de inicio.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <p className="text-sm text-muted-foreground">
+                Por ejemplo, puede decir: <span className="italic">"Cambia el título principal a 'Tu Aliado Fiscal en la Nube'"</span> o <span className="italic">"Actualiza el color primario a un azul más oscuro"</span>.
+            </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

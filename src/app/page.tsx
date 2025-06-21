@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import Image from 'next/image';
 
 export default function LandingPage() {
   const [selectedService, setSelectedService] = useState<any>(null);
@@ -268,14 +269,19 @@ export default function LandingPage() {
                     </Link>
                   </div>
                 </motion.div>
-                <motion.img
+                <motion.div
                   variants={itemVariants}
-                  src="https://umecit.edu.pa/wp-content/uploads/2022/09/mejores-trabajos-en-contabilidad-en-Panama%CC%81.jpg"
-                  width="600"
-                  height="400"
-                  alt="Equipo de contabilidad trabajando"
-                  className="mx-auto aspect-[3/2] overflow-hidden rounded-xl object-cover sm:w-full"
-                />
+                  className="mx-auto aspect-[3/2] overflow-hidden rounded-xl"
+                >
+                  <Image
+                    src="https://placehold.co/600x400.png"
+                    width="600"
+                    height="400"
+                    alt="Equipo de contabilidad trabajando"
+                    className="object-cover"
+                    data-ai-hint="accounting team"
+                  />
+                </motion.div>
               </div>
             </div>
           </motion.section>
