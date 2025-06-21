@@ -153,9 +153,9 @@ export default function LandingPage() {
   ];
   
   const invoicePacks = [
-      { amount: 50, price: 250, description: "Ideal para un pequeño empujón." },
-      { amount: 100, price: 450, description: "La mejor relación calidad-precio." },
-      { amount: 200, price: 800, description: "Para meses de alta actividad." },
+      { amount: 50, price: 1000, description: "Ideal para un pequeño empujón." },
+      { amount: 100, price: 1500, description: "La mejor relación calidad-precio." },
+      { amount: 200, price: 2500, description: "Para meses de alta actividad." },
   ];
 
   const renderFeature = (value: string | boolean) => {
