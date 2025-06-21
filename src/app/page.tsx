@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Logo } from '@/components/logo';
-import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook, BarChartHorizontal, Users, Bell, XCircle, Cloud, Headset, Sparkles } from 'lucide-react';
+import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook, BarChartHorizontal, Users, Bell, XCircle, Cloud, Headset, Sparkles, UploadCloud, Bot, FileCheck2, UserCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -14,7 +14,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import Image from 'next/image';
 
 export default function LandingPage() {
-  const [selectedService, setSelectedService] = useState<any>(null);
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
 
   const sectionVariants = {
@@ -43,121 +42,91 @@ export default function LandingPage() {
     }
   };
 
-  const featuresList = [
+  const keyBenefits = [
     {
       icon: ScanLine,
-      title: 'Escaneo Inteligente',
-      shortDescription: 'Escanea facturas físicas o sube imágenes/PDFs. OCR avanzado extrae RNC, NCF, montos e ITBIS automáticamente.',
-      detailedDescription: `Nuestra tecnología de **Reconocimiento Óptico de Caracteres (OCR) impulsada por Inteligencia Artificial** transforma la tediosa tarea de digitar facturas en un proceso de segundos. Simplemente toma una foto de tu factura de compra o sube un archivo PDF, y FiscalFlow se encarga del resto.\n\nEl sistema identifica y extrae con precisión los campos clave: **RNC del proveedor, Número de Comprobante Fiscal (NCF), fecha de emisión, monto total e ITBIS facturado**. Estos datos se colocan directamente en el borrador del Formato 606, minimizando errores humanos y ahorrándote horas de trabajo manual. Es la forma más rápida y segura de registrar tus compras.`
+      title: 'Ahorra Tiempo, Automatiza Tareas',
+      description: 'Reduce hasta un 90% el tiempo de digitación con nuestro escáner inteligente de facturas.',
     },
     {
       icon: ShieldCheck,
-      title: 'Validación Automática',
-      shortDescription: 'Valida RNC y NCF en tiempo real. Detecta errores antes de generar formularios oficiales.',
-      detailedDescription: `Evita los rechazos de la DGII antes de que ocurran. Cada vez que ingresas un RNC o un NCF, ya sea manualmente o a través del escáner, nuestro sistema lo **valida en tiempo real** contra las reglas de la DGII.\n\nVerificamos la longitud correcta, el formato y la estructura de los RNC/Cédulas y los NCF. Esta capa de seguridad proactiva asegura que tus datos sean correctos desde el principio, garantizando que los archivos \`.txt\` que generes cumplan con los estándares de la DGII y sean aceptados sin problemas.`
+      title: 'Cumplimiento sin Estrés',
+      description: 'Genera reportes validados y listos para la DGII, evitando errores y posibles multas.',
     },
     {
-      icon: FileText,
-      title: 'Generación de Formularios DGII',
-      shortDescription: 'Genera automáticamente los archivos de envío de datos requeridos por la DGII, listos para declarar.',
-      detailedDescription: `El corazón de FiscalFlow. Convierte tus registros de compras y ventas en los archivos de texto (\`.txt\`) listos para ser subidos a la Oficina Virtual de la DGII. Olvídate de los formatos complicados y las especificaciones técnicas.\n\nActualmente, la plataforma te permite generar:\n• **Formato 606:** Reporte de Compras de Bienes y Servicios.\n• **Formato 607:** Reporte de Ventas de Bienes y Servicios.\n\nEstamos trabajando para ampliar nuestro catálogo de formularios para incluir el **Formato 608 (NCF Anulados)**, el **Formato 609 (Pagos al Exterior)** y las declaraciones juradas anuales como el **IR-1** para personas físicas y el **IR-2** para sociedades. Con FiscalFlow, el cumplimiento fiscal está a solo un clic de distancia.`
-    },
-    {
-      icon: Cloud,
-      title: '100% en la Nube',
-      shortDescription: 'Empieza fácilmente y sin necesidad de descargas, actualizaciones ni servidores.',
-      detailedDescription: 'Dile adiós a las instalaciones complicadas y al mantenimiento de software. FiscalFlow opera completamente en la nube, lo que significa que puedes acceder a tu información desde cualquier dispositivo con conexión a internet.\n\nNo necesitas preocuparte por descargas, instalaciones ni actualizaciones. Nosotros nos encargamos de todo para que siempre tengas la última versión de la aplicación, con las funcionalidades más recientes y las últimas regulaciones fiscales. Tu información se guarda de forma segura y está disponible para ti 24/7, donde sea que estés.'
-    },
-    {
-      icon: Headset,
-      title: 'Soporte 24/7 Ilimitado',
-      shortDescription: 'Cuenta con asesoría contable experta cuando la necesites, sin costos adicionales.',
-      detailedDescription: 'Tu tranquilidad es nuestra prioridad. Por eso, ofrecemos soporte ilimitado 24/7 con expertos contables. Ya sea que tengas una duda sobre cómo registrar una factura complicada o necesites entender una nueva regulación, nuestro equipo está aquí para ayudarte.\n\nEl soporte está incluido en tu plan, sin costos ocultos. Puedes contactarnos por chat, correo electrónico o teléfono en cualquier momento. No estás solo en tu gestión fiscal; tienes un equipo de profesionales respaldándote.'
-    },
-    {
-      icon: Sparkles,
-      title: 'Gestiona tu Contabilidad con IA',
-      shortDescription: 'Optimiza procesos con IA que sugiere categorizaciones y automatiza tareas repetitivas.',
-      detailedDescription: 'Deja que la Inteligencia Artificial trabaje por ti. FiscalFlow utiliza IA no solo para escanear facturas, sino también para optimizar tu flujo de trabajo. El sistema aprende de tus operaciones y comienza a sugerir automáticamente la categorización de tus gastos según el tipo de bien o servicio.\n\nEsta automatización reduce drásticamente el tiempo que dedicas a tareas repetitivas y minimiza el riesgo de errores. Con el tiempo, la IA se vuelve más inteligente, haciendo que tu gestión contable sea cada vez más rápida y precisa.'
+      icon: Users,
+      title: 'Crece tu Práctica Contable',
+      description: 'Gestiona múltiples clientes desde una sola plataforma, optimizando tu flujo de trabajo.',
     }
   ];
 
-  const servicesList = [
+  const howItWorksSteps = [
     {
-      icon: Copy,
-      title: 'Escaneo en Lote',
-      description: 'Procesa múltiples facturas simultáneamente con repetición automática si hay errores.',
-      detailedDescription: 'Sube hasta 50 facturas a la vez (en el plan Pro). Nuestro sistema las procesa en segundo plano, valida cada una y te notifica cuando estén listas. Si una factura falla, puedes corregirla individualmente sin afectar al resto del lote.',
-      iconColor: 'text-blue-600 dark:text-blue-400',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/40'
+      icon: UploadCloud,
+      title: '1. Captura tus Facturas',
+      description: 'Sube una foto, un PDF o un lote de facturas. Nuestro sistema está listo para procesarlas.',
     },
     {
-      icon: FileText,
-      title: 'Formularios Automáticos',
-      description: 'Genera formularios 606, 607, 608, y más, de la DGII automáticamente.',
-      detailedDescription: 'Olvídate de los cálculos manuales. Después de procesar tus facturas, FiscalFlow genera los archivos .txt para los formatos 606, 607 y más, listos para ser cargados directamente en la Oficina Virtual de la DGII. Precisión garantizada.',
-      iconColor: 'text-green-600 dark:text-green-400',
-      bgColor: 'bg-green-100 dark:bg-green-900/40'
+      icon: Bot,
+      title: '2. Proceso con IA',
+      description: 'Nuestra inteligencia artificial extrae, categoriza y valida todos los datos automáticamente.',
+    },
+    {
+      icon: FileCheck2,
+      title: '3. Genera y Declara',
+      description: 'Con un solo clic, obtén tus archivos .txt listos para subir a la Oficina Virtual de la DGII.',
+    }
+  ];
+
+  const allFeatures = [
+    {
+      icon: ScanLine,
+      title: 'Escaneo Inteligente de Facturas (OCR)',
+      description: 'Extrae RNC, NCF, montos e ITBIS automáticamente de imágenes o PDFs.',
     },
     {
       icon: ShieldCheck,
-      title: 'Validación RNC/NCF',
-      description: 'Verifica RNC y NCF en tiempo real con la base de datos oficial de la DGII.',
-      detailedDescription: 'Cada RNC y NCF que ingresas es verificado en tiempo real contra la base de datos oficial de la DGII. Esta validación proactiva previene errores comunes que pueden causar rechazos y retrasos en tus declaraciones.',
-      iconColor: 'text-purple-600 dark:text-purple-400',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/40'
+      title: 'Validación Automática RNC/NCF',
+      description: 'Verifica datos en tiempo real contra las reglas de la DGII para evitar errores.',
     },
     {
-      icon: CalendarDays,
-      title: 'Organización por Mes',
-      description: 'Organiza automáticamente facturas por empresa y mes, ordenadas cronológicamente.',
-      detailedDescription: 'El sistema clasifica y archiva automáticamente cada factura por empresa, mes y año. Accede a tus registros históricos de forma ordenada y encuentra cualquier documento en segundos. Ideal para auditorías y consultas rápidas.',
-      iconColor: 'text-orange-600 dark:text-orange-400',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/40'
-    },
-    {
-      icon: FileEdit,
-      title: 'Edición Manual',
-      description: 'Revisa y edita cada factura individualmente antes de generar los formularios.',
-      detailedDescription: 'Tienes el control total. Antes de generar el reporte final, puedes revisar cada campo extraído por la IA, hacer ajustes, corregir montos o añadir información. La combinación perfecta de automatización y supervisión humana.',
-      iconColor: 'text-indigo-600 dark:text-indigo-400',
-      bgColor: 'bg-indigo-100 dark:bg-indigo-900/40'
-    },
-    {
-      icon: Lock,
-      title: 'Respaldo Seguro',
-      description: 'Respaldo automático en la nube con encriptación y acceso desde cualquier dispositivo.',
-      detailedDescription: 'Tu información es invaluable. Todas tus facturas y reportes se respaldan automáticamente en nuestra nube segura, con encriptación de extremo a extremo. Accede a tus datos desde cualquier lugar y dispositivo con total tranquilidad.',
-      iconColor: 'text-red-600 dark:text-red-400',
-      bgColor: 'bg-red-100 dark:bg-red-900/40'
+      icon: FileText,
+      title: 'Generación de Formatos (606, 607)',
+      description: 'Crea los archivos .txt requeridos por la DGII listos para la declaración.',
     },
     {
       icon: BarChartHorizontal,
       title: 'Dashboard Analítico',
       description: 'Visualiza tus finanzas con gráficos de compras, ventas e impuestos.',
-      detailedDescription: 'Toma decisiones informadas con nuestro dashboard interactivo. Visualiza tendencias de compras y ventas, compara períodos fiscales, y analiza la distribución de tus gastos e ingresos. Los gráficos claros y concisos te ayudan a entender la salud financiera de tu negocio de un vistazo.',
-      iconColor: 'text-yellow-600 dark:text-yellow-400',
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/40'
     },
     {
       icon: Users,
       title: 'Gestión Multi-Empresa',
-      description: 'Ideal para contadores. Administra múltiples clientes desde una sola cuenta.',
-      detailedDescription: 'Diseñado para profesionales de la contabilidad. Agrega y gestiona los perfiles de todos tus clientes desde un único panel de control. Genera reportes individuales para cada empresa de forma segura y organizada, optimizando tu flujo de trabajo y ahorrando tiempo valioso.',
-      iconColor: 'text-cyan-600 dark:text-cyan-400',
-      bgColor: 'bg-cyan-100 dark:bg-cyan-900/40'
+      description: 'Ideal para contadores. Administra todos tus clientes desde una sola cuenta.',
+    },
+    {
+      icon: Copy,
+      title: 'Escaneo y Carga en Lote',
+      description: 'Procesa cientos de facturas simultáneamente para máxima eficiencia.',
     },
     {
       icon: Bell,
-      title: 'Alertas y Recordatorios',
-      description: 'No olvides una fecha límite. Recibe notificaciones de vencimientos de impuestos.',
-      detailedDescription: 'Mantente siempre al día con tus obligaciones fiscales. Nuestro sistema te enviará recordatorios y alertas sobre las fechas límite para la presentación de los formatos 606, 607 y otras declaraciones importantes. Configura las notificaciones para que se adapten a tus necesidades y evita multas y recargos.',
-      iconColor: 'text-lime-600 dark:text-lime-400',
-      bgColor: 'bg-lime-100 dark:bg-lime-900/40'
+      title: 'Alertas de Vencimiento de Impuestos',
+      description: 'Recibe notificaciones para no olvidar nunca una fecha límite de declaración.',
+    },
+    {
+      icon: Cloud,
+      title: 'Plataforma 100% en la Nube',
+      description: 'Accede a tu información de forma segura desde cualquier lugar y dispositivo.',
+    },
+    {
+      icon: Headset,
+      title: 'Soporte Técnico Especializado',
+      description: 'Cuenta con asesoría experta cuando la necesites, sin costos adicionales.',
     }
   ];
 
-  const features = [
+  const pricingFeatures = [
     { name: "Facturas por Mes", gratis: "Hasta 50", pro: "Hasta 500", despacho: "Ilimitadas" },
     { name: "Formularios (606, 607)", gratis: true, pro: true, despacho: true },
     { name: "Validación RNC/NCF", gratis: true, pro: true, despacho: true },
@@ -201,7 +170,7 @@ export default function LandingPage() {
     }
   ];
 
-  const renderFeature = (value: string | boolean) => {
+  const renderPricingFeature = (value: string | boolean) => {
     if (typeof value === 'boolean') {
       return value ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <XCircle className="h-6 w-6 text-destructive mx-auto" />;
     }
@@ -219,8 +188,8 @@ export default function LandingPage() {
             <Link href="#features" className="text-sm font-medium hover:underline underline-offset-4">
               Características
             </Link>
-            <Link href="#services" className="text-sm font-medium hover:underline underline-offset-4">
-              Servicios
+             <Link href="#how-it-works" className="text-sm font-medium hover:underline underline-offset-4">
+              Cómo Funciona
             </Link>
             <Link href="#pricing" className="text-sm font-medium hover:underline underline-offset-4">
               Planes
@@ -291,6 +260,70 @@ export default function LandingPage() {
             </div>
           </motion.section>
           
+           <motion.section 
+              className="w-full py-12 md:py-24"
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+          >
+              <div className="container px-4 md:px-6">
+                <motion.div 
+                    className="grid gap-6 md:grid-cols-3"
+                    variants={staggeredContainer}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.2 }}
+                >
+                  {keyBenefits.map((benefit, index) => (
+                    <motion.div key={index} variants={itemVariants} className="flex flex-col items-center text-center gap-4 p-6 rounded-lg">
+                      <benefit.icon className="h-12 w-12 text-primary" />
+                      <h3 className="text-xl font-bold">{benefit.title}</h3>
+                      <p className="text-muted-foreground">{benefit.description}</p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+          </motion.section>
+
+          <motion.section 
+              id="how-it-works"
+              className="w-full py-12 md:py-24 lg:py-32 bg-secondary/30"
+              variants={sectionVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <div className="container px-4 md:px-6">
+                <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                  <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Proceso Simplificado</div>
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Cómo Funciona</h2>
+                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                    En solo tres pasos, transforma tus facturas en reportes listos para la DGII.
+                  </p>
+                </div>
+                <motion.div 
+                    className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-3 md:gap-12 mt-12"
+                    variants={staggeredContainer}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.2 }}
+                >
+                  {howItWorksSteps.map((step, index) => (
+                    <motion.div key={index} variants={itemVariants} className="grid gap-2 text-center">
+                      <div className="flex items-center justify-center">
+                         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+                            <step.icon className="h-10 w-10 text-primary" />
+                         </div>
+                      </div>
+                      <h3 className="text-xl font-bold">{step.title}</h3>
+                      <p className="text-muted-foreground">{step.description}</p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+          </motion.section>
+
           <motion.section 
               id="features" 
               className="w-full py-12 md:py-24 lg:py-32"
@@ -302,51 +335,12 @@ export default function LandingPage() {
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="space-y-2">
-                  <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Características Principales</div>
+                  <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Todas las Características</div>
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Todo lo que necesitas en un solo lugar</h2>
                   <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                     FiscalFlow simplifica el proceso contable con tecnología de punta diseñada específicamente para República Dominicana.
                   </p>
                 </div>
-              </div>
-              <motion.div 
-                  className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:grid-cols-3 mt-12"
-                  variants={staggeredContainer}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.2 }}
-              >
-                {featuresList.map((feature, index) => (
-                  <motion.div 
-                    key={index} 
-                    className="grid gap-2 text-center p-4 rounded-lg hover:bg-muted/50 transition-colors duration-300 cursor-pointer"
-                    variants={itemVariants}
-                    onClick={() => setSelectedFeature(feature)}
-                  >
-                    <feature.icon className="h-12 w-12 mx-auto text-primary" />
-                    <h3 className="text-xl font-bold">{feature.title}</h3>
-                    <p className="text-muted-foreground">{feature.shortDescription}</p>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </div>
-          </motion.section>
-
-          <motion.section 
-              id="services" 
-              className="w-full py-12 md:py-24 lg:py-32 bg-secondary/30"
-              variants={sectionVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-          >
-            <div className="container px-4 md:px-6">
-              <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                  <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Servicios Detallados</div>
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Potencia tu gestión contable</h2>
-                  <p className="max-w-[900px] text-muted-foreground md:text-lg">
-                      Cada una de nuestras herramientas está diseñada para ahorrarte tiempo y darte tranquilidad.
-                  </p>
               </div>
               <motion.div 
                   className="mx-auto grid max-w-7xl items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-12"
@@ -355,26 +349,67 @@ export default function LandingPage() {
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
               >
-                {servicesList.map((service, index) => (
+                {allFeatures.map((feature, index) => (
                   <motion.div 
                     key={index} 
                     variants={itemVariants} 
                     className="h-full"
-                    onClick={() => setSelectedService(service)}
+                    onClick={() => setSelectedFeature(feature)}
                   >
                     <Card className="h-full flex flex-col text-left p-6 hover:shadow-lg transition-shadow duration-300 cursor-pointer">
-                        <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full ${service.bgColor}`}>
-                            <service.icon className={`h-6 w-6 ${service.iconColor}`} />
+                        <div className="flex items-start gap-4">
+                           <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                              <feature.icon className="h-6 w-6 text-primary" />
+                           </div>
+                           <div className="flex-1">
+                              <h3 className="text-lg font-bold">{feature.title}</h3>
+                              <p className="mt-1 text-muted-foreground">{feature.description}</p>
+                           </div>
                         </div>
-                        <h3 className="text-xl font-bold">{service.title}</h3>
-                        <p className="mt-2 text-muted-foreground flex-1">
-                            {service.description}
-                        </p>
                     </Card>
                   </motion.div>
                 ))}
               </motion.div>
             </div>
+          </motion.section>
+
+          <motion.section
+            className="w-full py-12 md:py-24 lg:py-32"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+             <div className="container px-4 md:px-6">
+                <div 
+                  className="relative p-8 md:p-12 rounded-2xl overflow-hidden"
+                  style={{ backgroundImage: 'url(https://cdn1.alegra.com/websites/green-banner-background-2.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+                >
+                    <div className="absolute inset-0 bg-primary/90" />
+                    <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
+                        <div className="space-y-4">
+                            <Badge variant="secondary">Para Contadores</Badge>
+                            <h2 className="text-3xl font-bold tracking-tighter text-primary-foreground">¿Eres Contador? Potencia tu Práctica</h2>
+                            <p className="text-primary-foreground/80">
+                                Gestiona todos tus clientes desde una única plataforma. Optimiza tu tiempo, centraliza la información y ofrece un servicio de primera con herramientas diseñadas para profesionales.
+                            </p>
+                            <Button asChild size="lg" variant="secondary">
+                                <Link href="#pricing">Ver Planes para Despachos</Link>
+                            </Button>
+                        </div>
+                         <div className="relative z-10 mx-auto aspect-video overflow-hidden rounded-xl">
+                          <Image
+                            src="https://placehold.co/600x338.png"
+                            width="600"
+                            height="338"
+                            alt="Contador trabajando con cliente"
+                            className="object-cover"
+                            data-ai-hint="accountant client"
+                          />
+                        </div>
+                    </div>
+                </div>
+             </div>
           </motion.section>
 
           <motion.section 
@@ -422,12 +457,12 @@ export default function LandingPage() {
                           <div className="col-span-4 border-b"></div>
 
                           {/* Features */}
-                          {features.map((feature) => (
+                          {pricingFeatures.map((feature) => (
                               <React.Fragment key={feature.name}>
                                   <div className="py-4 font-medium flex items-center">{feature.name}</div>
-                                  <div className="py-4 text-center flex items-center justify-center">{renderFeature(feature.gratis)}</div>
-                                  <div className="py-4 text-center flex items-center justify-center bg-primary/5 rounded-lg">{renderFeature(feature.pro)}</div>
-                                  <div className="py-4 text-center flex items-center justify-center">{renderFeature(feature.despacho)}</div>
+                                  <div className="py-4 text-center flex items-center justify-center">{renderPricingFeature(feature.gratis)}</div>
+                                  <div className="py-4 text-center flex items-center justify-center bg-primary/5 rounded-lg">{renderPricingFeature(feature.pro)}</div>
+                                  <div className="py-4 text-center flex items-center justify-center">{renderPricingFeature(feature.despacho)}</div>
                               </React.Fragment>
                           ))}
                           
@@ -526,7 +561,7 @@ export default function LandingPage() {
               <div className="grid gap-1">
                 <h3 className="font-semibold">Producto</h3>
                 <Link href="#features" className="hover:underline">Características</Link>
-                <Link href="#services" className="hover:underline">Servicios</Link>
+                <Link href="#how-it-works" className="hover:underline">Cómo Funciona</Link>
                 <Link href="#pricing" className="hover:underline">Planes</Link>
                 <Link href="#faq" className="hover:underline">FAQ</Link>
               </div>
@@ -559,26 +594,6 @@ export default function LandingPage() {
         </footer>
       </div>
       
-      <Dialog open={!!selectedService} onOpenChange={(isOpen) => !isOpen && setSelectedService(null)}>
-        <DialogContent>
-          {selectedService && (
-            <>
-              <DialogHeader>
-                <div className="flex items-center gap-4 mb-4">
-                   <div className={`inline-flex h-12 w-12 items-center justify-center rounded-full ${selectedService.bgColor}`}>
-                      <selectedService.icon className={`h-6 w-6 ${selectedService.iconColor}`} />
-                  </div>
-                  <DialogTitle className="text-2xl">{selectedService.title}</DialogTitle>
-                </div>
-              </DialogHeader>
-              <DialogDescription className="text-base text-foreground whitespace-pre-wrap">
-                {selectedService.detailedDescription}
-              </DialogDescription>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-      
       <Dialog open={!!selectedFeature} onOpenChange={(isOpen) => !isOpen && setSelectedFeature(null)}>
         <DialogContent>
           {selectedFeature && (
@@ -591,7 +606,8 @@ export default function LandingPage() {
                   <DialogTitle className="text-2xl">{selectedFeature.title}</DialogTitle>
                 </div>
               </DialogHeader>
-              <DialogDescription className="text-base text-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: selectedFeature.detailedDescription.replace(/\n/g, '<br />') }}>
+              <DialogDescription className="text-base text-foreground whitespace-pre-wrap">
+                {selectedFeature.description}
               </DialogDescription>
             </>
           )}
