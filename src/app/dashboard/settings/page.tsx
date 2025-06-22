@@ -55,11 +55,19 @@ export default function SettingsPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(SettingsSchema),
-    values: {
+    defaultValues: {
       name: currentUser.name,
       rnc: currentUser.rnc,
     }
   });
+
+  useEffect(() => {
+    // This ensures the form is updated if the currentUser data changes from context
+    form.reset({
+      name: currentUser.name,
+      rnc: currentUser.rnc,
+    });
+  }, [currentUser, form]);
 
   const onSubmit = (data: FormValues) => {
     updateCurrentUser(data);
