@@ -125,9 +125,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const updateTeamMember = useCallback((id: string, memberData: Partial<TeamMemberData>) => {
     setTeamMembers(prev => prev.map(m => {
         if (m.id === id) {
-            const updatedMember = { ...m, name: memberData.name!, email: memberData.email!, role: memberData.role! };
+            const updatedMember = { ...m, ...memberData };
             if (memberData.invoiceLimit !== undefined) {
-                updatedMember.invoiceUsage.limit = memberData.invoiceLimit;
+              updatedMember.invoiceUsage = { ...m.invoiceUsage, limit: memberData.invoiceLimit };
             }
             return updatedMember;
         }
