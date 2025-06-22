@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -37,6 +36,11 @@ export default function ManageFormsPage() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const uniqueCategories = useMemo(() => {
+    const categories = formDefinitions.map(f => f.category);
+    return [...new Set(categories)];
+  }, [formDefinitions]);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(FormDefinitionSchema),
@@ -203,7 +207,18 @@ export default function ManageFormsPage() {
                     </div>
                     <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea placeholder="Descripción corta del propósito del formulario..." {...field} /></FormControl><FormMessage /></FormItem>)} />
                      <div className="grid md:grid-cols-3 gap-4">
-                        <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Categoría</FormLabel><FormControl><Input placeholder="Formatos de Envío" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="category" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Categoría</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Formatos de Envío" {...field} list="category-list" />
+                                </FormControl>
+                                <datalist id="category-list">
+                                    {uniqueCategories.map(cat => <option key={cat} value={cat} />)}
+                                </datalist>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
                         <FormField control={form.control} name="version" render={({ field }) => (<FormItem><FormLabel>Versión</FormLabel><FormControl><Input placeholder="1.0.0" {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="status" render={({ field }) => (
                         <FormItem><FormLabel>Estado</FormLabel>
@@ -276,4 +291,3 @@ export default function ManageFormsPage() {
     </>
   );
 }
-
