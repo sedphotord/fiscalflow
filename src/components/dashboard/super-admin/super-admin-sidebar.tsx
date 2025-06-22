@@ -11,7 +11,7 @@ import {
   Plug,
   Settings,
   ArrowLeft,
-  Palette,
+  LayoutList,
   Newspaper,
   CreditCard,
   AlertTriangle,
@@ -132,7 +132,7 @@ export function SuperAdminSidebar({ onLinkClick }: SuperAdminSidebarProps) {
                 </AccordionTrigger>
                 <AccordionContent className="pl-8 pt-1">
                   <nav className="grid gap-1">
-                    <Link href="/dashboard/super-admin/content/templates" onClick={onLinkClick} className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary', pathname.includes('/content/templates') && 'bg-accent text-accent-foreground')}><Palette className="h-4 w-4" />Plantillas</Link>
+                    <Link href="/dashboard/super-admin/content/forms" onClick={onLinkClick} className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary', pathname.includes('/content/forms') && 'bg-accent text-accent-foreground')}><LayoutList className="mr-2 h-4 w-4" />Gestión de Formularios</Link>
                     <Link href="/dashboard/super-admin/content/posts" onClick={onLinkClick} className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary', pathname.includes('/content/posts') && 'bg-accent text-accent-foreground')}><Newspaper className="h-4 w-4" />Posts / Noticias</Link>
                   </nav>
                 </AccordionContent>

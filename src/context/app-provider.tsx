@@ -2,12 +2,12 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import type { Report, User, Company, TeamMember, AppContextType, UserPlan, TeamMemberRole, Plan, InvoicePack, CreateUserByAdminData, PlanData, InvoicePackData, TeamMemberData, SupportTicket } from '@/lib/types';
+import type { Report, User, Company, TeamMember, AppContextType, UserPlan, TeamMemberRole, Plan, InvoicePack, CreateUserByAdminData, PlanData, InvoicePackData, TeamMemberData, SupportTicket, FormDefinition, FormDefinitionData } from '@/lib/types';
 import { type toast as toastFn } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from '@/components/ui/toaster';
 import { Loader2 } from 'lucide-react';
-import { MOCK_USERS, MOCK_COMPANIES, MOCK_TEAM_MEMBERS, MOCK_REPORTS, MOCK_PLANS, MOCK_INVOICE_PACKS, MOCK_SUPPORT_TICKETS } from '@/lib/mock-db';
+import { MOCK_USERS, MOCK_COMPANIES, MOCK_TEAM_MEMBERS, MOCK_REPORTS, MOCK_PLANS, MOCK_INVOICE_PACKS, MOCK_SUPPORT_TICKETS, MOCK_FORM_DEFINITIONS } from '@/lib/mock-db';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -20,6 +20,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [plans, setPlans] = useState<Plan[]>(MOCK_PLANS);
   const [invoicePacks, setInvoicePacks] = useState<InvoicePack[]>(MOCK_INVOICE_PACKS);
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(MOCK_SUPPORT_TICKETS);
+  const [formDefinitions, setFormDefinitions] = useState<FormDefinition[]>(MOCK_FORM_DEFINITIONS);
   
   const [isLoading, setIsLoading] = useState(false); // Simplified loading
   const { toast } = useToast();
@@ -276,6 +277,26 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     toast({ title: 'Paquete Eliminado' });
   }, [toast]);
 
+  // Form Definition Management
+  const createFormDefinition = useCallback((data: FormDefinitionData) => {
+    const newForm: FormDefinition = { 
+      ...data, 
+      id: `form-${Date.now()}`, 
+      lastUpdatedAt: new Date().toISOString()
+    };
+    setFormDefinitions(prev => [...prev, newForm]);
+    toast({ title: 'Formulario Creado', description: `El formulario ${data.name} ha sido creado.` });
+  }, [toast]);
+
+  const updateFormDefinition = useCallback((id: string, data: Partial<FormDefinitionData>) => {
+    setFormDefinitions(prev => prev.map(f => f.id === id ? { ...f, ...data, lastUpdatedAt: new Date().toISOString() } as FormDefinition : f));
+    toast({ title: 'Formulario Actualizado' });
+  }, [toast]);
+
+  const deleteFormDefinition = useCallback((id: string) => {
+    setFormDefinitions(prev => prev.filter(f => f.id !== id));
+    toast({ title: 'Formulario Eliminado' });
+  }, [toast]);
 
   const value: AppContextType = {
     reports,
@@ -286,6 +307,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     plans,
     invoicePacks,
     supportTickets,
+    formDefinitions,
     theme: currentUser.theme,
     setTheme,
     addReport,
@@ -317,6 +339,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     createInvoicePack,
     updateInvoicePack,
     deleteInvoicePack,
+    createFormDefinition,
+    updateFormDefinition,
+    deleteFormDefinition,
   };
 
   if (isLoading) { 

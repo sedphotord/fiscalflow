@@ -5,7 +5,7 @@
  * Data is not persisted between server restarts.
  */
 
-import type { User, Company, TeamMember, Report, Plan, InvoicePack, Report606, Report607, Report608, Report609, SupportTicket } from './types';
+import type { User, Company, TeamMember, Report, Plan, InvoicePack, Report606, Report607, Report608, Report609, SupportTicket, FormDefinition } from './types';
 
 export const MOCK_USERS: User[] = [
     { id: 'user-1', name: 'Usuario Principal', rnc: '987654321', email: 'usuario.demo@fiscalflow.app', theme: 'system', plan: 'Pro', status: 'Activo', invoiceUsage: { current: 120, limit: 500 }, teamMemberLimit: 5, registeredAt: new Date('2023-01-15').toISOString() },
@@ -129,4 +129,13 @@ export const MOCK_INVOICE_PACKS: InvoicePack[] = [
 export const MOCK_SUPPORT_TICKETS: SupportTicket[] = [
     { id: 'TICKET-58291', userId: 'user-1', userName: 'Usuario Principal', subject: 'Problema con escaneo', message: 'La factura del proveedor XYZ no se escanea correctamente, los montos salen en cero.', status: 'Abierto', createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), response: 'Hemos recibido tu solicitud sobre el escaneo. Tu ID de ticket es TICKET-58291. Lo revisaremos pronto.' },
     { id: 'TICKET-92104', userId: 'user-4', userName: 'Consultores RD', subject: 'Duda sobre NCF', message: '¿Cómo debo registrar un NCF de consumidor final en el 607?', status: 'Cerrado', createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), response: '¡Hola! Gracias por tu consulta sobre NCF de consumidor final. Tu ticket es el TICKET-92104.' },
+];
+
+export const MOCK_FORM_DEFINITIONS: FormDefinition[] = [
+    { id: 'form-606', code: '606', name: 'Formato 606 - Compras', description: 'Reporte de compras de bienes y servicios.', status: 'Disponible', version: '1.2.0', lastUpdatedAt: new Date('2024-07-01').toISOString() },
+    { id: 'form-607', code: '607', name: 'Formato 607 - Ventas', description: 'Reporte de ventas de bienes y servicios.', status: 'Disponible', version: '1.1.5', lastUpdatedAt: new Date('2024-06-15').toISOString() },
+    { id: 'form-608', code: '608', name: 'Formato 608 - Anulados', description: 'Reporte de comprobantes fiscales anulados.', status: 'Disponible', version: '1.0.0', lastUpdatedAt: new Date('2024-05-20').toISOString() },
+    { id: 'form-609', code: '609', name: 'Formato 609 - Pagos al Exterior', description: 'Reporte de pagos a proveedores en el exterior.', status: 'Disponible', version: '1.0.0', lastUpdatedAt: new Date('2024-05-20').toISOString() },
+    { id: 'form-ir1', code: 'IR-1', name: 'Declaración Jurada IR-1', description: 'Declaración jurada de impuesto sobre la renta para personas físicas.', status: 'En Desarrollo', version: '0.5.0', lastUpdatedAt: new Date('2024-07-10').toISOString() },
+    { id: 'form-it1', code: 'IT-1', name: 'Declaración Jurada ITBIS', description: 'Declaración jurada de ITBIS.', status: 'Desactivado', version: '0.8.0', lastUpdatedAt: new Date('2024-04-01').toISOString() },
 ];
