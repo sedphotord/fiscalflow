@@ -132,10 +132,17 @@ export const MOCK_SUPPORT_TICKETS: SupportTicket[] = [
 ];
 
 export const MOCK_FORM_DEFINITIONS: FormDefinition[] = [
-    { id: 'form-606', code: '606', name: 'Formato 606 - Compras', description: 'Reporte de compras de bienes y servicios.', status: 'Disponible', version: '1.2.0', lastUpdatedAt: new Date('2024-07-01').toISOString() },
-    { id: 'form-607', code: '607', name: 'Formato 607 - Ventas', description: 'Reporte de ventas de bienes y servicios.', status: 'Disponible', version: '1.1.5', lastUpdatedAt: new Date('2024-06-15').toISOString() },
-    { id: 'form-608', code: '608', name: 'Formato 608 - Anulados', description: 'Reporte de comprobantes fiscales anulados.', status: 'Disponible', version: '1.0.0', lastUpdatedAt: new Date('2024-05-20').toISOString() },
-    { id: 'form-609', code: '609', name: 'Formato 609 - Pagos al Exterior', description: 'Reporte de pagos a proveedores en el exterior.', status: 'Disponible', version: '1.0.0', lastUpdatedAt: new Date('2024-05-20').toISOString() },
-    { id: 'form-ir1', code: 'IR-1', name: 'Declaración Jurada IR-1', description: 'Declaración jurada de impuesto sobre la renta para personas físicas.', status: 'En Desarrollo', version: '0.5.0', lastUpdatedAt: new Date('2024-07-10').toISOString() },
-    { id: 'form-it1', code: 'IT-1', name: 'Declaración Jurada ITBIS', description: 'Declaración jurada de ITBIS.', status: 'Desactivado', version: '0.8.0', lastUpdatedAt: new Date('2024-04-01').toISOString() },
+    { id: 'form-606', code: '606', name: 'Formato 606 - Compras', category: 'Formatos de Envío', description: 'Reporte de compras de bienes y servicios.', status: 'Disponible', version: '1.2.0', lastUpdatedAt: new Date('2024-07-01').toISOString(), fields: [
+        { columnOrder: 1, name: 'RNC_CEDULA', type: 'Texto' },
+        { columnOrder: 2, name: 'TIPO_ID', type: 'Numero' },
+        { columnOrder: 3, name: 'TIPO_BIENES_SERVICIOS', type: 'Numero' },
+        { columnOrder: 4, name: 'NCF', type: 'Texto' },
+        { columnOrder: 8, name: 'MONTO_FACTURADO', type: 'Moneda' },
+        { columnOrder: 9, name: 'ITBIS_FACTURADO', type: 'Moneda' },
+    ]},
+    { id: 'form-607', code: '607', name: 'Formato 607 - Ventas', category: 'Formatos de Envío', description: 'Reporte de ventas de bienes y servicios.', status: 'Disponible', version: '1.1.5', lastUpdatedAt: new Date('2024-06-15').toISOString(), fields: [] },
+    { id: 'form-608', code: '608', name: 'Formato 608 - Anulados', category: 'Formatos de Envío', description: 'Reporte de comprobantes fiscales anulados.', status: 'Disponible', version: '1.0.0', lastUpdatedAt: new Date('2024-05-20').toISOString(), fields: [] },
+    { id: 'form-609', code: '609', name: 'Formato 609 - Pagos al Exterior', category: 'Formatos de Envío', description: 'Reporte de pagos a proveedores en el exterior.', status: 'Disponible', version: '1.0.0', lastUpdatedAt: new Date('2024-05-20').toISOString(), fields: [] },
+    { id: 'form-ir1', code: 'IR-1', name: 'Declaración Jurada IR-1', category: 'Declaraciones Anuales', description: 'Declaración jurada de impuesto sobre la renta para personas físicas.', status: 'En Desarrollo', version: '0.5.0', lastUpdatedAt: new Date('2024-07-10').toISOString(), fields: [] },
+    { id: 'form-it1', code: 'IT-1', name: 'Declaración Jurada ITBIS', category: 'Declaraciones Mensuales', description: 'Declaración jurada de ITBIS.', status: 'Desactivado', version: '0.8.0', lastUpdatedAt: new Date('2024-04-01').toISOString(), fields: [] },
 ];

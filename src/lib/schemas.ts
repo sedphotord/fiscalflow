@@ -219,12 +219,20 @@ export const InvoicePackSchema = z.object({
   price: z.number().min(0, "El precio no puede ser negativo."),
 });
 
+export const FormFieldDefinitionSchema = z.object({
+    columnOrder: z.number().int("Debe ser un número entero."),
+    name: z.string().min(1, "El nombre del campo es requerido."),
+    type: z.enum(['Texto', 'Numero', 'Fecha', 'Moneda']),
+});
+
 // Schema for Form Definition management in Admin panel
 export const FormDefinitionSchema = z.object({
   id: z.string().optional(),
   code: z.string().min(3, "El código es requerido (ej: 606)."),
   name: z.string().min(5, "El nombre es requerido."),
   description: z.string().min(10, "La descripción es requerida."),
+  category: z.string().min(1, "La categoría es requerida."),
   status: z.enum(['Disponible', 'En Desarrollo', 'Desactivado']),
-  version: z.string().regex(/^\d+\.\d+\.\d+$/, "La versión debe ser en formato X.Y.Z (ej: 1.0.0).")
+  version: z.string().regex(/^\d+\.\d+\.\d+$/, "La versión debe ser en formato X.Y.Z (ej: 1.0.0)."),
+  fields: z.array(FormFieldDefinitionSchema).optional(),
 });
