@@ -14,16 +14,16 @@ env:
       - BUILD                 # Disponible durante el proceso de construcción
       - RUNTIME              # Disponible en tiempo de ejecución
 
-  - variable: API_KEY
-    secret: myApiKeySecret   # Se refiere al nombre del secreto en Secret Manager
+  # - variable: API_KEY
+  #   secret: myApiKeySecret   # Se refiere al nombre del secreto en Secret Manager
 
-  - variable: PINNED_API_KEY
-    secret: myApiKeySecret@5 # Se refiere a la versión 5 del secreto
+  # - variable: PINNED_API_KEY
+  #   secret: myApiKeySecret@5 # Se refiere a la versión 5 del secreto
 
-  - variable: VERBOSE_API_KEY
-    secret: projects/test-project/secrets/secretID
-    # Forma larga del secreto (útil para referencias cruzadas de proyectos o claridad)
+  # - variable: VERBOSE_API_KEY
+  #   secret: projects/test-project/secrets/secretID
+  #   # Forma larga del secreto (útil para referencias cruzadas de proyectos o claridad)
 
-  - variable: PINNED_VERBOSE_API_KEY
-    secret: projects/test-project/secrets/secretID/versions/5
-    # Forma larga del secreto con versión fija para mayor control
+  # - variable: PINNED_VERBOSE_API_KEY
+  #   secret: projects/test-project/secrets/secretID/versions/5
+  #   # Forma larga del secreto con versión fija para mayor control
