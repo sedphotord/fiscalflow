@@ -180,34 +180,36 @@ export default function LandingPage() {
   return (
     <>
       <div className="flex flex-col min-h-screen bg-background">
-        <header className="px-4 lg:px-6 h-16 flex items-center border-b sticky top-0 bg-background/95 z-50 backdrop-blur">
-          <Link href="#" className="flex items-center justify-center">
-            <Logo />
-          </Link>
-          <nav className="ml-auto hidden lg:flex gap-6 items-center">
-            <Link href="#features" className="text-sm font-medium hover:underline underline-offset-4">
-              Características
+        <header className="w-full h-16 flex items-center border-b sticky top-0 bg-background/95 z-50 backdrop-blur">
+          <div className="container flex items-center justify-between px-4 md:px-6">
+            <Link href="#" className="flex items-center justify-center">
+              <Logo />
             </Link>
-             <Link href="#how-it-works" className="text-sm font-medium hover:underline underline-offset-4">
-              Cómo Funciona
-            </Link>
-            <Link href="#pricing" className="text-sm font-medium hover:underline underline-offset-4">
-              Planes
-            </Link>
-            <Link href="#faq" className="text-sm font-medium hover:underline underline-offset-4">
-              FAQ
-            </Link>
-            <Link href="/login" className="text-sm font-medium hover:underline underline-offset-4">
-              Iniciar Sesión
-            </Link>
-            <Link href="/signup">
-              <Button>Registrarse</Button>
-            </Link>
-          </nav>
-          <div className="ml-auto lg:hidden">
-              <Link href="/login">
-                  <Button>Iniciar Sesión</Button>
+            <nav className="hidden lg:flex gap-6 items-center">
+              <Link href="#features" className="text-sm font-medium hover:underline underline-offset-4">
+                Características
               </Link>
+              <Link href="#how-it-works" className="text-sm font-medium hover:underline underline-offset-4">
+                Cómo Funciona
+              </Link>
+              <Link href="#pricing" className="text-sm font-medium hover:underline underline-offset-4">
+                Planes
+              </Link>
+              <Link href="#faq" className="text-sm font-medium hover:underline underline-offset-4">
+                FAQ
+              </Link>
+              <Link href="/login" className="text-sm font-medium hover:underline underline-offset-4">
+                Iniciar Sesión
+              </Link>
+              <Link href="/signup">
+                <Button>Registrarse</Button>
+              </Link>
+            </nav>
+            <div className="lg:hidden">
+                <Link href="/login">
+                    <Button>Iniciar Sesión</Button>
+                </Link>
+            </div>
           </div>
         </header>
         <main className="flex-1">
