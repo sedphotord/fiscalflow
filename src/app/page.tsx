@@ -174,9 +174,9 @@ export default function LandingPage() {
 
   const renderPricingFeature = (value: string | boolean) => {
     if (typeof value === 'boolean') {
-      return value ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <XCircle className="h-6 w-6 text-destructive mx-auto" />;
+      return value ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <XCircle className="h-6 w-6 text-muted-foreground/60 mx-auto" />;
     }
-    return <span className="text-sm">{value}</span>;
+    return <span className="text-sm font-semibold text-primary text-right">{value}</span>;
   };
 
   return (
@@ -510,9 +510,9 @@ export default function LandingPage() {
                           <CardContent>
                             <ul className="space-y-4">
                               {pricingFeatures.map(feature => (
-                                <li key={feature.name} className="flex items-center gap-3">
-                                  <div className="w-6">{renderPricingFeature(feature.gratis)}</div>
-                                  <span className="flex-1 text-left">{feature.name}</span>
+                                <li key={feature.name} className="flex items-center justify-between gap-4">
+                                  <span className="text-left text-sm">{feature.name}</span>
+                                  <div className="flex-shrink-0">{renderPricingFeature(feature.gratis)}</div>
                                 </li>
                               ))}
                             </ul>
@@ -533,9 +533,9 @@ export default function LandingPage() {
                           <CardContent>
                             <ul className="space-y-4">
                               {pricingFeatures.map(feature => (
-                                <li key={feature.name} className="flex items-center gap-3">
-                                   <div className="w-6">{renderPricingFeature(feature.pro)}</div>
-                                   <span className="flex-1 text-left">{feature.name}</span>
+                                <li key={feature.name} className="flex items-center justify-between gap-4">
+                                   <span className="text-left text-sm">{feature.name}</span>
+                                   <div className="flex-shrink-0">{renderPricingFeature(feature.pro)}</div>
                                 </li>
                               ))}
                             </ul>
@@ -555,9 +555,9 @@ export default function LandingPage() {
                           <CardContent>
                             <ul className="space-y-4">
                               {pricingFeatures.map(feature => (
-                                <li key={feature.name} className="flex items-center gap-3">
-                                  <div className="w-6">{renderPricingFeature(feature.despacho)}</div>
-                                  <span className="flex-1 text-left">{feature.name}</span>
+                                <li key={feature.name} className="flex items-center justify-between gap-4">
+                                  <span className="text-left text-sm">{feature.name}</span>
+                                  <div className="flex-shrink-0">{renderPricingFeature(feature.despacho)}</div>
                                 </li>
                               ))}
                             </ul>
