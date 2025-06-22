@@ -41,7 +41,11 @@ import {
 } from "@/components/ui/accordion"
 
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  onLinkClick?: () => void;
+}
+
+export function AppSidebar({ onLinkClick }: AppSidebarProps) {
   const pathname = usePathname();
 
   const isEnvioActive = ['/compras', '/ventas', '/ncf-anulados', '/pagos-exterior', '/otros', '/batch-upload'].some(p => pathname.startsWith(`/dashboard${p}`));
@@ -63,7 +67,7 @@ export function AppSidebar() {
     <div className="border-r bg-background">
       <div className="flex h-full max-h-screen flex-col">
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-          <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+          <Link href="/dashboard" className="flex items-center gap-2 font-semibold" onClick={onLinkClick}>
             <Logo />
           </Link>
         </div>
@@ -72,6 +76,7 @@ export function AppSidebar() {
             
               <Link
                 href="/dashboard"
+                onClick={onLinkClick}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                   pathname === '/dashboard' && 'bg-muted text-primary'
@@ -82,6 +87,7 @@ export function AppSidebar() {
               </Link>
               <Link
                 href="/dashboard/reports"
+                onClick={onLinkClick}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                   pathname.startsWith('/dashboard/reports') && 'bg-muted text-primary'
@@ -113,6 +119,7 @@ export function AppSidebar() {
                   <nav className="grid gap-1">
                     <Link
                       href="/dashboard/compras"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/compras') && 'bg-muted text-primary'
@@ -123,6 +130,7 @@ export function AppSidebar() {
                     </Link>
                      <Link
                       href="/dashboard/ventas"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/ventas') && 'bg-muted text-primary'
@@ -133,6 +141,7 @@ export function AppSidebar() {
                     </Link>
                     <Link
                       href="/dashboard/ncf-anulados"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/ncf-anulados') && 'bg-muted text-primary'
@@ -143,6 +152,7 @@ export function AppSidebar() {
                     </Link>
                     <Link
                       href="/dashboard/pagos-exterior"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/pagos-exterior') && 'bg-muted text-primary'
@@ -153,6 +163,7 @@ export function AppSidebar() {
                     </Link>
                      <Link
                       href="/dashboard/otros"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/otros') && 'bg-muted text-primary'
@@ -163,6 +174,7 @@ export function AppSidebar() {
                     </Link>
                     <Link
                       href="/dashboard/batch-upload"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/batch-upload') && 'bg-muted text-primary'
@@ -188,6 +200,7 @@ export function AppSidebar() {
                    <nav className="grid gap-1">
                     <Link
                       href="/dashboard/declaraciones"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/declaraciones') && 'bg-muted text-primary'
@@ -215,6 +228,7 @@ export function AppSidebar() {
                         <Link
                           key={calc.title}
                           href={calc.isImplemented ? calc.href : '/dashboard/calculators'}
+                          onClick={onLinkClick}
                           className={cn(
                             'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                             calc.isImplemented && pathname.startsWith(calc.href) && 'bg-muted text-primary',
@@ -230,6 +244,7 @@ export function AppSidebar() {
             </Accordion>
             <Link
                 href="/dashboard/contribuyentes"
+                onClick={onLinkClick}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                   pathname.startsWith('/dashboard/contribuyentes') && 'bg-muted text-primary'
@@ -240,6 +255,7 @@ export function AppSidebar() {
               </Link>
             <Link
                 href="/dashboard/validator"
+                onClick={onLinkClick}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                   pathname.startsWith('/dashboard/validator') && 'bg-muted text-primary'
@@ -250,6 +266,7 @@ export function AppSidebar() {
               </Link>
             <Link
                 href="/dashboard/settings/team"
+                onClick={onLinkClick}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                   pathname.startsWith('/dashboard/settings/team') && 'bg-muted text-primary'
@@ -277,6 +294,7 @@ export function AppSidebar() {
                    <nav className="grid gap-1">
                     <Link
                       href="/dashboard/subscriptions"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname === '/dashboard/subscriptions' && 'bg-muted text-primary'
@@ -287,6 +305,7 @@ export function AppSidebar() {
                     </Link>
                      <Link
                       href="/dashboard/subscriptions/usage"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/subscriptions/usage') && 'bg-muted text-primary'
@@ -297,6 +316,7 @@ export function AppSidebar() {
                     </Link>
                     <Link
                       href="/dashboard/subscriptions/payment-methods"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/subscriptions/payment-methods') && 'bg-muted text-primary'
@@ -307,6 +327,7 @@ export function AppSidebar() {
                     </Link>
                     <Link
                       href="/dashboard/subscriptions/billing"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/subscriptions/billing') && 'bg-muted text-primary'
@@ -317,6 +338,7 @@ export function AppSidebar() {
                     </Link>
                     <Link
                       href="/dashboard/subscriptions/buy"
+                      onClick={onLinkClick}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                         pathname.startsWith('/dashboard/subscriptions/buy') && 'bg-muted text-primary'
@@ -331,6 +353,7 @@ export function AppSidebar() {
             </Accordion>
             <Link
               href="/dashboard/integrations"
+              onClick={onLinkClick}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                 pathname.startsWith('/dashboard/integrations') && 'bg-muted text-primary'
@@ -341,6 +364,7 @@ export function AppSidebar() {
             </Link>
              <Link
               href="/dashboard/settings"
+              onClick={onLinkClick}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                 pathname.startsWith('/dashboard/settings') && !pathname.startsWith('/dashboard/settings/team') && 'bg-muted text-primary'
@@ -351,6 +375,7 @@ export function AppSidebar() {
             </Link>
              <Link
               href="/dashboard/support"
+              onClick={onLinkClick}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                 pathname.startsWith('/dashboard/support') && 'bg-muted text-primary'
@@ -365,6 +390,7 @@ export function AppSidebar() {
              <div className="p-2 lg:p-4">
                <Link
                   href="/dashboard/super-admin"
+                  onClick={onLinkClick}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
                     pathname === '/dashboard/super-admin' && 'bg-muted text-primary'

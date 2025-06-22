@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -35,11 +36,13 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAppContext } from '@/context/app-provider';
 import { Progress } from '@/components/ui/progress';
+import { useState } from 'react';
 
 export function Header() {
   const router = useRouter();
   const { currentUser } = useAppContext();
   const usagePercentage = (currentUser.invoiceUsage.current / currentUser.invoiceUsage.limit) * 100;
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleLogout = () => {
     // In a real app, you would clear the user's session here.
@@ -48,7 +51,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
-      <Sheet>
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
             <Menu className="h-5 w-5" />
@@ -56,7 +59,7 @@ export function Header() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="flex flex-col p-0">
-          <AppSidebar />
+          <AppSidebar onLinkClick={() => setIsSheetOpen(false)} />
         </SheetContent>
       </Sheet>
       <div className="flex w-full flex-1 items-center justify-center gap-2">

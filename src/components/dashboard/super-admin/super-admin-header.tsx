@@ -29,10 +29,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { useState } from 'react';
 
 export function SuperAdminHeader() {
   const router = useRouter();
   const { currentUser } = useAppContext();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleLogout = () => {
     router.push('/');
@@ -40,7 +42,7 @@ export function SuperAdminHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
-      <Sheet>
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
             <Menu className="h-5 w-5" />
@@ -48,7 +50,7 @@ export function SuperAdminHeader() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="flex flex-col p-0">
-          <SuperAdminSidebar />
+          <SuperAdminSidebar onLinkClick={() => setIsSheetOpen(false)} />
         </SheetContent>
       </Sheet>
        <div className="w-full flex-1">
