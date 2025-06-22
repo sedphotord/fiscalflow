@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -17,7 +18,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from '@/components/ui/select';
 import { FormDefinitionSchema } from '@/lib/schemas';
 import type { FormDefinition, FormDefinitionStatus } from '@/lib/types';
 import { format } from 'date-fns';
@@ -32,6 +33,8 @@ export default function ManageFormsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingForm, setEditingForm] = useState<FormDefinition | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   useEffect(() => {
     setIsClient(true);
@@ -48,7 +51,7 @@ export default function ManageFormsPage() {
       code: '',
       name: '',
       description: '',
-      category: 'Formatos de Envío',
+      category: '',
       status: 'En Desarrollo',
       version: '1.0.0',
       fields: [],
@@ -62,6 +65,8 @@ export default function ManageFormsPage() {
 
   const handleOpenDialog = (formDef: FormDefinition | null = null) => {
     setEditingForm(formDef);
+    setIsAddingNewCategory(false);
+    setNewCategoryName('');
     if (formDef) {
       form.reset({ ...formDef, fields: formDef.fields || [] });
     } else {
@@ -69,7 +74,7 @@ export default function ManageFormsPage() {
         code: '',
         name: '',
         description: '',
-        category: 'Formatos de Envío',
+        category: '',
         status: 'En Desarrollo',
         version: '1.0.0',
         fields: [],
@@ -79,10 +84,25 @@ export default function ManageFormsPage() {
   };
 
   const onSubmit = (data: FormValues) => {
+    const finalData = { ...data };
+
+    if (isAddingNewCategory) {
+      if (!newCategoryName.trim()) {
+        form.setError("category", { message: "Debe proveer un nombre para la nueva categoría." });
+        return;
+      }
+      finalData.category = newCategoryName.trim();
+    }
+    
+    if (!finalData.category) {
+        form.setError("category", { message: "Debe seleccionar o crear una categoría." });
+        return;
+    }
+
     if (editingForm) {
-      updateFormDefinition(editingForm.id, data);
+      updateFormDefinition(editingForm.id, finalData);
     } else {
-      createFormDefinition(data);
+      createFormDefinition(finalData);
     }
     setIsDialogOpen(false);
   };
@@ -186,7 +206,13 @@ export default function ManageFormsPage() {
         </div>
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+            setIsAddingNewCategory(false);
+            setNewCategoryName('');
+        }
+      }}>
         <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>{editingForm ? 'Editar Formulario' : 'Crear Nuevo Formulario'}</DialogTitle>
@@ -208,16 +234,41 @@ export default function ManageFormsPage() {
                     <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Descripción</FormLabel><FormControl><Textarea placeholder="Descripción corta del propósito del formulario..." {...field} /></FormControl><FormMessage /></FormItem>)} />
                      <div className="grid md:grid-cols-3 gap-4">
                         <FormField control={form.control} name="category" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Categoría</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Formatos de Envío" {...field} list="category-list" />
-                                </FormControl>
-                                <datalist id="category-list">
-                                    {uniqueCategories.map(cat => <option key={cat} value={cat} />)}
-                                </datalist>
-                                <FormMessage />
-                            </FormItem>
+                          <FormItem>
+                            <FormLabel>Categoría</FormLabel>
+                            <Select
+                              onValueChange={(value) => {
+                                if (value === '--add-new--') {
+                                  setIsAddingNewCategory(true);
+                                  field.onChange('');
+                                } else {
+                                  setIsAddingNewCategory(false);
+                                  setNewCategoryName('');
+                                  field.onChange(value);
+                                }
+                              }}
+                              value={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Seleccione una categoría..." />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {uniqueCategories.map(cat => (
+                                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                ))}
+                                <SelectSeparator />
+                                <SelectItem value="--add-new--" className="focus:bg-transparent">
+                                  <span className="flex items-center gap-2 text-primary">
+                                    <PlusCircle className="h-4 w-4" />
+                                    Añadir Nueva Categoría
+                                  </span>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
                         )} />
                         <FormField control={form.control} name="version" render={({ field }) => (<FormItem><FormLabel>Versión</FormLabel><FormControl><Input placeholder="1.0.0" {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="status" render={({ field }) => (
@@ -233,6 +284,19 @@ export default function ManageFormsPage() {
                         <FormMessage /></FormItem>
                         )} />
                     </div>
+                     {isAddingNewCategory && (
+                        <FormItem>
+                            <FormLabel>Nombre de la Nueva Categoría</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="Escriba el nombre..."
+                                    value={newCategoryName}
+                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                    autoFocus
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )}
                 </CardContent>
               </Card>
 
@@ -291,3 +355,4 @@ export default function ManageFormsPage() {
     </>
   );
 }
+
