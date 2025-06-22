@@ -108,7 +108,7 @@ export default function AdminUsersPage() {
   }
 
   const onCreateUserSubmit = (data: CreateUserFormValues) => {
-    if (data.teamMembers.length > totalTeamLimit) {
+    if (data.teamMembers && data.teamMembers.length > totalTeamLimit) {
       createUserForm.setError("teamMembers", { type: 'manual', message: 'Ha excedido el límite de miembros del equipo para este plan.' });
       return;
     }
