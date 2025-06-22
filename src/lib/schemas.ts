@@ -245,3 +245,21 @@ export const FormDefinitionSchema = z.object({
   version: z.string().regex(/^\d+\.\d+\.\d+$/, "La versión debe ser en formato X.Y.Z (ej: 1.0.0)."),
   fields: z.array(FormFieldDefinitionSchema).optional(),
 });
+
+export const CompanyProfileSchema = z.object({
+  name: z.string().min(2, "Razón social es requerida."),
+  rnc: z.string().refine(rnc => (rnc.length === 9 || rnc.length === 11) && /^\d+$/.test(rnc), {
+    message: 'El RNC/Cédula debe ser numérico y tener 9 u 11 dígitos.',
+  }),
+  commercialName: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email("Correo inválido."),
+  website: z.string().url("URL inválida.").optional().or(z.literal('')),
+  addressStreet: z.string().optional(),
+  addressCity: z.string().optional(),
+  addressProvince: z.string().optional(),
+  regime: z.string().optional(),
+  sector: z.string().optional(),
+  employeeCount: z.string().optional(),
+  currency: z.string().optional(),
+});

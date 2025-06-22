@@ -43,7 +43,7 @@ export type TeamMemberRole = typeof TEAM_ROLES[number]['id'];
 
 export type User = {
     id: string;
-    name: string;
+    name: string; // Razón Social
     rnc: string;
     email: string;
     theme: 'light' | 'dark' | 'system';
@@ -55,6 +55,21 @@ export type User = {
     };
     teamMemberLimit: number;
     registeredAt: string;
+    
+    // New fields for company profile
+    commercialName?: string;
+    phone?: string;
+    website?: string;
+    address?: {
+        street?: string;
+        city?: string;
+        province?: string;
+    };
+    regime?: string;
+    sector?: string;
+    employeeCount?: string;
+    currency?: string;
+    logoUrl?: string;
 };
 
 export type Company = {

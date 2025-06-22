@@ -8,7 +8,31 @@
 import type { User, Company, TeamMember, Report, Plan, InvoicePack, Report606, Report607, Report608, Report609, SupportTicket, FormDefinition } from './types';
 
 export const MOCK_USERS: User[] = [
-    { id: 'user-1', name: 'Usuario Principal', rnc: '987654321', email: 'usuario.demo@fiscalflow.app', theme: 'system', plan: 'Pro', status: 'Activo', invoiceUsage: { current: 120, limit: 500 }, teamMemberLimit: 5, registeredAt: new Date('2023-01-15').toISOString() },
+    { 
+        id: 'user-1', 
+        name: 'Usuario Principal', 
+        rnc: '987654321', 
+        email: 'usuario.demo@fiscalflow.app', 
+        theme: 'system', 
+        plan: 'Pro', 
+        status: 'Activo', 
+        invoiceUsage: { current: 120, limit: 500 }, 
+        teamMemberLimit: 5, 
+        registeredAt: new Date('2023-01-15').toISOString(),
+        commercialName: 'FiscalFlow Demo',
+        phone: '+1 809-555-1234',
+        website: 'https://fiscalflow.app',
+        address: {
+            street: 'Av. Winston Churchill 123',
+            city: 'Santo Domingo',
+            province: 'Distrito Nacional'
+        },
+        regime: 'Régimen general',
+        sector: 'Tecnología',
+        employeeCount: '1 - 15',
+        currency: 'Dominican Republic Peso (DOP)',
+        logoUrl: 'https://placehold.co/300x300.png'
+    },
     { id: 'user-2', name: 'Empresa ABC', rnc: '131223344', email: 'contacto@empresa-abc.com', theme: 'light', plan: 'Despacho', status: 'Activo', invoiceUsage: { current: 1500, limit: 10000 }, teamMemberLimit: 50, registeredAt: new Date('2022-11-20').toISOString() },
     { id: 'user-3', name: 'Juan Perez', rnc: '40212345678', email: 'juan.perez@email.com', theme: 'dark', plan: 'Gratis', status: 'Activo', invoiceUsage: { current: 25, limit: 50 }, teamMemberLimit: 1, registeredAt: new Date('2024-03-10').toISOString() },
     { id: 'user-4', name: 'Consultores RD', rnc: '101000001', email: 'info@consultores.do', theme: 'system', plan: 'Pro', status: 'Pago pendiente', invoiceUsage: { current: 501, limit: 500 }, teamMemberLimit: 5, registeredAt: new Date('2023-08-01').toISOString() },
