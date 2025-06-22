@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Link from 'next/link';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -15,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/context/app-provider';
 import { SupportSchema } from '@/lib/schemas';
 import { createSupportTicket } from '@/ai/flows/support-ticket-flow';
-import { HelpCircle, Send, BookOpen, Loader2 } from 'lucide-react';
+import { HelpCircle, Send, BookOpen, Loader2, FileText, Info } from 'lucide-react';
 
 type SupportFormValues = z.infer<typeof SupportSchema>;
 
@@ -34,7 +35,7 @@ const faqItems = [
   },
   {
     question: "¿Qué formatos de la DGII puedo generar?",
-    answer: "Actualmente, puede generar los Formatos de Envío 606 (Compras) y 607 (Ventas). Estamos trabajando activamente para incorporar más formatos, como el 608 (NCF Anulados), y las declaraciones anuales (IR-1, IR-2) en futuras actualizaciones."
+    answer: "Actualmente, puede generar los Formatos de Envío 606 (Compras) y 607 (Ventas). Estamos trabajando activamente para incorporar más formatos, como el 608 (NCF Anulados) y las declaraciones anuales (IR-1, IR-2) en futuras actualizaciones."
   },
   {
     question: "¿Qué hago si el escáner extrae un dato incorrecto?",
@@ -93,29 +94,48 @@ export default function SupportPage() {
         description="Encuentre respuestas a sus preguntas y contáctenos si necesita asistencia."
       />
       <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <BookOpen className="h-6 w-6 text-primary" />
-              <div>
-                <CardTitle>Preguntas Frecuentes (FAQ)</CardTitle>
-                <CardDescription>Respuestas rápidas a las dudas más comunes.</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-              {faqItems.map((item, index) => (
-                <AccordionItem key={index} value={`item-${index}`}>
-                  <AccordionTrigger>{item.question}</AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    {item.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col gap-8">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <BookOpen className="h-6 w-6 text-primary" />
+                  <div>
+                    <CardTitle>Preguntas Frecuentes (FAQ)</CardTitle>
+                    <CardDescription>Respuestas rápidas a las dudas más comunes.</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Accordion type="single" collapsible className="w-full">
+                  {faqItems.map((item, index) => (
+                    <AccordionItem key={index} value={`item-${index}`}>
+                      <AccordionTrigger>{item.question}</AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground">
+                        {item.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                 <div className="flex items-center gap-3">
+                    <Info className="h-6 w-6 text-primary" />
+                    <div>
+                      <CardTitle>Recursos Adicionales</CardTitle>
+                      <CardDescription>Consulta nuestros documentos de compañía y legales.</CardDescription>
+                    </div>
+                </div>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-4">
+                <Button asChild variant="outline"><Link href="/terms"><FileText className="mr-2"/>Términos</Link></Button>
+                <Button asChild variant="outline"><Link href="/privacy"><FileText className="mr-2"/>Privacidad</Link></Button>
+                <Button asChild variant="outline"><Link href="/about">Sobre Nosotros</Link></Button>
+                <Button asChild variant="outline"><Link href="/contact">Contacto</Link></Button>
+              </CardContent>
+            </Card>
+        </div>
         
         <Card>
           <CardHeader>

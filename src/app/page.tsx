@@ -242,7 +242,7 @@ export default function LandingPage() {
             <div className="container px-4 md:px-6">
               <div 
                 className="relative grid gap-8 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px] p-8 md:p-12 rounded-2xl items-center overflow-hidden"
-                style={{ backgroundImage: 'url(https://cdn1.alegra.com/websites/green-banner-background-2.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+                style={{ backgroundImage: 'url(https://umecit.edu.pa/wp-content/uploads/2023/04/Contabilidad-y-Auditoria.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
               >
                 <div className="absolute inset-0 bg-primary/90" />
                 <motion.div className="relative z-10 flex flex-col justify-center space-y-4" variants={itemVariants}>
@@ -668,23 +668,23 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 gap-4 text-sm md:col-span-2 md:grid-cols-4">
               <div className="grid gap-1">
                 <h3 className="font-semibold">Producto</h3>
-                <Link href="#features" className="hover:underline">Características</Link>
-                <Link href="#how-it-works" className="hover:underline">Cómo Funciona</Link>
-                <Link href="#pricing" className="hover:underline">Planes</Link>
-                <Link href="#faq" className="hover:underline">FAQ</Link>
-                <Link href="#" className="hover:underline">Blog</Link>
+                <Link href="/#features" className="hover:underline">Características</Link>
+                <Link href="/#how-it-works" className="hover:underline">Cómo Funciona</Link>
+                <Link href="/#pricing" className="hover:underline">Planes</Link>
+                <Link href="/#faq" className="hover:underline">FAQ</Link>
+                <Link href="/blog" className="hover:underline">Blog</Link>
               </div>
               <div className="grid gap-1">
                 <h3 className="font-semibold">Compañía</h3>
-                <Link href="#" className="hover:underline">Sobre Nosotros</Link>
-                <Link href="#" className="hover:underline">Carreras</Link>
-                 <Link href="#" className="hover:underline">Prensa</Link>
-                <Link href="#faq" className="hover:underline">Contacto</Link>
+                <Link href="/about" className="hover:underline">Sobre Nosotros</Link>
+                <Link href="/careers" className="hover:underline">Carreras</Link>
+                <Link href="/press" className="hover:underline">Prensa</Link>
+                <Link href="/contact" className="hover:underline">Contacto</Link>
               </div>
               <div className="grid gap-1">
                 <h3 className="font-semibold">Legal</h3>
-                <Link href="#" className="hover:underline">Términos de Servicio</Link>
-                <Link href="#" className="hover:underline">Política de Privacidad</Link>
+                <Link href="/terms" className="hover:underline">Términos de Servicio</Link>
+                <Link href="/privacy" className="hover:underline">Política de Privacidad</Link>
               </div>
                <div className="grid gap-1">
                 <h3 className="font-semibold">Redes Sociales</h3>

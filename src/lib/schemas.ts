@@ -140,6 +140,15 @@ export const SupportSchema = z.object({
   message: z.string().min(20, { message: 'El mensaje debe tener al menos 20 caracteres.' }),
 });
 
+// Schema for the general contact form
+export const ContactSchema = z.object({
+  name: z.string().min(2, { message: 'El nombre es requerido.' }),
+  email: z.string().email({ message: 'Por favor ingrese un correo electrónico válido.' }),
+  subject: z.string().min(5, { message: 'El asunto debe tener al menos 5 caracteres.' }),
+  message: z.string().min(10, { message: 'El mensaje debe tener al menos 10 caracteres.' }),
+});
+
+
 // Schema for Payment Method Form
 export const PaymentMethodSchema = z.object({
   cardholderName: z.string().min(3, "Nombre en la tarjeta es requerido."),
