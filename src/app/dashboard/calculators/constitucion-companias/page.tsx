@@ -139,51 +139,53 @@ export default function ConstitucionCompaniasPage() {
                 <h3 className="text-xl font-semibold text-foreground">Cálculo del pago del impuesto</h3>
             </div>
 
-            <Card as={motion.div} variants={cardVariants} initial="visible" animate="visible">
-                <Form {...capitalForm}>
-                    <form onSubmit={capitalForm.handleSubmit(handleCalculate)}>
-                        <CardHeader>
-                            <CardTitle>Capital social autorizado</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                             <FormField
-                              control={capitalForm.control}
-                              name="capital"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      placeholder="Introduzca el capital social autorizado"
-                                      {...field}
-                                      onChange={e => field.onChange(e.target.valueAsNumber || 0)}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            {impuesto !== null && (
-                                <div className="mt-6 text-lg">
-                                    <span className="font-medium">Monto a pagar: </span>
-                                    <span className="font-bold text-primary">{formatCurrency(impuesto)}</span>
-                                </div>
-                            )}
-                        </CardContent>
-                        <CardFooter className="gap-2">
-                             <Button type="button" variant="outline" onClick={handleClear}>Limpiar</Button>
-                             <Button type="submit">Calcular</Button>
-                        </CardFooter>
-                    </form>
-                </Form>
-                 {impuesto !== null && step === 1 && (
-                    <div className="p-6 pt-0 border-t mt-4">
-                        <Button className="mt-6 w-full md:w-auto" onClick={() => setStep(2)}>
-                            Generar Autorización <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </div>
-                )}
-            </Card>
+            <motion.div variants={cardVariants} initial="visible" animate="visible">
+                <Card>
+                    <Form {...capitalForm}>
+                        <form onSubmit={capitalForm.handleSubmit(handleCalculate)}>
+                            <CardHeader>
+                                <CardTitle>Capital social autorizado</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <FormField
+                                  control={capitalForm.control}
+                                  name="capital"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          placeholder="Introduzca el capital social autorizado"
+                                          {...field}
+                                          onChange={e => field.onChange(e.target.valueAsNumber || 0)}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                {impuesto !== null && (
+                                    <div className="mt-6 text-lg">
+                                        <span className="font-medium">Monto a pagar: </span>
+                                        <span className="font-bold text-primary">{formatCurrency(impuesto)}</span>
+                                    </div>
+                                )}
+                            </CardContent>
+                            <CardFooter className="gap-2">
+                                <Button type="button" variant="outline" onClick={handleClear}>Limpiar</Button>
+                                <Button type="submit">Calcular</Button>
+                            </CardFooter>
+                        </form>
+                    </Form>
+                    {impuesto !== null && step === 1 && (
+                        <div className="p-6 pt-0 border-t mt-4">
+                            <Button className="mt-6 w-full md:w-auto" onClick={() => setStep(2)}>
+                                Generar Autorización <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </Card>
+            </motion.div>
 
             <AnimatePresence>
             {step >= 2 && (

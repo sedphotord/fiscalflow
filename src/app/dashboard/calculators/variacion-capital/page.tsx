@@ -144,76 +144,78 @@ export default function VariacionCapitalPage() {
                 <h3 className="text-xl font-semibold text-foreground">Cálculo del pago del impuesto</h3>
             </div>
 
-            <Card as={motion.div} variants={cardVariants} initial="visible" animate="visible">
-                <Form {...capitalForm}>
-                    <form onSubmit={capitalForm.handleSubmit(handleCalculate)}>
-                        <CardHeader>
-                            <CardTitle>Datos del Capital Social</CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid md:grid-cols-2 gap-6">
-                             <FormField
-                              control={capitalForm.control}
-                              name="capitalAnterior"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Capital Social Autorizado Anterior</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      placeholder="Introduzca el capital anterior"
-                                      {...field}
-                                      onChange={e => field.onChange(e.target.valueAsNumber || 0)}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                             <FormField
-                              control={capitalForm.control}
-                              name="capitalNuevo"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Nuevo Capital Social Autorizado</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      placeholder="Introduzca el nuevo capital"
-                                      {...field}
-                                      onChange={e => field.onChange(e.target.valueAsNumber || 0)}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            {impuesto !== null && (
-                                <div className="md:col-span-2 mt-6 space-y-2 text-lg">
-                                    <div>
-                                      <span className="font-medium">Diferencia: </span>
-                                      <span className="font-semibold">{formatCurrency(diferencia)}</span>
+            <motion.div variants={cardVariants} initial="visible" animate="visible">
+                <Card>
+                    <Form {...capitalForm}>
+                        <form onSubmit={capitalForm.handleSubmit(handleCalculate)}>
+                            <CardHeader>
+                                <CardTitle>Datos del Capital Social</CardTitle>
+                            </CardHeader>
+                            <CardContent className="grid md:grid-cols-2 gap-6">
+                                <FormField
+                                  control={capitalForm.control}
+                                  name="capitalAnterior"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Capital Social Autorizado Anterior</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          placeholder="Introduzca el capital anterior"
+                                          {...field}
+                                          onChange={e => field.onChange(e.target.valueAsNumber || 0)}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={capitalForm.control}
+                                  name="capitalNuevo"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Nuevo Capital Social Autorizado</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          placeholder="Introduzca el nuevo capital"
+                                          {...field}
+                                          onChange={e => field.onChange(e.target.valueAsNumber || 0)}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                {impuesto !== null && (
+                                    <div className="md:col-span-2 mt-6 space-y-2 text-lg">
+                                        <div>
+                                          <span className="font-medium">Diferencia: </span>
+                                          <span className="font-semibold">{formatCurrency(diferencia)}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-medium">Monto a pagar (1%): </span>
+                                          <span className="font-bold text-primary">{formatCurrency(impuesto)}</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                      <span className="font-medium">Monto a pagar (1%): </span>
-                                      <span className="font-bold text-primary">{formatCurrency(impuesto)}</span>
-                                    </div>
-                                </div>
-                            )}
-                        </CardContent>
-                        <CardFooter className="gap-2">
-                             <Button type="button" variant="outline" onClick={handleClear}>Limpiar</Button>
-                             <Button type="submit">Calcular</Button>
-                        </CardFooter>
-                    </form>
-                </Form>
-                 {impuesto !== null && step === 1 && (
-                    <div className="p-6 pt-0 border-t mt-4">
-                        <Button className="mt-6 w-full md:w-auto" onClick={() => setStep(2)}>
-                            Generar Autorización <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </div>
-                )}
-            </Card>
+                                )}
+                            </CardContent>
+                            <CardFooter className="gap-2">
+                                <Button type="button" variant="outline" onClick={handleClear}>Limpiar</Button>
+                                <Button type="submit">Calcular</Button>
+                            </CardFooter>
+                        </form>
+                    </Form>
+                    {impuesto !== null && step === 1 && (
+                        <div className="p-6 pt-0 border-t mt-4">
+                            <Button className="mt-6 w-full md:w-auto" onClick={() => setStep(2)}>
+                                Generar Autorización <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </Card>
+            </motion.div>
 
             <AnimatePresence>
             {step >= 2 && (
