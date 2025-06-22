@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,6 +22,7 @@ import type { TeamMember } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TEAM_ROLES } from '@/lib/constants';
 import { Progress } from '@/components/ui/progress';
+import { useSearchParams } from 'next/navigation';
 
 type FormValues = z.infer<typeof TeamMemberSchema>;
 type InviteFormValues = z.infer<typeof InviteTeamMemberSchema>;
@@ -31,12 +32,20 @@ export default function ManageTeamPage() {
   const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const searchParams = useSearchParams();
 
   const planLimits = {
     'Gratis': 1,
     'Pro': 5,
     'Despacho': Infinity
   };
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'create') {
+        handleOpenDialog(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const currentMemberCount = 1 + teamMembers.filter(m => m.ownerId === currentUser.id).length;
   const memberLimit = planLimits[currentUser.plan];

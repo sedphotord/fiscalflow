@@ -19,6 +19,7 @@ import {
   CalendarClock,
   UserPlus,
   FilePlus2,
+  FileEdit,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -126,6 +127,12 @@ export function Header() {
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => router.push('/dashboard/contribuyentes?action=create')}>
               <UserPlus /> Contribuyente
+            </DropdownMenuItem>
+             <DropdownMenuItem onSelect={() => router.push('/dashboard/settings/team?action=create')}>
+              <UserPlus /> Miembro de Equipo
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => router.push('/dashboard/forms?action=create')}>
+              <FileEdit /> Formulario Personalizado
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
