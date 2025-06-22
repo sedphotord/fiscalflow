@@ -252,7 +252,7 @@ export const CompanyProfileSchema = z.object({
     message: 'El RNC/Cédula debe ser numérico y tener 9 u 11 dígitos.',
   }),
   commercialName: z.string().optional(),
-  phone: z.string().optional(),
+  phone: z.string().min(1, "El teléfono es requerido."),
   email: z.string().email("Correo inválido."),
   website: z.string().url("URL inválida.").optional().or(z.literal('')),
   addressStreet: z.string().optional(),
@@ -261,5 +261,5 @@ export const CompanyProfileSchema = z.object({
   regime: z.string().optional(),
   sector: z.string().optional(),
   employeeCount: z.string().optional(),
-  currency: z.string().optional(),
+  currency: z.string().min(1, "La moneda es requerida."),
 });

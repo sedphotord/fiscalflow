@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,6 +15,8 @@ import Image from 'next/image';
 import { Pencil, Save, X, Upload } from 'lucide-react';
 import { CompanyProfileSchema } from '@/lib/schemas';
 import type { User } from '@/lib/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PROVINCES, CITIES_BY_PROVINCE, TAX_REGIMES, BUSINESS_SECTORS, EMPLOYEE_COUNTS, CURRENCIES } from '@/lib/constants';
 
 type FormValues = z.infer<typeof CompanyProfileSchema>;
 
@@ -40,6 +42,27 @@ export default function EmpresaPage() {
       currency: currentUser.currency || '',
     },
   });
+
+  const provinceValue = form.watch('addressProvince');
+  const [cities, setCities] = useState<string[]>([]);
+  
+  useEffect(() => {
+      const initialProvince = form.getValues('addressProvince');
+      if (initialProvince && CITIES_BY_PROVINCE[initialProvince]) {
+          setCities(CITIES_BY_PROVINCE[initialProvince]);
+      }
+  }, [form]);
+
+  useEffect(() => {
+      if (provinceValue) {
+          setCities(CITIES_BY_PROVINCE[provinceValue] || []);
+          if (isEditing) {
+              form.setValue('addressCity', ''); // Reset city on province change only in edit mode
+          }
+      } else {
+          setCities([]);
+      }
+  }, [provinceValue, form, isEditing]);
   
   const onSubmit = (data: FormValues) => {
     const updatedUserData: Partial<User> = {
@@ -138,14 +161,48 @@ export default function EmpresaPage() {
                 </Card>
 
                 <Card>
-                <CardHeader>
-                    <CardTitle>Dirección</CardTitle>
-                </CardHeader>
-                <CardContent className="grid md:grid-cols-2 gap-x-8 gap-y-6">
-                    <FormField control={form.control} name="addressStreet" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Dirección</FormLabel><FormControl><Input {...field} disabled={!isEditing} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="addressCity" render={({ field }) => (<FormItem><FormLabel>Municipio</FormLabel><FormControl><Input {...field} disabled={!isEditing} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="addressProvince" render={({ field }) => (<FormItem><FormLabel>Provincia</FormLabel><FormControl><Input {...field} disabled={!isEditing} /></FormControl><FormMessage /></FormItem>)} />
-                </CardContent>
+                    <CardHeader>
+                        <CardTitle>Dirección</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid md:grid-cols-2 gap-x-8 gap-y-6">
+                        <FormField control={form.control} name="addressStreet" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Dirección</FormLabel><FormControl><Input {...field} disabled={!isEditing} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="addressProvince" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Provincia</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value || ''} disabled={!isEditing}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Seleccione una provincia" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {PROVINCES.map(province => (
+                                            <SelectItem key={province} value={province}>{province}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                        <FormField control={form.control} name="addressCity" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Municipio</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value || ''} disabled={!isEditing || !provinceValue || cities.length === 0}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={!provinceValue ? "Seleccione una provincia primero" : "Seleccione un municipio"} />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {cities.map(city => (
+                                            <SelectItem key={city} value={city}>{city}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    </CardContent>
                 </Card>
 
                 <Card>
@@ -153,10 +210,46 @@ export default function EmpresaPage() {
                     <CardTitle>Información básica</CardTitle>
                 </CardHeader>
                 <CardContent className="grid md:grid-cols-2 gap-x-8 gap-y-6">
-                    <FormField control={form.control} name="regime" render={({ field }) => (<FormItem><FormLabel>Régimen</FormLabel><FormControl><Input {...field} disabled={!isEditing} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="sector" render={({ field }) => (<FormItem><FormLabel>Sector</FormLabel><FormControl><Input {...field} disabled={!isEditing} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="employeeCount" render={({ field }) => (<FormItem><FormLabel>Número de empleados</FormLabel><FormControl><Input {...field} disabled={!isEditing} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="currency" render={({ field }) => (<FormItem><FormLabel>Moneda *</FormLabel><FormControl><Input {...field} disabled={!isEditing} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="regime" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Régimen</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value || ''} disabled={!isEditing}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Seleccione un régimen" /></SelectTrigger></FormControl>
+                                <SelectContent>{TAX_REGIMES.map(item => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name="sector" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Sector</FormLabel>
+                             <Select onValueChange={field.onChange} value={field.value || ''} disabled={!isEditing}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Seleccione un sector" /></SelectTrigger></FormControl>
+                                <SelectContent>{BUSINESS_SECTORS.map(item => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name="employeeCount" render={({ field }) => (
+                         <FormItem>
+                            <FormLabel>Número de empleados</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value || ''} disabled={!isEditing}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Seleccione un rango" /></SelectTrigger></FormControl>
+                                <SelectContent>{EMPLOYEE_COUNTS.map(item => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name="currency" render={({ field }) => (
+                         <FormItem>
+                            <FormLabel>Moneda *</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value || ''} disabled={!isEditing}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Seleccione una moneda" /></SelectTrigger></FormControl>
+                                <SelectContent>{CURRENCIES.map(item => <SelectItem key={item.code} value={item.name}>{item.name} ({item.code})</SelectItem>)}</SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
                 </CardContent>
                 </Card>
             </div>
