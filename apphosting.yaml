@@ -14,10 +14,10 @@ env:
       - BUILD                 # Disponible durante el proceso de construcción
       - RUNTIME              # Disponible en tiempo de ejecución
 
-  - variable: API_KEY
-    secret: projects/421206740920/secrets/myApiKeySecret
-    availability:
-      - RUNTIME
+  # - variable: API_KEY
+  #   secret: projects/421206740920/secrets/myApiKeySecret
+  #   availability:
+  #     - RUNTIME
 
   # - variable: PINNED_API_KEY
   #   secret: myApiKeySecret@5 # Se refiere a la versión 5 del secreto
