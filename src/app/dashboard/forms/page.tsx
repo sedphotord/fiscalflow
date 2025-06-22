@@ -107,7 +107,10 @@ export default function ManageUserFormsPage() {
     if (editingForm) {
       updateFormDefinition(editingForm.id, finalData);
     } else {
-      createFormDefinition(finalData);
+      createFormDefinition({
+        ...finalData,
+        fields: finalData.fields || [],
+      });
     }
     setIsDialogOpen(false);
   };
@@ -249,7 +252,7 @@ export default function ManageUserFormsPage() {
                                   field.onChange(value);
                                 }
                               }}
-                              value={field.value}
+                              value={isAddingNewCategory ? '--add-new--' : field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
