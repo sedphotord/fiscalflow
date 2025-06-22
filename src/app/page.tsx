@@ -12,6 +12,8 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 
 export default function LandingPage() {
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
@@ -431,25 +433,27 @@ export default function LandingPage() {
                           </p>
                       </div>
                   </div>
+                  
+                  {/* Desktop View */}
                   <motion.div 
-                      className="mx-auto max-w-7xl overflow-x-auto"
+                      className="hidden md:block mx-auto max-w-7xl overflow-x-auto"
                       variants={itemVariants}
                   >
                       <div className="grid grid-cols-[minmax(200px,_1fr)_repeat(3,_minmax(150px,_1fr))] gap-x-4 gap-y-6">
                           {/* Headers */}
-                          <div className="font-bold text-lg sticky top-0">Características</div>
-                          <div className="text-center sticky top-0">
+                          <div className="font-bold text-lg sticky top-16 bg-background py-2">Características</div>
+                          <div className="text-center sticky top-16 bg-background py-2">
                               <h3 className="font-bold text-lg">Gratis</h3>
                               <p className="text-2xl font-bold">RD$ 0</p>
                               <p className="text-sm text-muted-foreground">/mes</p>
                           </div>
-                          <div className="text-center sticky top-0 rounded-lg p-2 border-2 border-primary relative">
+                          <div className="text-center sticky top-16 bg-background py-2 rounded-lg p-2 border-2 border-primary relative">
                               <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Más Popular</Badge>
                               <h3 className="font-bold text-lg text-primary">Pro</h3>
                               <p className="text-2xl font-bold">RD$ 2,500</p>
                               <p className="text-sm text-muted-foreground">/mes</p>
                           </div>
-                          <div className="text-center sticky top-0">
+                          <div className="text-center sticky top-16 bg-background py-2">
                               <h3 className="font-bold text-lg">Despacho</h3>
                               <p className="text-2xl font-bold">RD$ 6,500</p>
                               <p className="text-sm text-muted-foreground">/mes</p>
@@ -485,6 +489,87 @@ export default function LandingPage() {
                       </div>
                   </motion.div>
                   
+                  {/* Mobile View */}
+                  <motion.div
+                    className="md:hidden"
+                    variants={itemVariants}
+                  >
+                    <Tabs defaultValue="pro" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="gratis">Gratis</TabsTrigger>
+                        <TabsTrigger value="pro">Pro</TabsTrigger>
+                        <TabsTrigger value="despacho">Despacho</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="gratis" className="mt-6">
+                        <Card>
+                          <CardHeader className="text-center">
+                            <CardTitle>Gratis</CardTitle>
+                            <p className="text-4xl font-bold">RD$ 0<span className="text-lg font-normal text-muted-foreground">/mes</span></p>
+                          </CardHeader>
+                          <CardContent>
+                            <ul className="space-y-4">
+                              {pricingFeatures.map(feature => (
+                                <li key={feature.name} className="flex items-center gap-3">
+                                  <div className="w-6">{renderPricingFeature(feature.gratis)}</div>
+                                  <span className="flex-1 text-left">{feature.name}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                          <CardFooter>
+                            <Button asChild className="w-full" variant="outline"><Link href="/signup">Comenzar Gratis</Link></Button>
+                          </CardFooter>
+                        </Card>
+                      </TabsContent>
+
+                      <TabsContent value="pro" className="mt-6">
+                         <Card className="border-primary border-2">
+                          <CardHeader className="text-center">
+                            <Badge className="w-fit mx-auto mb-2">Más Popular</Badge>
+                            <CardTitle className="text-primary">Pro</CardTitle>
+                            <p className="text-4xl font-bold">RD$ 2,500<span className="text-lg font-normal text-muted-foreground">/mes</span></p>
+                          </CardHeader>
+                          <CardContent>
+                            <ul className="space-y-4">
+                              {pricingFeatures.map(feature => (
+                                <li key={feature.name} className="flex items-center gap-3">
+                                   <div className="w-6">{renderPricingFeature(feature.pro)}</div>
+                                   <span className="flex-1 text-left">{feature.name}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                          <CardFooter>
+                            <Button asChild className="w-full"><Link href="/signup">Elegir Pro</Link></Button>
+                          </CardFooter>
+                        </Card>
+                      </TabsContent>
+
+                      <TabsContent value="despacho" className="mt-6">
+                         <Card>
+                          <CardHeader className="text-center">
+                            <CardTitle>Despacho</CardTitle>
+                            <p className="text-4xl font-bold">RD$ 6,500<span className="text-lg font-normal text-muted-foreground">/mes</span></p>
+                          </CardHeader>
+                          <CardContent>
+                            <ul className="space-y-4">
+                              {pricingFeatures.map(feature => (
+                                <li key={feature.name} className="flex items-center gap-3">
+                                  <div className="w-6">{renderPricingFeature(feature.despacho)}</div>
+                                  <span className="flex-1 text-left">{feature.name}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                          <CardFooter>
+                            <Button asChild className="w-full" variant="outline"><Link href="#">Contactar Ventas</Link></Button>
+                          </CardFooter>
+                        </Card>
+                      </TabsContent>
+                    </Tabs>
+                  </motion.div>
+
                   <div className="mt-20">
                       <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                           <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl">¿Te quedaste sin facturas?</h3>
