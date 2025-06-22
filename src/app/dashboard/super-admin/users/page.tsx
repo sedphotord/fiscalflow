@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -40,10 +40,17 @@ export default function AdminUsersPage() {
   const [isBatchCreateOpen, setIsBatchCreateOpen] = useState(false);
   const [isInviteMemberOpen, setIsInviteMemberOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+  
+  useEffect(() => {
+    if (searchParams.get('action') === 'create') {
+      setIsCreateUserOpen(true);
+    }
+  }, [searchParams]);
 
   
   const createUserForm = useForm<CreateUserFormValues>({ 

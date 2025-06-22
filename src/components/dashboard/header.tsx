@@ -17,6 +17,8 @@ import {
   CheckCircle,
   FileWarning,
   CalendarClock,
+  UserPlus,
+  FilePlus2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -116,14 +118,14 @@ export function Header() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Crear Nuevo</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/compras/new">Reporte 606 (Compras)</Link>
+            <DropdownMenuItem onSelect={() => router.push('/dashboard/compras/new')}>
+              <FilePlus2 /> Reporte 606 (Compras)
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/ventas/new">Reporte 607 (Ventas)</Link>
+             <DropdownMenuItem onSelect={() => router.push('/dashboard/ventas/new')}>
+              <FilePlus2 /> Reporte 607 (Ventas)
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/settings/companies">Contribuyente</Link>
+            <DropdownMenuItem onSelect={() => router.push('/dashboard/contribuyentes?action=create')}>
+              <UserPlus /> Contribuyente
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

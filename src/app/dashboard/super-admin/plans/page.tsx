@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ALL_PLAN_FEATURES } from '@/lib/constants';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormDescription } from '@/components/ui/form';
+import { useSearchParams } from 'next/navigation';
 
 type PlanFormValues = z.infer<typeof PlanSchema>;
 type InvoicePackFormValues = z.infer<typeof InvoicePackSchema>;
@@ -36,6 +38,14 @@ export default function ManagePlansPage() {
 
   const [allFeatures, setAllFeatures] = useState(ALL_PLAN_FEATURES);
   const [newFeature, setNewFeature] = useState('');
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'create') {
+      handleOpenPlanDialog();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const planForm = useForm<PlanFormValues>({
     resolver: zodResolver(PlanSchema),

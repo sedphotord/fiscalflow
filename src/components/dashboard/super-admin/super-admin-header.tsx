@@ -12,6 +12,9 @@ import {
   Search,
   UserPlus,
   CreditCard,
+  PlusCircle,
+  Tags,
+  FilePlus2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,7 +56,7 @@ export function SuperAdminHeader() {
           <SuperAdminSidebar onLinkClick={() => setIsSheetOpen(false)} />
         </SheetContent>
       </Sheet>
-       <div className="w-full flex-1">
+       <div className="flex w-full flex-1 items-center justify-center gap-2">
         <Popover>
           <PopoverTrigger asChild>
              <div className="relative w-full max-w-sm cursor-pointer">
@@ -105,6 +108,27 @@ export function SuperAdminHeader() {
             </div>
           </PopoverContent>
         </Popover>
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                <PlusCircle className="h-5 w-5" />
+                <span className="sr-only">Añadir Nuevo</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Crear Nuevo</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => router.push('/dashboard/super-admin/users?action=create')}>
+                    <UserPlus /> Usuario
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => router.push('/dashboard/super-admin/plans?action=create')}>
+                    <Tags /> Plan de Suscripción
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => router.push('/dashboard/super-admin/content/forms?action=create')}>
+                    <FilePlus2 /> Formulario Fiscal
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

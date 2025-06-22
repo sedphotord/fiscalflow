@@ -25,6 +25,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useSearchParams } from 'next/navigation';
 
 type FormValues = z.infer<typeof CompanySchema>;
 
@@ -47,10 +48,18 @@ export default function ContribuyentesPage() {
   
   // Client-side rendering state
   const [isClient, setIsClient] = useState(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'create') {
+      handleOpenDialog();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(CompanySchema),

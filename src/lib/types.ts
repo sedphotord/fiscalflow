@@ -1,5 +1,6 @@
 
 
+
 import { type z } from 'zod';
 import { type Form606Schema, type Form607Schema, type Form608Schema, type Form609Schema, type AdminCreateUserSchema, type PlanSchema, type InvoicePackSchema, type TeamMemberSchema, FormDefinitionSchema, FormFieldDefinitionSchema } from './schemas';
 import { type toast } from '@/hooks/use-toast';
@@ -117,6 +118,7 @@ export type FormDefinitionStatus = 'Disponible' | 'En Desarrollo' | 'Desactivado
 
 export type FormDefinition = z.infer<typeof FormDefinitionSchema> & {
   id: string;
+  ownerId?: 'system' | string;
   lastUpdatedAt: string;
   fields: FormFieldDefinition[];
 };
