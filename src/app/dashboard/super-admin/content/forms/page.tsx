@@ -119,7 +119,10 @@ export default function ManageFormsPage() {
     if (editingForm) {
       updateFormDefinition(editingForm.id, finalData);
     } else {
-      createFormDefinition(finalData);
+      createFormDefinition({
+        ...finalData,
+        fields: finalData.fields || [],
+      });
     }
     setIsDialogOpen(false);
   };
