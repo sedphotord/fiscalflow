@@ -1,14 +1,23 @@
 
 'use client';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/dashboard/page-header';
-import { ReportTable } from '@/components/dashboard/report-table';
+import { ReportTableSkeleton } from '@/components/dashboard/report-table-skeleton';
 import { FilePlus2, Plug } from 'lucide-react';
 import { useAppContext } from '@/context/app-provider';
 import { useMemo } from 'react';
 import { CtaBanner } from '@/components/dashboard/cta-banner';
+
+const ReportTable = dynamic(
+  () => import('@/components/dashboard/report-table').then((mod) => mod.ReportTable),
+  { 
+    ssr: false,
+    loading: () => <ReportTableSkeleton />,
+  }
+);
 
 export default function VentasPage() {
   const { reports } = useAppContext();

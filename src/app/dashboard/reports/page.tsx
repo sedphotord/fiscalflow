@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { PageHeader } from '@/components/dashboard/page-header';
-import { ReportTable } from '@/components/dashboard/report-table';
 import { useAppContext } from '@/context/app-provider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { ReportTableSkeleton } from '@/components/dashboard/report-table-skeleton';
+
+const ReportTable = dynamic(
+  () => import('@/components/dashboard/report-table').then((mod) => mod.ReportTable),
+  { 
+    ssr: false,
+    loading: () => <ReportTableSkeleton />,
+  }
+);
 
 export default function AllReportsPage() {
   const { reports } = useAppContext();
