@@ -6,17 +6,29 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Logo } from '@/components/logo';
-import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook, BarChartHorizontal, Users, Bell, XCircle, Cloud, Headset, Sparkles, UploadCloud, Bot, FileCheck2, UserCheck } from 'lucide-react';
+import { CheckCircle, FileText, ScanLine, ShieldCheck, Copy, CalendarDays, FileEdit, Lock, ArrowRight, Twitter, Linkedin, Facebook, BarChartHorizontal, Users, Bell, XCircle, Cloud, Headset, Sparkles, UploadCloud, Bot, FileCheck2, UserCheck, Sun, Moon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAppContext } from '@/context/app-provider';
 
 
 export default function LandingPage() {
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
+  const { theme, setTheme } = useAppContext();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
 
   const sectionVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -203,6 +215,12 @@ export default function LandingPage() {
               <Link href="/login" className="text-sm font-medium hover:underline underline-offset-4">
                 Iniciar Sesión
               </Link>
+               {mounted && (
+                <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                  {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  <span className="sr-only">Toggle theme</span>
+                </Button>
+              )}
               <Link href="/signup">
                 <Button>Registrarse</Button>
               </Link>
@@ -643,6 +661,9 @@ export default function LandingPage() {
               <p className="text-sm text-muted-foreground">
                 Simplificando la contabilidad fiscal en República Dominicana.
               </p>
+               <Link href="mailto:contacto@fiscalflow.app" className="text-sm text-primary hover:underline">
+                contacto@fiscalflow.app
+              </Link>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm md:col-span-2 md:grid-cols-4">
               <div className="grid gap-1">
@@ -651,12 +672,14 @@ export default function LandingPage() {
                 <Link href="#how-it-works" className="hover:underline">Cómo Funciona</Link>
                 <Link href="#pricing" className="hover:underline">Planes</Link>
                 <Link href="#faq" className="hover:underline">FAQ</Link>
+                <Link href="#" className="hover:underline">Blog</Link>
               </div>
               <div className="grid gap-1">
                 <h3 className="font-semibold">Compañía</h3>
                 <Link href="#" className="hover:underline">Sobre Nosotros</Link>
                 <Link href="#" className="hover:underline">Carreras</Link>
-                <Link href="#" className="hover:underline">Contacto</Link>
+                 <Link href="#" className="hover:underline">Prensa</Link>
+                <Link href="#faq" className="hover:underline">Contacto</Link>
               </div>
               <div className="grid gap-1">
                 <h3 className="font-semibold">Legal</h3>
@@ -675,7 +698,7 @@ export default function LandingPage() {
           </div>
           <div className="border-t py-6">
             <p className="container px-4 text-center text-xs text-muted-foreground md:px-6">
-              &copy; 2024 FiscalFlow. Todos los derechos reservados.
+              &copy; 2025 FiscalFlow. Todos los derechos reservados.
             </p>
           </div>
         </footer>
